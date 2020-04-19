@@ -15,5 +15,7 @@ let _ =
   let lexbuf = Lexing.from_channel in_chan in
   lexbuf.lex_curr_p <- {lexbuf.lex_curr_p with pos_fname= "test"} ;
   let ast = parse_with_error lexbuf in
+  let type_ = Infer.infer ast [] in
   print_string (Syntax.show_term ast ^ "\n") ;
+  print_string (Typedef.show_snail_type type_ ^ "\n") ;
   close_in in_chan
