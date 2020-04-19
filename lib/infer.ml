@@ -5,6 +5,8 @@ type subst = (tyvar * snail_type) list
 
 type context = (string * scheme) list
 
+let empty_context = []
+
 let rec get_unique_tyvar typ =
   match typ with
   | TyVar (Tyvar n) ->
