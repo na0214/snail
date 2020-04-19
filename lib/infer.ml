@@ -131,6 +131,17 @@ let rec infer term typ (ctx : context) sb =
       let sc = find_context name ctx in
       let typ1 = fresh_inst sc sb in
       unify typ1 typ sb
+  | App (sub_term1, sub_term2) ->
+      let a = new_tyvar sb in
+      infer sub_term1 (a @-> typ) ctx sb ;
+      infer sub_term2 a ctx sb
+  | Let (name, sub_term1, sub_term2, _) ->
+      let a = new_tyvar sb in
+      infer sub_term1 a ctx sb ;
+      let new_ctx =
+        (name, quantification (apply_subst (get_subst sb) a) ctx) :: ctx
+      in
+      infer sub_term2 typ new_ctx sb
   | _ ->
       TypeError "inference error" |> raise
 
