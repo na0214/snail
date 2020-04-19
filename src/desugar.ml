@@ -5,8 +5,8 @@ let make_lambda args term pos =
 
 let let_expr_to_unary_function term =
   match term with
-  | Let (name, args, sub_term1, sub_term2, pos) ->
-      Let (name, args, make_lambda args sub_term1 pos, sub_term2, pos)
+  | Let (name, _, args, sub_term1, sub_term2, pos) ->
+      Let (name, "", args, make_lambda args sub_term1 pos, sub_term2, pos)
   | _ ->
       term
 

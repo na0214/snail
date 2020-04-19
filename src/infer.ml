@@ -137,7 +137,7 @@ let rec infer term typ (ctx : context) sb =
       let a = new_tyvar sb in
       infer sub_term1 (a @-> typ) ctx sb ;
       infer sub_term2 a ctx sb
-  | Let (name, _, sub_term1, sub_term2, _) ->
+  | Let (name, _, _, sub_term1, sub_term2, _) ->
       let a = new_tyvar sb in
       infer sub_term1 a ctx sb ;
       let new_ctx =

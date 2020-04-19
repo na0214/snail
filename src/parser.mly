@@ -49,7 +49,7 @@ term:
   }
   | LET name = VAR arguments = list(argument) EQUAL e1 = term IN e2 = term
   {
-    Let(fst name,arguments,e1,e2,$1)
+    Let(fst name,"",arguments,e1,e2,$1)
   }
   | FUN arguments = list(argument) ARROW e = term
   {

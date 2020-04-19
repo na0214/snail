@@ -6,7 +6,7 @@ type pos_info = {pos_fname: string; pos_lnum: int; pos_bol: int; pos_cnum: int}
 type argument = string [@@deriving show]
 
 type term =
-  | Let of string * argument list * term * term * pos_info
+  | Let of string * string * argument list * term * term * pos_info
   | Fun of argument list * term * pos_info
   | App of term * term
   | IntLit of int * pos_info
@@ -31,7 +31,7 @@ let translate_lexbuf_to_pos_info (pos : Lexing.position) : pos_info =
 
 let rec get_pos_info_term t =
   match t with
-  | Let (_, _, _, _, p) ->
+  | Let (_, _, _, _, _, p) ->
       p
   | Fun (_, _, p) ->
       p

@@ -1,6 +1,5 @@
-let toplevel_function f =
-  let x = 3 in f x
+let topfunc f = fun x -> f x
 
-let fn = toplevel_function (fun x -> x)
+let f1 = topfunc (fun x -> x)
 
-let fn2 = (fun x -> x) fn
+let f2 = f1 2
