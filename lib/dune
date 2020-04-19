@@ -1,3 +1,0 @@
-(menhir (modules parser))
-(ocamllex lexer)
-(library (name lib) (libraries core extlib) (preprocess (pps ppx_deriving.show)))

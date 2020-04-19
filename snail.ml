@@ -1,4 +1,4 @@
-open Lib
+open Src
 
 let parse_with_error lexbuf =
   try Parser.snail_parse Lexer.token lexbuf with
