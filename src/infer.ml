@@ -5,8 +5,6 @@ type subst = (tyvar * snail_type) list
 
 type context = (string * scheme) list [@@deriving show]
 
-let empty_context = []
-
 let rec get_unique_tyvar typ =
   match typ with
   | TyVar (Tyvar n) ->
@@ -115,7 +113,9 @@ let fresh_inst sc sb =
       in
       instantiate t new_tyvar_list
 
-let rec infer term typ (ctx : context) sb =
+let add_local_let_context local name typ = local := (name, typ) :: !local
+
+let rec infer term typ (ctx : context) sb (local : local_let_context) =
   match term with
   | IntLit (_, _) ->
       unify (TyCons (Tycon "Int")) typ sb
@@ -128,38 +128,49 @@ let rec infer term typ (ctx : context) sb =
       let b = new_tyvar sb in
       unify (a @-> b) typ sb ;
       let new_ctx = (name, Forall a) :: ctx in
-      infer sub_term b new_ctx sb
+      infer sub_term b new_ctx sb local
   | Var (name, _) ->
       let sc = find_context name ctx in
       let typ1 = fresh_inst sc sb in
       unify typ1 typ sb
   | App (sub_term1, sub_term2) ->
       let a = new_tyvar sb in
-      infer sub_term1 (a @-> typ) ctx sb ;
-      infer sub_term2 a ctx sb
-  | Let (name, _, _, sub_term1, sub_term2, _) ->
+      infer sub_term1 (a @-> typ) ctx sb local ;
+      infer sub_term2 a ctx sb local
+  | Let (name, unique_name, _, sub_term1, sub_term2, _) ->
       let a = new_tyvar sb in
-      infer sub_term1 a ctx sb ;
+      infer sub_term1 a ctx sb local ;
+      add_local_let_context local unique_name
+        (quantification (apply_subst (get_subst sb) a) ctx) ;
       let new_ctx =
         (name, quantification (apply_subst (get_subst sb) a) ctx) :: ctx
       in
-      infer sub_term2 typ new_ctx sb
+      infer sub_term2 typ new_ctx sb local
   | _ ->
       TypeError "inference error" |> raise
 
 let typeof term ctx =
   let sb = ref ([], 0) in
+  let local_let_ctx = ref [] in
   let result_t = new_tyvar sb in
-  infer term result_t ctx sb ;
-  apply_subst (get_subst sb) result_t
+  infer term result_t ctx sb local_let_ctx ;
+  (!local_let_ctx, apply_subst (get_subst sb) result_t)
 
-let typeof_toplevel toplevel ctx =
-  List.fold_left
-    (fun acc x ->
-      ( match x with
-      | LetDec (name, _, sub_term, _) ->
-          (name, Forall (typeof sub_term acc))
-      | _ ->
-          ("", Forall (TyCons (Tycon "None"))) )
-      :: acc)
-    ctx toplevel
+let default_context = []
+
+let typeof_toplevel toplevel =
+  let local_context = ref [] in
+  let new_ctx =
+    List.fold_left
+      (fun acc x ->
+        ( match x with
+        | LetDec (name, _, sub_term, _) ->
+            let typ = typeof sub_term acc in
+            local_context := !local_context @ fst typ ;
+            (name, Forall (snd typ))
+        | _ ->
+            ("", Forall (TyCons (Tycon "None"))) )
+        :: acc)
+      default_context toplevel
+  in
+  !local_context @ new_ctx

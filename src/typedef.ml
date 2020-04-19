@@ -16,3 +16,5 @@ exception TypeError of string
 let arrow_t = TyCons (Tycon "->")
 
 let ( @-> ) t1 t2 = TyApp (TyApp (arrow_t, t1), t2)
+
+type local_let_context = (string * scheme) list ref [@@deriving show]
