@@ -14,8 +14,8 @@ let _ =
   let in_chan = stdin in
   let lexbuf = Lexing.from_channel in_chan in
   lexbuf.lex_curr_p <- {lexbuf.lex_curr_p with pos_fname= "test"} ;
-  let ast = parse_with_error lexbuf in
-  let type_ = Infer.typeof ast Infer.empty_context in
-  print_string (Syntax.show_term ast ^ "\n") ;
-  print_string (Typedef.show_snail_type type_ ^ "\n") ;
+  let toplevel = parse_with_error lexbuf in
+  let desugared_ast = Desugar.desugar toplevel in
+  let ctx = Infer.typeof_toplevel desugared_ast Infer.empty_context in
+  print_string (Infer.show_context ctx ^ "\n") ;
   close_in in_chan

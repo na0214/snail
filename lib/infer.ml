@@ -3,7 +3,7 @@ open Typedef
 
 type subst = (tyvar * snail_type) list
 
-type context = (string * scheme) list
+type context = (string * scheme) list [@@deriving show]
 
 let empty_context = []
 
@@ -123,7 +123,7 @@ let rec infer term typ (ctx : context) sb =
       unify (TyCons (Tycon "Float")) typ sb
   | StringLit (_, _) ->
       unify (TyCons (Tycon "String")) typ sb
-  | Fun (name, sub_term, _) ->
+  | Fun ([name], sub_term, _) ->
       let a = new_tyvar sb in
       let b = new_tyvar sb in
       unify (a @-> b) typ sb ;
@@ -137,7 +137,7 @@ let rec infer term typ (ctx : context) sb =
       let a = new_tyvar sb in
       infer sub_term1 (a @-> typ) ctx sb ;
       infer sub_term2 a ctx sb
-  | Let (name, sub_term1, sub_term2, _) ->
+  | Let (name, _, sub_term1, sub_term2, _) ->
       let a = new_tyvar sb in
       infer sub_term1 a ctx sb ;
       let new_ctx =
@@ -152,3 +152,14 @@ let typeof term ctx =
   let result_t = new_tyvar sb in
   infer term result_t ctx sb ;
   apply_subst (get_subst sb) result_t
+
+let typeof_toplevel toplevel ctx =
+  List.fold_left
+    (fun acc x ->
+      ( match x with
+      | LetDec (name, _, sub_term, _) ->
+          (name, Forall (typeof sub_term acc))
+      | _ ->
+          ("", Forall (TyCons (Tycon "None"))) )
+      :: acc)
+    ctx toplevel

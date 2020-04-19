@@ -13,14 +13,29 @@
 
 %start snail_parse
 
-%type <Syntax.term> term simple_term snail_parse
+%type <Syntax.snail_AST> snail_parse
+%type <Syntax.toplevel> toplevel
+%type <Syntax.term> term simple_term
+%type <Syntax.argument> argument
 
 %%
 
 snail_parse:
-  | term EOF
+  | list(toplevel) EOF
   {
     $1
+  }
+
+toplevel:
+  | LET name = VAR arguments = list(argument) EQUAL t = term
+  {
+    LetDec(fst name,arguments,t,$1)
+  }
+
+argument:
+  | VAR
+  {
+    fst $1
   }
 
 term:
@@ -32,13 +47,13 @@ term:
   {
     App($1,$2)
   }
-  | LET name = VAR EQUAL e1 = term IN e2 = term
+  | LET name = VAR arguments = list(argument) EQUAL e1 = term IN e2 = term
   {
-    Let(fst name,e1,e2,$1)
+    Let(fst name,arguments,e1,e2,$1)
   }
-  | FUN name = VAR ARROW e = term
+  | FUN arguments = list(argument) ARROW e = term
   {
-    Fun(fst name,e,$1)
+    Fun(arguments,e,$1)
   }
 
 simple_term:
