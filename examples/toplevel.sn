@@ -1,0 +1,6 @@
+let toplevel_function f =
+  let x = 3 in f x
+
+let fn = toplevel_function (fun x -> x)
+
+let fn2 = (fun x -> x) fn
