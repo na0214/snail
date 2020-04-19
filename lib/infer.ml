@@ -116,16 +116,26 @@ let fresh_inst sc sb =
 let rec infer term typ (ctx : context) sb =
   match term with
   | IntLit (_, _) ->
-      TyCons (Tycon "Int")
+      unify (TyCons (Tycon "Int")) typ sb
   | FloatLit (_, _) ->
-      TyCons (Tycon "Float")
+      unify (TyCons (Tycon "Float")) typ sb
   | StringLit (_, _) ->
-      TyCons (Tycon "String")
+      unify (TyCons (Tycon "String")) typ sb
   | Fun (name, sub_term, _) ->
       let a = new_tyvar sb in
       let b = new_tyvar sb in
       unify (a @-> b) typ sb ;
       let new_ctx = (name, Forall a) :: ctx in
       infer sub_term b new_ctx sb
+  | Var (name, _) ->
+      let sc = find_context name ctx in
+      let typ1 = fresh_inst sc sb in
+      unify typ1 typ sb
   | _ ->
-      TyCons (Tycon "undefined")
+      TypeError "inference error" |> raise
+
+let typeof term ctx =
+  let sb = ref ([], 0) in
+  let result_t = new_tyvar sb in
+  infer term result_t ctx sb ;
+  apply_subst (get_subst sb) result_t
