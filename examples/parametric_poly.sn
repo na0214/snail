@@ -3,3 +3,16 @@ let f x = x
 let f1 = f 2
 let f2 = f "string"
 
+let highfn f = f 2
+
+let g = highfn (fun x -> x)
+
+let h x = highfn (fun a -> x)
+
+let i = h 2
+
+let m p =
+  let func x = x in
+    p (func 2) (func 3)
+
+let e = m (fun x -> fun y -> y)
