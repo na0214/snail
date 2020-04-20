@@ -7,3 +7,4 @@ SnailMLはシンプルな関数型言語になる予定です
 - unificationベースの型推論
 - parametric polymorphism
 - let式,無名関数,関数適用
+- インタプリタ形式での評価
