@@ -17,7 +17,6 @@ let _ =
   let toplevel = parse_with_error lexbuf in
   let desugared_ast = Desugar.desugar toplevel in
   let renamed_ast = Rename.rename_toplevel desugared_ast in
-  print_string (Syntax.show_snail_AST renamed_ast ^ "\n") ;
   let type_ctx = Infer.typeof_toplevel renamed_ast in
   print_string (Infer.show_context type_ctx ^ "\n") ;
   let result = Eval.eval renamed_ast in

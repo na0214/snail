@@ -57,6 +57,9 @@ and eval_term term eval_ctx =
       apply_term (eval_term sub_term1 eval_ctx) sub_term2 eval_ctx
   | Var (_, name, _) ->
       find_eval_context name eval_ctx
+  | Let (_, uname, _, sub_term1, sub_term2, _) ->
+      let sub_term_result = eval_term sub_term1 eval_ctx in
+      eval_term sub_term2 ((uname, sub_term_result) :: eval_ctx)
   | _ ->
       Eval_String "None"
 
