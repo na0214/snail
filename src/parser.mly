@@ -75,7 +75,7 @@ simple_term:
   }
   | VAR
   {
-    Var(fst $1,snd $1)
+    Var(fst $1,"",snd $1)
   }
   | CONS
   {

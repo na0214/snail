@@ -129,7 +129,7 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
       unify (a @-> b) typ sb ;
       let new_ctx = (name, Forall a) :: ctx in
       infer sub_term b new_ctx sb local
-  | Var (name, _) ->
+  | Var (name, _, _) ->
       let sc = find_context name ctx in
       let typ1 = fresh_inst sc sb in
       unify typ1 typ sb

@@ -4,6 +4,10 @@ open Syntax
 
 type count_state = (int * int) list ref
 
+type rename_context = (string * string) list
+
+exception RenameError of string
+
 let make_name name count depth =
   "__local__" ^ name ^ "_" ^ string_of_int depth ^ "_" ^ string_of_int count
 
@@ -14,23 +18,35 @@ let add_state depth state =
     state := (depth, now_count + 1) :: old_list
   with Not_found -> state := (depth, 0) :: !state
 
-let rec rename name_top term depth state =
+let find_rename_context name ctx =
+  try List.assoc name ctx
+  with Not_found -> raise (RenameError "rename failed")
+
+let rec rename name_top term depth state ctx =
   match term with
   | Let (name, _, argument, sub_term1, sub_term2, pos) ->
       add_state depth state ;
+      let unique_name = make_name name (List.assoc depth !state) depth in
       Let
         ( name
-        , make_name name (List.assoc depth !state) depth
+        , unique_name
         , argument
         , rename name_top sub_term1 (depth + 1) state
+            ((name, unique_name) :: ctx)
         , rename name_top sub_term2 (depth + 1) state
+            ((name, unique_name) :: ctx)
         , pos )
   | App (sub_term1, sub_term2) ->
       App
-        ( rename name_top sub_term1 depth state
-        , rename name_top sub_term2 depth state )
-  | Fun (argument, sub_term, pos) ->
-      Fun (argument, rename name_top sub_term depth state, pos)
+        ( rename name_top sub_term1 depth state ctx
+        , rename name_top sub_term2 depth state ctx )
+  | Fun ([argument], sub_term, pos) ->
+      Fun
+        ( [argument]
+        , rename name_top sub_term depth state ((argument, argument) :: ctx)
+        , pos )
+  | Var (name, _, pos) ->
+      Var (name, find_rename_context name ctx, pos)
   | t ->
       t
 
@@ -39,7 +55,7 @@ let rename_toplevel toplevel =
     (fun top ->
       match top with
       | LetDec (name, argument, term, pos_info) ->
-          LetDec (name, argument, rename name term 0 (ref []), pos_info)
+          LetDec (name, argument, rename name term 0 (ref []) [], pos_info)
       | t ->
           t)
     toplevel

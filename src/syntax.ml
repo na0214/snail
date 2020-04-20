@@ -12,7 +12,7 @@ type term =
   | IntLit of int * pos_info
   | FloatLit of float * pos_info
   | StringLit of string * pos_info
-  | Var of string * pos_info
+  | Var of string * string * pos_info
   | Cons of string * pos_info
 [@@deriving show]
 
@@ -43,7 +43,7 @@ let rec get_pos_info_term t =
       p
   | StringLit (_, p) ->
       p
-  | Var (_, p) ->
+  | Var (_, _, p) ->
       p
   | Cons (_, p) ->
       p
