@@ -1,5 +1,0 @@
-let topfunc f = fun x -> f x
-
-let f1 = topfunc (fun x -> x)
-
-let f2 = f1 2

@@ -10,8 +10,9 @@ let parse_with_error lexbuf =
       exit (-1)
 
 let _ =
-  (*let in_chan = open_in "examples/parametric.sn" in*)
-  let in_chan = stdin in
+  let in_chan =
+    if Array.length Sys.argv = 2 then open_in Sys.argv.(1) else stdin
+  in
   let lexbuf = Lexing.from_channel in_chan in
   lexbuf.lex_curr_p <- {lexbuf.lex_curr_p with pos_fname= "test"} ;
   let toplevel = parse_with_error lexbuf in

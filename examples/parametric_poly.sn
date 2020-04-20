@@ -1,0 +1,5 @@
+let f x = x
+
+let f1 = f 2
+let f2 = f "string"
+

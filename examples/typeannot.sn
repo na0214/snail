@@ -1,4 +1,0 @@
-let f (x : Int) (y : Int) : Int = x
-
-let f2 =
-  let g : Int -> Int = fun x -> x in g
