@@ -7,7 +7,7 @@ type argument = string [@@deriving show]
 
 type term =
   | Let of string * string * argument list * term * term * pos_info
-  | Fun of argument list * term * pos_info
+  | Fun of argument list * string * term * pos_info
   | App of term * term
   | IntLit of int * pos_info
   | FloatLit of float * pos_info
@@ -33,7 +33,7 @@ let rec get_pos_info_term t =
   match t with
   | Let (_, _, _, _, _, p) ->
       p
-  | Fun (_, _, p) ->
+  | Fun (_, _, _, p) ->
       p
   | App (t1, _) ->
       get_pos_info_term t1

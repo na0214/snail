@@ -40,10 +40,14 @@ let rec rename name_top term depth state ctx =
       App
         ( rename name_top sub_term1 depth state ctx
         , rename name_top sub_term2 depth state ctx )
-  | Fun ([argument], sub_term, pos) ->
+  | Fun ([argument], _, sub_term, pos) ->
+      add_state depth state ;
+      let unique_name = make_name argument (List.assoc depth !state) depth in
       Fun
         ( [argument]
-        , rename name_top sub_term depth state ((argument, argument) :: ctx)
+        , unique_name
+        , rename name_top sub_term (depth + 1) state
+            ((argument, unique_name) :: ctx)
         , pos )
   | Var (name, _, pos) ->
       Var (name, find_rename_context name ctx, pos)

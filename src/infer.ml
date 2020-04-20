@@ -123,7 +123,7 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
       unify (TyCons (Tycon "Float")) typ sb
   | StringLit (_, _) ->
       unify (TyCons (Tycon "String")) typ sb
-  | Fun ([name], sub_term, _) ->
+  | Fun ([name], _, sub_term, _) ->
       let a = new_tyvar sb in
       let b = new_tyvar sb in
       unify (a @-> b) typ sb ;

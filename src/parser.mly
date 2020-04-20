@@ -53,7 +53,7 @@ term:
   }
   | FUN arguments = list(argument) ARROW e = term
   {
-    Fun(arguments,e,$1)
+    Fun(arguments,"",e,$1)
   }
 
 simple_term:

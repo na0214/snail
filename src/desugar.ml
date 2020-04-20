@@ -1,7 +1,9 @@
 open Syntax
 
 let make_lambda args term pos =
-  List.fold_left (fun acc name -> Fun ([name], acc, pos)) term (List.rev args)
+  List.fold_left
+    (fun acc name -> Fun ([name], "", acc, pos))
+    term (List.rev args)
 
 let let_expr_to_unary_function term =
   match term with
