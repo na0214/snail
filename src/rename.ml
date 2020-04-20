@@ -19,8 +19,7 @@ let add_state depth state =
   with Not_found -> state := (depth, 0) :: !state
 
 let find_rename_context name ctx =
-  try List.assoc name ctx
-  with Not_found -> raise (RenameError "rename failed")
+  try List.assoc name ctx with Not_found -> name
 
 let rec rename name_top term depth state ctx =
   match term with

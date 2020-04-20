@@ -60,17 +60,13 @@ and eval_term term eval_ctx =
   | _ ->
       Eval_String "None"
 
-let eval toplevel =
-  let _ =
-    List.map
-      (fun top ->
-        match top with
-        | LetDec (_, _, term, _) ->
-            let result = eval_term term [] in
-            print_string (show_eval_object result ^ "\n") ;
-            result
-        | _ ->
-            Eval_String "")
-      toplevel
-  in
-  []
+let eval =
+  List.fold_left
+    (fun acc x ->
+      match x with
+      | LetDec (name, _, term, _) ->
+          let result = eval_term term acc in
+          (name, result) :: acc
+      | _ ->
+          [])
+    []

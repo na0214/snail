@@ -20,5 +20,6 @@ let _ =
   print_string (Syntax.show_snail_AST renamed_ast ^ "\n") ;
   let type_ctx = Infer.typeof_toplevel renamed_ast in
   print_string (Infer.show_context type_ctx ^ "\n") ;
-  let _ = Eval.eval renamed_ast in
+  let result = Eval.eval renamed_ast in
+  print_string (Eval.show_eval_context result ^ "\n") ;
   close_in in_chan
