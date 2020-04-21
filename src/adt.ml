@@ -11,8 +11,10 @@ let generate_tyvars_product tyvars =
         (TyVar (Tyvar h)) xs
 
 let generate_adt_type type_name tyvars typ =
-  Forall
-    (typ @-> TyApp (TyCons (Tycon type_name), generate_tyvars_product tyvars))
+  if List.length tyvars = 0 then Forall (typ @-> TyCons (Tycon type_name))
+  else
+    Forall
+      (typ @-> TyApp (TyCons (Tycon type_name), generate_tyvars_product tyvars))
 
 let generate_adt_context toplevel =
   List.fold_left

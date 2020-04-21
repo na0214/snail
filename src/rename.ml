@@ -49,6 +49,11 @@ let rec rename name_top term depth state ctx =
         , rename name_top sub_term (depth + 1) state
             ((argument, unique_name) :: ctx)
         , pos )
+  | Prod (sub_term1, sub_term2, pos) ->
+      Prod
+        ( rename name_top sub_term1 depth state ctx
+        , rename name_top sub_term2 depth state ctx
+        , pos )
   | Var (name, _, pos) ->
       Var (name, find_rename_context name ctx, pos)
   | t ->

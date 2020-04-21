@@ -1,8 +1,11 @@
-typedef List a = Nil | Cons of a  * (List a)
+typedef List a = Nil | Cons of a  * List a
 
 let nil = Nil
 
-let head l =
-  match l with
-  | Cons h xs -> h
-  end
+let list1 = Cons(1,nil)
+
+let add l x = Cons(x,l)
+
+let addi = add Nil 1
+
+let adds = add Nil "test"
