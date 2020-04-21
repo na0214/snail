@@ -162,11 +162,14 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
   | _ ->
       raise (TypeError "type error")
 
-let typeof _ term ctx =
+let typeof rec_flag name term ctx =
   let sb = ref ([], 0) in
   let local_let_ctx = ref [] in
   let result_t = new_tyvar sb in
-  infer term result_t ctx sb local_let_ctx ;
+  if rec_flag then
+    let b = new_tyvar sb in
+    infer term b ((name, Forall b) :: ctx) sb local_let_ctx
+  else infer term result_t ctx sb local_let_ctx ;
   (!local_let_ctx, apply_subst (get_subst sb) result_t)
 
 let default_context = []
@@ -178,7 +181,7 @@ let typeof_toplevel toplevel context =
       (fun acc x ->
         ( match x with
         | LetDec (rec_flag, name, _, sub_term, _) ->
-            let typ = typeof rec_flag sub_term acc in
+            let typ = typeof rec_flag name sub_term acc in
             local_context := !local_context @ fst typ ;
             (name, Forall (snd typ))
         | _ ->

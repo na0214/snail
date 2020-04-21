@@ -1,0 +1,7 @@
+typedef List a = Nil | Cons of a * List a
+
+let rec tail l =
+  match l with
+  | Cons(x,Nil) -> x
+  | Cons(x,xs) -> tail xs
+  end
