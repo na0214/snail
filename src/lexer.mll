@@ -57,6 +57,9 @@ rule token = parse
   | "rec" {REC(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "of" {OF(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "typedef" {TYPEDEF(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
+  | "match" {MATCH(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
+  | "with" {WITH(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
+  | "end" {END(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | cons {CONS(Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | var {VAR(Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | id {ID (Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}

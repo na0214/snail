@@ -9,6 +9,7 @@
 %token <string*Syntax.pos_info> ID CONS VAR
 %token <Syntax.pos_info> LPAREN RPAREN LBRAC RBRAC LCBRAC RCBRAC
 %token <Syntax.pos_info> LET FUN IN REC TYPEDEF OF ASTE OR
+%token <Syntax.pos_info> MATCH WITH END
 %token <Syntax.pos_info> EQUAL LESS GREAT PERIOD COMMA COLON SEMICOLON ARROW
 %token <Syntax.pos_info> EOF
 
@@ -83,8 +84,42 @@ argument:
     fst $1
   }
 
+pattern:
+  | simple_pattern
+  {
+    $1
+  }
+  | pattern simple_pattern
+  {
+    PatternApp($1,$2)
+  }
+
+simple_pattern:
+  | LPAREN e = pattern RPAREN
+  {
+    e
+  }
+  | LPAREN pattern COMMA pattern RPAREN
+  {
+    PatternProd($2,$4,$1)
+  }
+  | VAR
+  {
+    PatternVar(fst $1,"",snd $1)
+  }
+  | CONS
+  {
+    PatternCons(fst $1,snd $1)
+  }
+
+pattern_declare:
+  | pattern ARROW term
+  {
+    ($1,$3)
+  }
+
 term:
-  simple_term
+  | simple_term
   {
     $1
   }
@@ -99,6 +134,12 @@ term:
   | FUN arguments = list(argument) ARROW e = term
   {
     Fun(arguments,"",e,$1)
+  }
+  | MATCH 
+    t = term WITH 
+    pattern_dec = separated_list(OR,pattern_declare) END
+  {
+    Match (t,pattern_dec,$1)
   }
 
 simple_term:

@@ -48,6 +48,7 @@ let rec replace_variable name base_term term =
 let rec apply_term term1 term2 ctx =
   match term1 with
   | Eval_Func (argument, subterm) ->
+      print_string (show_term subterm ^ "\n") ;
       eval_term (replace_variable argument subterm term2) ctx
   | Eval_Cons cons_name ->
       Eval_Data (cons_name, eval_term term2 ctx)

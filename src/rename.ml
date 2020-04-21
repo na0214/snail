@@ -23,6 +23,8 @@ let find_rename_context name ctx =
 
 let rec rename name_top term depth state ctx =
   match term with
+  | Match (sub_term, pat_list, pos) ->
+      Match (rename name_top sub_term depth state ctx, pat_list, pos)
   | Let (rec_flag, name, _, argument, sub_term1, sub_term2, pos) ->
       add_state depth state ;
       let unique_name = make_name name (List.assoc depth !state) depth in

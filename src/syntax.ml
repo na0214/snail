@@ -10,8 +10,10 @@ type rec_flag = bool [@@deriving show]
 
 type pattern =
   | PatternCons of string * pos_info
-  | PatternVar of string * pos_info
+  | PatternVar of string * string * pos_info
   | PatternApp of pattern * pattern
+  | PatternProd of pattern * pattern * pos_info
+[@@deriving show]
 
 type term =
   | Let of rec_flag * string * string * argument list * term * term * pos_info
@@ -23,6 +25,7 @@ type term =
   | Var of string * string * pos_info
   | Cons of string * pos_info
   | Prod of term * term * pos_info
+  | Match of term * (pattern * term) list * pos_info
 [@@deriving show]
 
 exception SyntaxError of string
@@ -61,4 +64,6 @@ let rec get_pos_info_term t =
   | Cons (_, p) ->
       p
   | Prod (_, _, p) ->
+      p
+  | Match (_, _, p) ->
       p
