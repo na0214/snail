@@ -15,7 +15,9 @@ type pattern =
   | PatternProd of pattern * pattern * pos_info
 [@@deriving show]
 
-type term =
+type pattern_list = (pattern * term) list [@@deriving show]
+
+and term =
   | Let of rec_flag * string * string * argument list * term * term * pos_info
   | Fun of argument list * string * term * pos_info
   | App of term * term
@@ -25,7 +27,7 @@ type term =
   | Var of string * string * pos_info
   | Cons of string * pos_info
   | Prod of term * term * pos_info
-  | Match of term * (pattern * term) list * pos_info
+  | Match of term * pattern_list * pos_info
 [@@deriving show]
 
 exception SyntaxError of string
