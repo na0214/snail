@@ -16,9 +16,11 @@ let _ =
   let lexbuf = Lexing.from_channel in_chan in
   lexbuf.lex_curr_p <- {lexbuf.lex_curr_p with pos_fname= "test"} ;
   let toplevel = parse_with_error lexbuf in
+  print_string (Syntax.show_snail_AST toplevel ^ "\n") ;
   let desugared_ast = Desugar.desugar toplevel in
   let renamed_ast = Rename.rename_toplevel desugared_ast in
-  let type_ctx = Infer.typeof_toplevel renamed_ast in
+  let adt_context = Adt.generate_adt_context renamed_ast in
+  let type_ctx = Infer.typeof_toplevel renamed_ast adt_context in
   print_string (Infer.show_context type_ctx ^ "\n") ;
   let result = Eval.eval renamed_ast in
   print_string (Eval.show_eval_context result ^ "\n") ;

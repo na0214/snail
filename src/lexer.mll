@@ -49,6 +49,7 @@ rule token = parse
   | ":" {COLON(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | ";" {SEMICOLON(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "*" {ASTE(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
+  | "|" {OR(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "->" {ARROW(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "let" {LET(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "fun" {FUN(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}

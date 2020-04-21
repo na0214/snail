@@ -4,4 +4,4 @@ type subst
 
 val typeof : Syntax.term -> context -> context * Typedef.snail_type
 
-val typeof_toplevel : Syntax.snail_AST -> context
+val typeof_toplevel : Syntax.snail_AST -> context -> context

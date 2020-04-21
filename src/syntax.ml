@@ -1,4 +1,5 @@
 open Lexing
+open Typedef
 
 type pos_info = {pos_fname: string; pos_lnum: int; pos_bol: int; pos_cnum: int}
 [@@deriving show]
@@ -20,7 +21,11 @@ type term =
 
 exception SyntaxError of string
 
-type toplevel = LetDec of string * argument list * term * pos_info | Empty
+type value_cons = string * (snail_type option) [@@deriving show]
+
+type toplevel =
+  | LetDec of string * argument list * term * pos_info
+  | TypeDef of string * argument list * value_cons list * pos_info
 [@@deriving show]
 
 type snail_AST = toplevel list [@@deriving show]

@@ -148,6 +148,10 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
           (name, quantification (apply_subst (get_subst sb) a) ctx) :: ctx
         in
         infer sub_term2 typ new_ctx sb local )
+  | Cons (name, _) ->
+      let sc = find_context name ctx in
+      let typ1 = fresh_inst sc sb in
+      unify typ1 typ sb
   | _ ->
       TypeError "inference error" |> raise
 
@@ -160,7 +164,7 @@ let typeof term ctx =
 
 let default_context = []
 
-let typeof_toplevel toplevel =
+let typeof_toplevel toplevel context =
   let local_context = ref [] in
   let new_ctx =
     List.fold_left
@@ -173,6 +177,7 @@ let typeof_toplevel toplevel =
         | _ ->
             ("", Forall (TyCons (Tycon "None"))) )
         :: acc)
-      default_context toplevel
+      (context @ default_context)
+      toplevel
   in
   !local_context @ new_ctx
