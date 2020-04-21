@@ -166,11 +166,13 @@ let typeof rec_flag name term ctx =
   let sb = ref ([], 0) in
   let local_let_ctx = ref [] in
   let result_t = new_tyvar sb in
-  if rec_flag then
+  if rec_flag then (
     let b = new_tyvar sb in
-    infer term b ((name, Forall b) :: ctx) sb local_let_ctx
-  else infer term result_t ctx sb local_let_ctx ;
-  (!local_let_ctx, apply_subst (get_subst sb) result_t)
+    infer term b ((name, Forall b) :: ctx) sb local_let_ctx ;
+    (!local_let_ctx, apply_subst (get_subst sb) b) )
+  else (
+    infer term result_t ctx sb local_let_ctx ;
+    (!local_let_ctx, apply_subst (get_subst sb) result_t) )
 
 let default_context = []
 
