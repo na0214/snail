@@ -8,6 +8,11 @@ type argument = string [@@deriving show]
 
 type rec_flag = bool [@@deriving show]
 
+type pattern =
+  | PatternCons of string * pos_info
+  | PatternVar of string * pos_info
+  | PatternApp of pattern * pattern
+
 type term =
   | Let of rec_flag * string * string * argument list * term * term * pos_info
   | Fun of argument list * string * term * pos_info
