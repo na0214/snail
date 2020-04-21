@@ -106,6 +106,10 @@ simple_term:
   {
     e
   }
+  | LPAREN term COMMA term RPAREN
+  {
+    Prod($2,$4,$1)
+  }
   | INT
   {
     IntLit(fst $1,snd $1)

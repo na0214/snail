@@ -17,11 +17,12 @@ type term =
   | StringLit of string * pos_info
   | Var of string * string * pos_info
   | Cons of string * pos_info
+  | Prod of term * term * pos_info
 [@@deriving show]
 
 exception SyntaxError of string
 
-type value_cons = string * (snail_type option) [@@deriving show]
+type value_cons = string * snail_type option [@@deriving show]
 
 type toplevel =
   | LetDec of string * argument list * term * pos_info
@@ -53,4 +54,6 @@ let rec get_pos_info_term t =
   | Var (_, _, p) ->
       p
   | Cons (_, p) ->
+      p
+  | Prod (_, _, p) ->
       p

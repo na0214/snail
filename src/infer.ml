@@ -152,8 +152,14 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
       let sc = find_context name ctx in
       let typ1 = fresh_inst sc sb in
       unify typ1 typ sb
+  | Prod (sub_term1, sub_term2, _) ->
+      let a = new_tyvar sb in
+      let b = new_tyvar sb in
+      infer sub_term1 a ctx sb local ;
+      infer sub_term2 b ctx sb local ;
+      unify (a @*@ b) typ sb
   | _ ->
-      TypeError "inference error" |> raise
+      raise (TypeError "type error")
 
 let typeof term ctx =
   let sb = ref ([], 0) in
