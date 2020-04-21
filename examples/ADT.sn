@@ -1,0 +1,8 @@
+typedef List a = Nil | Cons of a  * (List a)
+
+let nil = Nil
+
+let head l =
+  match l with
+  | Cons h xs -> h
+  end

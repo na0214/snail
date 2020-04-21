@@ -7,8 +7,15 @@ let make_lambda args term pos =
 
 let let_expr_to_unary_function term =
   match term with
-  | Let (name, _, args, sub_term1, sub_term2, pos) ->
-      Let (name, "", args, make_lambda args sub_term1 pos, sub_term2, pos)
+  | Let (rec_flag, name, _, args, sub_term1, sub_term2, pos) ->
+      Let
+        ( rec_flag
+        , name
+        , ""
+        , args
+        , make_lambda args sub_term1 pos
+        , sub_term2
+        , pos )
   | _ ->
       term
 

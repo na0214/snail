@@ -137,15 +137,17 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
       let a = new_tyvar sb in
       infer sub_term1 (a @-> typ) ctx sb local ;
       infer sub_term2 a ctx sb local
-  | Let (name, unique_name, _, sub_term1, sub_term2, _) ->
+  | Let (rec_flag, name, unique_name, _, sub_term1, sub_term2, _) ->
       let a = new_tyvar sb in
-      infer sub_term1 a ctx sb local ;
-      add_local_let_context local unique_name
-        (quantification (apply_subst (get_subst sb) a) ctx) ;
-      let new_ctx =
-        (name, quantification (apply_subst (get_subst sb) a) ctx) :: ctx
-      in
-      infer sub_term2 typ new_ctx sb local
+      if rec_flag then (
+        let b = new_tyvar sb in
+        infer sub_term1 a ((name, Forall b) :: ctx) sb local ;
+        add_local_let_context local unique_name
+          (quantification (apply_subst (get_subst sb) a) ctx) ;
+        let new_ctx =
+          (name, quantification (apply_subst (get_subst sb) a) ctx) :: ctx
+        in
+        infer sub_term2 typ new_ctx sb local )
   | _ ->
       TypeError "inference error" |> raise
 

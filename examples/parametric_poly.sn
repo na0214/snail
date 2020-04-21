@@ -16,3 +16,9 @@ let m p =
     p (func 2) (func 3)
 
 let e = m (fun x -> fun y -> y)
+
+let twice f x = f (f x)
+
+let a = twice (fun x -> x) 0
+
+let b = twice (fun x -> x) "str"

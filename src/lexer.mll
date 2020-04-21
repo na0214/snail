@@ -48,10 +48,14 @@ rule token = parse
   | "," {COMMA(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | ":" {COLON(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | ";" {SEMICOLON(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
+  | "*" {ASTE(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "->" {ARROW(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "let" {LET(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "fun" {FUN(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "in" {IN(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
+  | "rec" {REC(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
+  | "of" {OF(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
+  | "typedef" {TYPEDEF(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | cons {CONS(Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | var {VAR(Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | id {ID (Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
