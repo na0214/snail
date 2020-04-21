@@ -23,8 +23,9 @@ let desugar_term = let_expr_to_unary_function
 
 let translate_unary_function term =
   match term with
-  | LetDec (name, args, sub_term, pos) ->
-      LetDec (name, args, make_lambda args (desugar_term sub_term) pos, pos)
+  | LetDec (rec_f, name, args, sub_term, pos) ->
+      LetDec
+        (rec_f, name, args, make_lambda args (desugar_term sub_term) pos, pos)
   | _ ->
       term
 

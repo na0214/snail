@@ -25,7 +25,7 @@ exception SyntaxError of string
 type value_cons = string * snail_type option [@@deriving show]
 
 type toplevel =
-  | LetDec of string * argument list * term * pos_info
+  | LetDec of rec_flag * string * argument list * term * pos_info
   | TypeDef of string * argument list * value_cons list * pos_info
 [@@deriving show]
 

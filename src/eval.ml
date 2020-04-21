@@ -91,7 +91,7 @@ let eval =
   List.fold_left
     (fun acc x ->
       match x with
-      | LetDec (name, _, term, _) ->
+      | LetDec (_, name, _, term, _) ->
           let result = eval_term term acc in
           (name, result) :: acc
       | _ ->

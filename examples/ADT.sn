@@ -9,3 +9,9 @@ let add l x = Cons(x,l)
 let addi = add Nil 1
 
 let adds = add Nil "test"
+
+typedef Maybe a = Nothing | Just of a
+
+let nothing = Nothing
+
+let maybe2 = Just 2

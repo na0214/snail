@@ -28,9 +28,9 @@ snail_parse:
   }
 
 toplevel:
-  | LET name = VAR arguments = list(argument) EQUAL t = term
+  | LET rec_flag = option(REC) name = VAR arguments = list(argument) EQUAL t = term
   {
-    LetDec(fst name,arguments,t,$1)
+    LetDec((match rec_flag with Some _ -> true | _ -> false),fst name,arguments,t,$1)
   }
   | TYPEDEF name = CONS typevars = list(argument) EQUAL typedec = separated_list(OR,type_declare)
   {

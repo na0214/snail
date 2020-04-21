@@ -139,15 +139,16 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
       infer sub_term2 a ctx sb local
   | Let (rec_flag, name, unique_name, _, sub_term1, sub_term2, _) ->
       let a = new_tyvar sb in
-      if rec_flag then (
+      if rec_flag then
         let b = new_tyvar sb in
-        infer sub_term1 a ((name, Forall b) :: ctx) sb local ;
-        add_local_let_context local unique_name
-          (quantification (apply_subst (get_subst sb) a) ctx) ;
-        let new_ctx =
-          (name, quantification (apply_subst (get_subst sb) a) ctx) :: ctx
-        in
-        infer sub_term2 typ new_ctx sb local )
+        infer sub_term1 a ((name, Forall b) :: ctx) sb local
+      else infer sub_term1 a ctx sb local ;
+      add_local_let_context local unique_name
+        (quantification (apply_subst (get_subst sb) a) ctx) ;
+      let new_ctx =
+        (name, quantification (apply_subst (get_subst sb) a) ctx) :: ctx
+      in
+      infer sub_term2 typ new_ctx sb local
   | Cons (name, _) ->
       let sc = find_context name ctx in
       let typ1 = fresh_inst sc sb in
@@ -161,7 +162,7 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
   | _ ->
       raise (TypeError "type error")
 
-let typeof term ctx =
+let typeof _ term ctx =
   let sb = ref ([], 0) in
   let local_let_ctx = ref [] in
   let result_t = new_tyvar sb in
@@ -176,8 +177,8 @@ let typeof_toplevel toplevel context =
     List.fold_left
       (fun acc x ->
         ( match x with
-        | LetDec (name, _, sub_term, _) ->
-            let typ = typeof sub_term acc in
+        | LetDec (rec_flag, name, _, sub_term, _) ->
+            let typ = typeof rec_flag sub_term acc in
             local_context := !local_context @ fst typ ;
             (name, Forall (snd typ))
         | _ ->

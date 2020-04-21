@@ -63,8 +63,9 @@ let rename_toplevel toplevel =
   List.map
     (fun top ->
       match top with
-      | LetDec (name, argument, term, pos_info) ->
-          LetDec (name, argument, rename name term 0 (ref []) [], pos_info)
+      | LetDec (rec_f, name, argument, term, pos_info) ->
+          LetDec
+            (rec_f, name, argument, rename name term 0 (ref []) [], pos_info)
       | t ->
           t)
     toplevel
