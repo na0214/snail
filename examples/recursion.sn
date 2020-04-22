@@ -1,10 +1,9 @@
 typedef List a = Nil | Cons of a * List a
 
-let tail =
-  let rec f l =
+let rec tail l =
     match l with
       Cons(x,Nil) -> x
-    | Cons(x,xs) -> f xs
-    end in f
+    | Cons(x,xs) -> tail xs
+    end
 
 let t = tail (Cons(1,Cons(2,Nil)))

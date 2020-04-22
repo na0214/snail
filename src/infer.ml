@@ -1,7 +1,7 @@
 open Syntax
 open Typedef
 
-type subst = (tyvar * snail_type) list [@@deriving show]
+type subst = (tyvar * snail_type) list
 
 type context = (string * scheme) list [@@deriving show]
 
@@ -218,7 +218,6 @@ let typeof rec_flag name term ctx =
     (!local_let_ctx, Forall (apply_subst (get_subst sb) b)) )
   else (
     infer term result_t ctx sb local_let_ctx ;
-    print_string (show_subst (fst !sb) ^ "\n") ;
     (!local_let_ctx, Forall (apply_subst (get_subst sb) result_t)) )
 
 let default_context = []
