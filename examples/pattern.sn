@@ -1,5 +1,7 @@
 typedef Maybe a = Nothing | Just of a
 
+typedef Either a b = Left of a | Right of b
+
 let get_just m d =
   match m with
     Just a -> a
@@ -7,3 +9,11 @@ let get_just m d =
   end
 
 let f = get_just (Just 2) 0
+
+let get_right e l =
+  match e with
+    Left a -> l
+  | Right a -> a
+  end
+
+let r = get_right (Right 3) 1

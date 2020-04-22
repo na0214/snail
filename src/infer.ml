@@ -70,6 +70,10 @@ let rec mgu typ1 typ2 =
       let s1 = mgu tl1 tl2 in
       let s2 = mgu (apply_subst s1 tr1) (apply_subst s1 tr2) in
       append_subst s2 s1
+  | TyPair (tl1, tr1), TyPair (tl2, tr2) ->
+      let s1 = mgu tl1 tl2 in
+      let s2 = mgu (apply_subst s1 tr1) (apply_subst s1 tr2) in
+      append_subst s2 s1
   | TyVar v, t ->
       var_bind v t
   | t, TyVar v ->
