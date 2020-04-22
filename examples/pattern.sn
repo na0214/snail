@@ -16,4 +16,6 @@ let get_right e l =
   | Right a -> a
   end
 
+let rv = Right 2
+
 let r = get_right (Right 3) 1

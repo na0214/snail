@@ -1,7 +1,7 @@
 open Syntax
 open Typedef
 
-type subst = (tyvar * snail_type) list
+type subst = (tyvar * snail_type) list [@@deriving show]
 
 type context = (string * scheme) list [@@deriving show]
 
@@ -10,6 +10,8 @@ let rec get_unique_tyvar typ =
   | TyVar (Tyvar n) ->
       [Tyvar n]
   | TyApp (typ1, typ2) ->
+      ExtList.List.unique (get_unique_tyvar typ1 @ get_unique_tyvar typ2)
+  | TyPair (typ1, typ2) ->
       ExtList.List.unique (get_unique_tyvar typ1 @ get_unique_tyvar typ2)
   | _ ->
       []
@@ -29,6 +31,8 @@ let rec apply_subst sb typ =
     try List.assoc v sb with Not_found -> TyVar v )
   | TyApp (typ1, typ2) ->
       TyApp (apply_subst sb typ1, apply_subst sb typ2)
+  | TyPair (typ1, typ2) ->
+      TyPair (apply_subst sb typ1, apply_subst sb typ2)
   | other_typ ->
       other_typ
 
@@ -70,6 +74,10 @@ let rec mgu typ1 typ2 =
       let s1 = mgu tl1 tl2 in
       let s2 = mgu (apply_subst s1 tr1) (apply_subst s1 tr2) in
       append_subst s2 s1
+  | TyPair (tl1, tr1), TyApp (TyApp (TyCons (Tycon "*"), t1), t2) ->
+      let s1 = mgu tl1 t1 in
+      let s2 = mgu (apply_subst s1 tr1) (apply_subst s1 t2) in
+      append_subst s2 s1
   | TyPair (tl1, tr1), TyPair (tl2, tr2) ->
       let s1 = mgu tl1 tl2 in
       let s2 = mgu (apply_subst s1 tr1) (apply_subst s1 tr2) in
@@ -81,6 +89,11 @@ let rec mgu typ1 typ2 =
   | TyCons tc1, TyCons tc2 when tc1 = tc2 ->
       []
   | _ ->
+      print_string
+        ( Typedef.show_snail_type typ1
+        ^ " : "
+        ^ Typedef.show_snail_type typ2
+        ^ "\n" ) ;
       TypeError "types do not unify" |> raise
 
 let unify typ1 typ2 sb =
@@ -101,6 +114,8 @@ let rec instantiate typ tyvar_list =
   match typ with
   | TyApp (typ1, typ2) ->
       TyApp (instantiate typ1 tyvar_list, instantiate typ2 tyvar_list)
+  | TyPair (typ1, typ2) ->
+      TyPair (instantiate typ1 tyvar_list, instantiate typ2 tyvar_list)
   | TyGen n ->
       List.assoc n tyvar_list
   | t ->
@@ -200,10 +215,11 @@ let typeof rec_flag name term ctx =
   if rec_flag then (
     let b = new_tyvar sb in
     infer term b ((name, Forall b) :: ctx) sb local_let_ctx ;
-    (!local_let_ctx, apply_subst (get_subst sb) b) )
+    (!local_let_ctx, Forall (apply_subst (get_subst sb) b)) )
   else (
     infer term result_t ctx sb local_let_ctx ;
-    (!local_let_ctx, apply_subst (get_subst sb) result_t) )
+    print_string (show_subst (fst !sb) ^ "\n") ;
+    (!local_let_ctx, Forall (apply_subst (get_subst sb) result_t)) )
 
 let default_context = []
 
@@ -216,7 +232,7 @@ let typeof_toplevel toplevel context =
         | LetDec (rec_flag, name, _, sub_term, _) ->
             let typ = typeof rec_flag name sub_term acc in
             local_context := !local_context @ fst typ ;
-            (name, Forall (snd typ))
+            (name, snd typ)
         | _ ->
             ("", Forall (TyCons (Tycon "None"))) )
         :: acc)
