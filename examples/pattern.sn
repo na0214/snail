@@ -1,0 +1,9 @@
+typedef Maybe a = Nothing | Just of a
+
+let getjust m d =
+  match m with
+    Just a -> a
+  | Nothing -> d
+  end
+
+let f = getjust (Just 2) 0

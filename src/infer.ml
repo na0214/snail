@@ -115,6 +115,20 @@ let fresh_inst sc sb =
 
 let add_local_let_context local name typ = local := (name, typ) :: !local
 
+let rec get_pattern_var term =
+  match term with
+  | Prod (t1, t2, _) ->
+      get_pattern_var t1 @ get_pattern_var t2
+  | App (t1, t2) ->
+      get_pattern_var t1 @ get_pattern_var t2
+  | Var (n, _, _) ->
+      [n]
+  | _ ->
+      []
+
+let generate_pattern_var_ctx sb bind_var =
+  List.map (fun v -> (v, Forall (new_tyvar sb))) bind_var
+
 let rec infer term typ (ctx : context) sb (local : local_let_context) =
   match term with
   | IntLit (_, _) ->
@@ -159,6 +173,19 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
       infer sub_term1 a ctx sb local ;
       infer sub_term2 b ctx sb local ;
       unify (a @*@ b) typ sb
+  | Match (sub_term, pat_list, _) ->
+      let sub_v = new_tyvar sb in
+      infer sub_term sub_v ctx sb local ;
+      List.iter
+        (fun (pat, sub_t) ->
+          let pat_v = new_tyvar sb in
+          let bind_var_ctx =
+            pat |> get_pattern_var |> generate_pattern_var_ctx sb
+          in
+          infer pat pat_v (bind_var_ctx @ ctx) sb local ;
+          unify sub_v pat_v sb ;
+          infer sub_t typ (bind_var_ctx @ ctx) sb local)
+        pat_list
   | _ ->
       raise (TypeError "type error")
 

@@ -91,7 +91,7 @@ pattern:
   }
   | pattern simple_pattern
   {
-    PatternApp($1,$2)
+    App($1,$2)
   }
 
 simple_pattern:
@@ -101,15 +101,15 @@ simple_pattern:
   }
   | LPAREN pattern COMMA pattern RPAREN
   {
-    PatternProd($2,$4,$1)
+    Prod($2,$4,$1)
   }
   | VAR
   {
-    PatternVar(fst $1,"",snd $1)
+    Var(fst $1,"",snd $1)
   }
   | CONS
   {
-    PatternCons(fst $1,snd $1)
+    Cons(fst $1,snd $1)
   }
 
 pattern_declare:

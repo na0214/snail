@@ -17,11 +17,11 @@ let find_rename_context name ctx =
 
 let rec get_vars_name_pattern pat =
   match pat with
-  | PatternVar (name, _, _) ->
+  | Var (name, _, _) ->
       [name]
-  | PatternApp (pat1, pat2) ->
+  | App (pat1, pat2) ->
       get_vars_name_pattern pat1 @ get_vars_name_pattern pat2
-  | PatternProd (pat1, pat2, _) ->
+  | Prod (pat1, pat2, _) ->
       get_vars_name_pattern pat1 @ get_vars_name_pattern pat2
   | _ ->
       []
@@ -33,17 +33,6 @@ let generate_unique_name_list name_list state =
       (x, make_name x !state) :: acc)
     [] name_list
 
-let rec rename_pattern pat ctx =
-  match pat with
-  | PatternApp (pat1, pat2) ->
-      PatternApp (rename_pattern pat1 ctx, rename_pattern pat2 ctx)
-  | PatternProd (pat1, pat2, pos) ->
-      PatternProd (rename_pattern pat1 ctx, rename_pattern pat2 ctx, pos)
-  | PatternVar (name, _, pos) ->
-      PatternVar (name, find_rename_context name ctx, pos)
-  | p ->
-      p
-
 let rec rename_patterns pat_list state ctx =
   List.map
     (fun pat ->
@@ -51,7 +40,7 @@ let rec rename_patterns pat_list state ctx =
         generate_unique_name_list (get_vars_name_pattern (fst pat)) state
       in
       let new_ctx = unique_name_list @ ctx in
-      (rename_pattern (fst pat) new_ctx, rename (snd pat) state new_ctx))
+      (rename (fst pat) state new_ctx, rename (snd pat) state new_ctx))
     pat_list
 
 and rename term state ctx =
