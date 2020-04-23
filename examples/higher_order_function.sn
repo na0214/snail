@@ -1,0 +1,11 @@
+typedef List a = Nil | Cons of a * (List a)
+
+let double_l = (Cons(Cons(1,Nil),Nil))
+
+let rec map f l =
+  match l with
+    Nil -> Nil
+  | Cons(x,xs) -> Cons(f x,map f xs)
+  end
+
+let map_id = map (fun x -> x) (Cons(1,Cons(2,Cons(3,Nil))))

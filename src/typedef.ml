@@ -12,6 +12,29 @@ type snail_type =
 
 type scheme = Forall of snail_type [@@deriving show]
 
+let rec print_type typ =
+  match typ with
+  | TyVar (Tyvar s) ->
+      s
+  | TyCons (Tycon s) ->
+      s
+  | TyApp (TyCons (Tycon s), TyApp (a, b)) when s = "->" ->
+      "(" ^ print_type (TyApp (a, b)) ^ ") " ^ "->"
+  | TyApp (TyCons (Tycon s), t) when s = "->" ->
+      print_type t ^ " -> "
+  | TyApp (TyCons (Tycon s), TyApp (a, b)) when s = "*" ->
+      "(" ^ print_type (TyApp (a, b)) ^ ") " ^ "*"
+  | TyApp (TyCons (Tycon s), t) when s = "*" ->
+      print_type t ^ " * "
+  | TyApp (t1, t2) ->
+      print_type t1 ^ " " ^ print_type t2
+  | TyGen n ->
+      string_of_int n
+  | TyPair (t1, t2) ->
+      "(" ^ print_type t1 ^ "," ^ print_type t2 ^ ")"
+
+let print_scheme sc = match sc with Forall t -> print_type t
+
 exception TypeError of string
 
 let arrow_t = TyCons (Tycon "->")

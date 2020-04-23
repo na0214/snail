@@ -90,10 +90,7 @@ let rec mgu typ1 typ2 =
       []
   | _ ->
       print_string
-        ( Typedef.show_snail_type typ1
-        ^ " : "
-        ^ Typedef.show_snail_type typ2
-        ^ "\n" ) ;
+        (Typedef.print_type typ1 ^ " : " ^ Typedef.print_type typ2 ^ "\n") ;
       TypeError "types do not unify" |> raise
 
 let unify typ1 typ2 sb =
@@ -128,7 +125,7 @@ let fresh_inst sc sb =
         List.fold_left
           (fun acc n -> (n, new_tyvar sb) :: acc)
           []
-          (List.length (get_subst sb) |> range)
+          (List.length (get_subst sb) + 1 |> range)
       in
       instantiate t new_tyvar_list
 
@@ -169,7 +166,15 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
   | App (sub_term1, sub_term2) ->
       let a = new_tyvar sb in
       infer sub_term1 (a @-> typ) ctx sb local ;
-      infer sub_term2 a ctx sb local
+      infer sub_term2 a ctx sb local ;
+      print_string
+        ( "["
+        ^ Typedef.print_scheme
+            (quantification (apply_subst (get_subst sb) (a @-> typ)) ctx)
+        ^ " :: "
+        ^ Typedef.print_scheme
+            (quantification (apply_subst (get_subst sb) a) ctx)
+        ^ "]" ^ "\n" )
   | Let (rec_flag, name, unique_name, _, sub_term1, sub_term2, _) ->
       let a = new_tyvar sb in
       if rec_flag then
@@ -215,10 +220,10 @@ let typeof rec_flag name term ctx =
   if rec_flag then (
     let b = new_tyvar sb in
     infer term b ((name, Forall b) :: ctx) sb local_let_ctx ;
-    (!local_let_ctx, Forall (apply_subst (get_subst sb) b)) )
+    (!local_let_ctx, quantification (apply_subst (get_subst sb) b) []) )
   else (
     infer term result_t ctx sb local_let_ctx ;
-    (!local_let_ctx, Forall (apply_subst (get_subst sb) result_t)) )
+    (!local_let_ctx, quantification (apply_subst (get_subst sb) result_t) []) )
 
 let default_context = []
 

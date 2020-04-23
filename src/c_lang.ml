@@ -10,6 +10,7 @@ type c_lang_expr_term =
   | C_StringLit of string
   | C_Var of string
   | C_App of c_lang_expr_term * c_lang_expr_term
+  | C_Pair of c_lang_expr_term * c_lang_expr_term
 [@@deriving show]
 
 type c_lang_statement =

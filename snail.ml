@@ -9,6 +9,11 @@ let parse_with_error lexbuf =
       Core.fprintf stderr "%a: syntax error\n" Lexer.print_position lexbuf ;
       exit (-1)
 
+let print_context ctx =
+  List.iter
+    (fun (name, sc) -> print_string (name ^ Typedef.print_scheme sc ^ "\n"))
+    ctx
+
 let _ =
   let in_chan =
     if Array.length Sys.argv = 2 then open_in Sys.argv.(1) else stdin
@@ -23,7 +28,7 @@ let _ =
   (*print_string (Infer.show_context adt_context ^ "\n") ;*)
   (*print_string (Syntax.show_snail_AST renamed_ast ^ "\n") ;*)
   let type_ctx = Infer.typeof_toplevel renamed_ast adt_context in
-  print_string (Infer.show_context type_ctx ^ "\n") ;
+  print_context type_ctx ;
   (*let _ = Eval.eval renamed_ast in
   print_string (Eval.show_eval_context result ^ "\n") ;*)
   close_in in_chan

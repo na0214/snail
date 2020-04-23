@@ -1,5 +1,6 @@
 open Syntax
 open Typedef
+open Infer
 
 let generate_tyvars_product tyvars =
   match tyvars with
@@ -13,8 +14,9 @@ let generate_tyvars_product tyvars =
 let generate_adt_type type_name tyvars typ =
   if List.length tyvars = 0 then Forall (typ @-> TyCons (Tycon type_name))
   else
-    Forall
+    quantification
       (typ @-> TyApp (TyCons (Tycon type_name), generate_tyvars_product tyvars))
+      []
 
 let generate_adt_context toplevel =
   List.fold_left
