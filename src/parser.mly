@@ -33,7 +33,7 @@ toplevel:
   {
     LetDec((match rec_flag with Some _ -> true | _ -> false),fst name,arguments,t,$1)
   }
-  | TYPEDEF name = CONS typevars = list(argument) EQUAL typedec = separated_list(OR,type_declare)
+  | TYPEDEF name = CONS typevars = list(argument) EQUAL typedec = separated_list(OR,type_declare) END
   {
     TypeDef(fst name,typevars,typedec,$1)
   }
@@ -75,7 +75,7 @@ simple_type_expr:
   } 
   | CONS
   {
-    TyCons (Tycon (fst $1))
+    TyCon (Tycon (fst $1))
   }
 
 argument:
@@ -107,9 +107,9 @@ simple_pattern:
   {
     Var(fst $1,"",snd $1)
   }
-  | CONS
+  | CONS app = option(simple_pattern)
   {
-    Cons(fst $1,snd $1)
+    Cons(fst $1,app,snd $1)
   }
 
 pattern_declare:
@@ -143,13 +143,13 @@ term:
   }
 
 simple_term:
-  | LPAREN e = term RPAREN
-  {
-    e
-  }
   | LPAREN term COMMA term RPAREN
   {
     Prod($2,$4,$1)
+  }
+  | LPAREN e = term RPAREN
+  {
+    e
   }
   | INT
   {
@@ -167,7 +167,7 @@ simple_term:
   {
     Var(fst $1,"",snd $1)
   }
-  | CONS
+  | CONS app = option(simple_term)
   {
-    Cons(fst $1,snd $1)
+    Cons(fst $1,app,snd $1)
   }

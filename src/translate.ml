@@ -14,7 +14,7 @@ let rec generate_c_lang_AST_expr term =
       C_StringLit s
   | Var (name, uname, _) ->
       if uname != "" then C_Var uname else C_Var name
-  | Cons (name, _) ->
+  | Cons (name, _, _) ->
       C_Var name
   | Prod (sub_term1, sub_term2, _) ->
       C_Pair

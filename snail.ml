@@ -11,8 +11,11 @@ let parse_with_error lexbuf =
 
 let print_context ctx =
   List.iter
-    (fun (name, sc) -> print_string (name ^ Typedef.print_scheme sc ^ "\n"))
-    ctx
+    (fun (name, sc) ->
+      print_string (name ^ " : " ^ Typedef.print_scheme sc ^ "\n"))
+    (List.filter
+       (fun (_, sc) -> not (sc = Typedef.Forall (TyCon (Tycon "None"))))
+       ctx)
 
 let _ =
   let in_chan =
@@ -25,7 +28,7 @@ let _ =
   let desugared_ast = Desugar.desugar toplevel in
   let renamed_ast = Rename.rename_toplevel desugared_ast in
   let adt_context = Adt.generate_adt_context renamed_ast in
-  (*print_string (Infer.show_context adt_context ^ "\n") ;*)
+  (* print_string (Infer.show_context adt_context ^ "\n") ; *)
   (*print_string (Syntax.show_snail_AST renamed_ast ^ "\n") ;*)
   let type_ctx = Infer.typeof_toplevel renamed_ast adt_context in
   print_context type_ctx ;

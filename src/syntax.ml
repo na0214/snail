@@ -18,7 +18,7 @@ and term =
   | FloatLit of float * pos_info
   | StringLit of string * pos_info
   | Var of string * string * pos_info
-  | Cons of string * pos_info
+  | Cons of string * term option * pos_info
   | Prod of term * term * pos_info
   | Match of term * pattern_list * pos_info
 [@@deriving show]
@@ -56,7 +56,7 @@ let rec get_pos_info_term t =
       p
   | Var (_, _, p) ->
       p
-  | Cons (_, p) ->
+  | Cons (_, _, p) ->
       p
   | Prod (_, _, p) ->
       p

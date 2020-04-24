@@ -74,7 +74,7 @@ let rec mgu typ1 typ2 =
       let s1 = mgu tl1 tl2 in
       let s2 = mgu (apply_subst s1 tr1) (apply_subst s1 tr2) in
       append_subst s2 s1
-  | TyPair (tl1, tr1), TyApp (TyApp (TyCons (Tycon "*"), t1), t2) ->
+  | TyPair (tl1, tr1), TyApp (TyApp (TyCon (Tycon "*"), t1), t2) ->
       let s1 = mgu tl1 t1 in
       let s2 = mgu (apply_subst s1 tr1) (apply_subst s1 t2) in
       append_subst s2 s1
@@ -86,7 +86,7 @@ let rec mgu typ1 typ2 =
       var_bind v t
   | t, TyVar v ->
       var_bind v t
-  | TyCons tc1, TyCons tc2 when tc1 = tc2 ->
+  | TyCon tc1, TyCon tc2 when tc1 = tc2 ->
       []
   | _ ->
       print_string
@@ -118,6 +118,17 @@ let rec instantiate typ tyvar_list =
   | t ->
       t
 
+let rec get_max_tygen typ =
+  match typ with
+  | TyApp (typ1, typ2) ->
+      max (get_max_tygen typ1) (get_max_tygen typ2)
+  | TyPair (typ1, typ2) ->
+      max (get_max_tygen typ1) (get_max_tygen typ2)
+  | TyGen n ->
+      n
+  | _ ->
+      0
+
 let fresh_inst sc sb =
   match sc with
   | Forall t ->
@@ -125,7 +136,7 @@ let fresh_inst sc sb =
         List.fold_left
           (fun acc n -> (n, new_tyvar sb) :: acc)
           []
-          (List.length (get_subst sb) + 1 |> range)
+          (get_max_tygen t |> range)
       in
       instantiate t new_tyvar_list
 
@@ -139,6 +150,8 @@ let rec get_pattern_var term =
       get_pattern_var t1 @ get_pattern_var t2
   | Var (n, _, _) ->
       [n]
+  | Cons (_, opt_app, _) -> (
+    match opt_app with Some x -> get_pattern_var x | None -> [] )
   | _ ->
       []
 
@@ -146,13 +159,14 @@ let generate_pattern_var_ctx sb bind_var =
   List.map (fun v -> (v, Forall (new_tyvar sb))) bind_var
 
 let rec infer term typ (ctx : context) sb (local : local_let_context) =
+  (*print_string (show_term term ^ "\n") ;*)
   match term with
   | IntLit (_, _) ->
-      unify (TyCons (Tycon "Int")) typ sb
+      unify (TyCon (Tycon "Int")) typ sb
   | FloatLit (_, _) ->
-      unify (TyCons (Tycon "Float")) typ sb
+      unify (TyCon (Tycon "Float")) typ sb
   | StringLit (_, _) ->
-      unify (TyCons (Tycon "String")) typ sb
+      unify (TyCon (Tycon "String")) typ sb
   | Fun ([name], _, sub_term, _) ->
       let a = new_tyvar sb in
       let b = new_tyvar sb in
@@ -166,15 +180,7 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
   | App (sub_term1, sub_term2) ->
       let a = new_tyvar sb in
       infer sub_term1 (a @-> typ) ctx sb local ;
-      infer sub_term2 a ctx sb local ;
-      print_string
-        ( "["
-        ^ Typedef.print_scheme
-            (quantification (apply_subst (get_subst sb) (a @-> typ)) ctx)
-        ^ " :: "
-        ^ Typedef.print_scheme
-            (quantification (apply_subst (get_subst sb) a) ctx)
-        ^ "]" ^ "\n" )
+      infer sub_term2 a ctx sb local
   | Let (rec_flag, name, unique_name, _, sub_term1, sub_term2, _) ->
       let a = new_tyvar sb in
       if rec_flag then
@@ -187,10 +193,20 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
         (name, quantification (apply_subst (get_subst sb) a) ctx) :: ctx
       in
       infer sub_term2 typ new_ctx sb local
-  | Cons (name, _) ->
+  | Cons (name, app_term, _) -> (
       let sc = find_context name ctx in
       let typ1 = fresh_inst sc sb in
-      unify typ1 typ sb
+      match app_term with
+      | Some app ->
+          let a = new_tyvar sb in
+          infer app a ctx sb local ;
+          (*" ( "
+          ^ print_scheme (quantification (apply_subst (get_subst sb) a) ctx)
+          ^ " ) \n"
+          |> print_string ;*)
+          unify typ1 (a @-> typ) sb
+      | None ->
+          unify typ1 typ sb )
   | Prod (sub_term1, sub_term2, _) ->
       let a = new_tyvar sb in
       let b = new_tyvar sb in
@@ -238,7 +254,7 @@ let typeof_toplevel toplevel context =
             local_context := !local_context @ fst typ ;
             (name, snd typ)
         | _ ->
-            ("", Forall (TyCons (Tycon "None"))) )
+            ("__none__", Forall (TyCon (Tycon "None"))) )
         :: acc)
       (context @ default_context)
       toplevel
