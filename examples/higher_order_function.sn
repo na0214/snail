@@ -3,11 +3,11 @@ typedef List a =
 | Cons of a * (List a)
 end
 
-let i = Cons (1,Nil)
+let l_1 = Cons (1,Nil)
 
-let double = Cons(Cons(2,Nil),Nil)
+let l_2 = Cons(Cons(2,Nil),Nil)
 
-let tri = Cons(Cons(Cons(3,Nil),Nil),Nil)
+let l_3 = Cons(Cons(Cons(3,Nil),Nil),Nil)
 
 let rec map f l =
   match l with
@@ -18,3 +18,5 @@ let rec map f l =
 let map_id = map (fun x -> x) (Cons(1,Cons(2,Cons(3,Nil))))
 
 let map_nil = map (fun x -> Nil) (Cons(1,Cons(2,Cons(3,Nil))))
+
+let map_l_2 = map (fun x -> map (fun y -> 2) x) l_2
