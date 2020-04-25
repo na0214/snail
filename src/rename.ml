@@ -23,6 +23,8 @@ let rec get_vars_name_pattern pat =
       get_vars_name_pattern pat1 @ get_vars_name_pattern pat2
   | Prod (pat1, pat2, _) ->
       get_vars_name_pattern pat1 @ get_vars_name_pattern pat2
+  | Cons (_, t_opt, _) -> (
+    match t_opt with Some x -> get_vars_name_pattern x | None -> [] )
   | _ ->
       []
 
@@ -39,6 +41,7 @@ let rec rename_patterns pat_list state ctx =
       let unique_name_list =
         generate_unique_name_list (get_vars_name_pattern (fst pat)) state
       in
+      print_string (show_rename_context unique_name_list ^ "\n") ;
       let new_ctx = unique_name_list @ ctx in
       (rename (fst pat) state new_ctx, rename (snd pat) state new_ctx))
     pat_list
@@ -72,6 +75,12 @@ and rename term state ctx =
       Prod (rename sub_term1 state ctx, rename sub_term2 state ctx, pos)
   | Var (name, _, pos) ->
       Var (name, find_rename_context name ctx, pos)
+  | Cons (n, sub_term, pos) as t -> (
+    match sub_term with
+    | Some x ->
+        Cons (n, Some (rename x state ctx), pos)
+    | None ->
+        t )
   | t ->
       t
 

@@ -1,17 +1,8 @@
-let f =
-  let a = 3 in
-  let b = a in
-  let c = b in
-  c
-
-let g z =
-  let gf = fun x -> x in
-  gf z
-
-let p = g 2
-
 typedef List a = Nil | Cons of a * List a
 
-typedef Maybe a = Just of a | Nothing
+let v = Cons(1,Nil)
 
-let main = Cons(Cons(1,Nil),Nil)
+let main = 
+  match v with
+    Nil -> 2
+  | Cons(x,xs) -> x

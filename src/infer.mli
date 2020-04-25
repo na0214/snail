@@ -2,6 +2,8 @@ type context = (string * Typedef.scheme) list [@@deriving show]
 
 type subst
 
+val get_pattern_var : Syntax.term -> string list
+
 val quantification :
   Typedef.snail_type -> ('a * Typedef.scheme) list -> Typedef.scheme
 

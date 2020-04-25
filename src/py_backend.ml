@@ -1,6 +1,7 @@
 open Syntax
 open Python_lang
 open Typedef
+open Infer
 
 exception CompileError of string
 
@@ -136,14 +137,40 @@ let rec generate_local_var_func term ctx =
   | _ ->
       []
 
+let rec generate_pattern_var term =
+  match term with
+  | Let (_, _, _, _, sub_term1, sub_term2, _) ->
+      generate_pattern_var sub_term1 @ generate_pattern_var sub_term2
+  | Fun (_, _, sub_term, _) ->
+      generate_pattern_var sub_term
+  | App (sub_term1, sub_term2) ->
+      generate_pattern_var sub_term1 @ generate_pattern_var sub_term2
+  | Prod (sub_term1, sub_term2, _) ->
+      generate_pattern_var sub_term1 @ generate_pattern_var sub_term2
+  | Match (sub_term, pat_list, _) ->
+      generate_pattern_var sub_term
+      @ List.fold_left
+          (fun acc (pat, t) ->
+            acc
+            @ List.map
+                (fun n -> Bind (false, n, PyTerm_None))
+                (get_pattern_var pat)
+            @ generate_pattern_var t)
+          [] pat_list
+  | _ ->
+      []
+
 let translate_snail_to_python (ast : snail_AST) : string =
   List.fold_left
     (fun acc top ->
       match top with
       | LetDec (_, name, _, term, _) ->
+          let pattern_ctx = generate_pattern_var term in
           let local_ctx = generate_local_var_func term [] in
           let new_bind = Bind (false, name, translate_term_to_python term []) in
-          let result_str = py_code_generate (local_ctx @ [new_bind]) in
+          let result_str =
+            py_code_generate (pattern_ctx @ local_ctx @ [new_bind])
+          in
           acc ^ result_str
       | _ ->
           acc)
