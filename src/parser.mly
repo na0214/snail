@@ -33,9 +33,19 @@ toplevel:
   {
     LetDec((match rec_flag with Some _ -> true | _ -> false),fst name,arguments,t,$1)
   }
-  | TYPEDEF name = CONS typevars = list(argument) EQUAL typedec = separated_list(OR,type_declare) END
+  | TYPEDEF name = CONS typevars = type_argument EQUAL typedec = separated_list(OR,type_declare) END
   {
     TypeDef(fst name,typevars,typedec,$1)
+  }
+
+type_argument:
+  | VAR
+  {
+    [fst $1]
+  }
+  | LPAREN separated_list(COMMA,argument) RPAREN
+  {
+    $2
   }
 
 type_declare:

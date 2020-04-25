@@ -13,9 +13,10 @@ let print_context ctx =
   List.iter
     (fun (name, sc) ->
       print_string (name ^ " : " ^ Typedef.print_scheme sc ^ "\n"))
-    (List.filter
-       (fun (_, sc) -> not (sc = Typedef.Forall (TyCon (Tycon "None"))))
-       ctx)
+    ( List.filter
+        (fun (_, sc) -> not (sc = Typedef.Forall (TyCon (Tycon "None"))))
+        ctx
+    |> List.rev )
 
 let _ =
   let in_chan =
