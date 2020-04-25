@@ -1,5 +1,7 @@
 open Syntax
 open Python_lang
+open Infer
+open Typedef
 
 exception CompileError of string
 
@@ -39,6 +41,10 @@ let py_code_generate (pcode : py_code) : string =
   List.fold_left
     (fun acc top ->
       match top with
+      | Bind (_, name, py_term) when name = "main" ->
+          acc ^ "if __name__ == \"__main__\":\n\t"
+          ^ py_code_generate_term py_term
+          ^ "\n"
       | Bind (local_flag, name, py_term) when local_flag ->
           acc ^ "def " ^ name ^ "(_ctx):\n" ^ "\treturn ("
           ^ py_code_generate_term py_term
@@ -64,14 +70,7 @@ let rec translate_term_to_python term ctx =
       let _ = List.assoc uname ctx in
       if uname.[0] = 'f' then PyTerm_Var uname
       else PyTerm_App (PyTerm_Var uname, PyTerm_Dict ctx)
-    with Not_found ->
-      PyTerm_Var (n ^ "()")
-      (*if uname = "" then PyTerm_Var n
-      else if uname.[0] = 'f' then PyTerm_Var uname
-      else (
-        print_string (uname ^ "\n") ;
-        PyTerm_App (PyTerm_Var uname, PyTerm_Dict ctx) )*)
-    )
+    with Not_found -> PyTerm_Var (n ^ "()") )
   | Prod (sub_term1, sub_term2, _) ->
       PyTerm_Tuple
         ( translate_term_to_python sub_term1 ctx
@@ -84,7 +83,7 @@ let rec translate_term_to_python term ctx =
   | Cons (n, term_opt, _) -> (
     match term_opt with
     | Some x ->
-        PyTerm_App (PyTerm_Var n, translate_term_to_python x ctx)
+        translate_term_to_python x ctx
     | None ->
         PyTerm_Var n )
   | App (sub_term1, sub_term2) ->
@@ -146,5 +145,22 @@ let translate_snail_to_python (ast : snail_AST) : string =
           let result_str = py_code_generate (local_ctx @ [new_bind]) in
           acc ^ result_str
       | _ ->
-          "")
+          acc)
     "" ast
+
+let rec is_include_arrow typ =
+  match typ with
+  | TyCon (Tycon s) when s = "->" ->
+      true
+  | TyApp (typ1, typ2) ->
+      is_include_arrow typ1 || is_include_arrow typ2
+  | TyPair (typ1, typ2) ->
+      is_include_arrow typ1 || is_include_arrow typ2
+  | _ ->
+      false
+
+let generate_constructor (adt_ctx : context) : string =
+  List.fold_left
+    (fun acc (name, Forall typ) ->
+      if is_include_arrow typ then acc else acc ^ name ^ " = None\n")
+    "" adt_ctx

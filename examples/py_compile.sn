@@ -9,3 +9,7 @@ let g z =
   gf z
 
 let p = g 2
+
+typedef List a = Nil | Cons of a * List a end
+
+let main = p
