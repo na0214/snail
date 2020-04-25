@@ -28,6 +28,7 @@ let _ =
   (*print_string (Syntax.show_snail_AST toplevel ^ "\n") ;*)
   let desugared_ast = Desugar.desugar toplevel in
   let renamed_ast = Rename.rename_toplevel desugared_ast in
+  print_string (Syntax.show_snail_AST renamed_ast ^ "\n") ;
   let adt_context = Adt.generate_adt_context renamed_ast in
   (* print_string (Infer.show_context adt_context ^ "\n") ; *)
   (*print_string (Syntax.show_snail_AST renamed_ast ^ "\n") ;*)
@@ -35,4 +36,8 @@ let _ =
   print_context type_ctx ;
   (*let _ = Eval.eval renamed_ast in
   print_string (Eval.show_eval_context result ^ "\n") ;*)
+  let output = Py_backend.translate_snail_to_python renamed_ast in
+  let oc = open_out "output/test.py" in
+  Core.fprintf oc "%s\n" output ;
+  close_out oc ;
   close_in in_chan

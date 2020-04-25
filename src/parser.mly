@@ -70,6 +70,10 @@ type_expr:
   {
     $1 @*@ $3
   }
+  | type_expr ARROW type_expr
+  {
+    $1 @-> $3
+  }
   | simple_type_expr
   {
     $1

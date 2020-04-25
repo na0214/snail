@@ -1,0 +1,11 @@
+let f =
+  let a = 3 in
+  let b = a in
+  let c = b in
+  c
+
+let g z =
+  let gf = fun x -> x in
+  gf z
+
+let p = g 2

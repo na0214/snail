@@ -8,7 +8,7 @@ type rename_context = (string * string) list [@@deriving show]
 
 exception RenameError of string
 
-let make_name name count = "__local__" ^ name ^ "_" ^ string_of_int count
+let make_name name count = "_local__" ^ name ^ "_" ^ string_of_int count
 
 let add_state state = state := !state + 1
 
@@ -62,7 +62,7 @@ and rename term state ctx =
       App (rename sub_term1 state ctx, rename sub_term2 state ctx)
   | Fun ([argument], _, sub_term, pos) ->
       add_state state ;
-      let unique_name = make_name argument !state in
+      let unique_name = "f" ^ make_name argument !state in
       Fun
         ( [argument]
         , unique_name
