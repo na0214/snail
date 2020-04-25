@@ -1,4 +1,5 @@
 Nil = None
+Nothing = None
 def _local__a_1(_ctx):
 	return (3)
 def _local__b_2(_ctx):
@@ -14,5 +15,5 @@ def g():
 def p():
 	return ((g()) (2))
 if __name__ == "__main__":
-	p()
+	((Nothing,Nil),Nil)
 

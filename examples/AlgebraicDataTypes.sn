@@ -1,13 +1,10 @@
-typedef Fun (a,b) =
-  Fun of a -> b end
+typedef Fun (a,b) = Fun of a -> b
 
 let fun_id = Fun (fun x -> x)
 
 let fun_int = Fun (fun x -> 1)
 
 let fun_app fn x =
-  match fn with
-    Fun f -> f x
-  end
+  match fn with Fun f -> f x
 
 let f_int = fun_app (fun_int)

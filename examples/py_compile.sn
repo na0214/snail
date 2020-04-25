@@ -10,6 +10,8 @@ let g z =
 
 let p = g 2
 
-typedef List a = Nil | Cons of a * List a end
+typedef List a = Nil | Cons of a * List a
 
-let main = p
+typedef Maybe a = Just of a | Nothing
+
+let main = Cons(Cons(Nothing,Nil),Nil)

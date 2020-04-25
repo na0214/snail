@@ -38,7 +38,7 @@ toplevel:
   {
     LetDec((match rec_flag with Some _ -> true | _ -> false),fst name,arguments,t,$1)
   }
-  | TYPEDEF name = CONS typevars = type_argument EQUAL typedec = separated_list(OR,type_declare) END
+  | TYPEDEF name = CONS typevars = type_argument EQUAL typedec = separated_list(OR,type_declare)
   {
     TypeDef(fst name,typevars,typedec,$1)
   }
@@ -156,7 +156,7 @@ term:
   }
   | MATCH 
     t = term WITH 
-    pattern_dec = separated_list(OR,pattern_declare) END
+    pattern_dec = separated_list(OR,pattern_declare)
   {
     Match (t,pattern_dec,$1)
   }
