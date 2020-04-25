@@ -1,6 +1,11 @@
 %{
   open Typedef
   open Syntax
+
+  let translate_multi_tuple_to_pair tup_list pos =
+  match tup_list with
+   [] -> Cons (",",None,pos)
+  | x :: xs -> List.fold_left (fun acc -> fun a -> Prod(acc,a,pos)) x xs
 %}
 
 %token <int*Syntax.pos_info> INT
@@ -109,9 +114,9 @@ simple_pattern:
   {
     e
   }
-  | LPAREN pattern COMMA pattern RPAREN
+  | LPAREN tuple_list = separated_list(COMMA,pattern) RPAREN
   {
-    Prod($2,$4,$1)
+    translate_multi_tuple_to_pair tuple_list $1
   }
   | VAR
   {
@@ -153,9 +158,9 @@ term:
   }
 
 simple_term:
-  | LPAREN term COMMA term RPAREN
+  | LPAREN tuple_list = separated_list(COMMA,term) RPAREN
   {
-    Prod($2,$4,$1)
+    translate_multi_tuple_to_pair tuple_list $1
   }
   | LPAREN e = term RPAREN
   {

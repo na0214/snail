@@ -1,0 +1,9 @@
+let tuple_1 = (1,2,3)
+let tuple_2 = ("abc",3)
+
+let fst tuple =
+  match tuple with (a,b) -> a end
+
+let tuple_1_fst = fst tuple_1
+
+let tuple_2_fst = fst tuple_2
