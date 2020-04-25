@@ -1,4 +1,5 @@
 type py_term =
+  | PyTerm_None
   | PyTerm_Int of int
   | PyTerm_Float of float
   | PyTerm_String of string

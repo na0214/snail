@@ -14,4 +14,4 @@ typedef List a = Nil | Cons of a * List a
 
 typedef Maybe a = Just of a | Nothing
 
-let main = Cons(Cons(Nothing,Nil),Nil)
+let main = Cons(Cons(1,Nil),Nil)

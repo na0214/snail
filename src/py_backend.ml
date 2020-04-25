@@ -1,6 +1,5 @@
 open Syntax
 open Python_lang
-open Infer
 open Typedef
 
 exception CompileError of string
@@ -36,6 +35,8 @@ let rec py_code_generate_term py_term =
             acc ^ "\'" ^ name ^ "\':" ^ py_code_generate_term sub_term ^ ",")
           "" dict_l
       ^ "}"
+  | PyTerm_None ->
+      "None"
 
 let py_code_generate (pcode : py_code) : string =
   List.fold_left
@@ -83,9 +84,9 @@ let rec translate_term_to_python term ctx =
   | Cons (n, term_opt, _) -> (
     match term_opt with
     | Some x ->
-        translate_term_to_python x ctx
+        PyTerm_Dict [(n, translate_term_to_python x ctx)]
     | None ->
-        PyTerm_Var n )
+        PyTerm_Dict [(n, PyTerm_None)] )
   | App (sub_term1, sub_term2) ->
       PyTerm_App
         ( translate_term_to_python sub_term1 ctx
@@ -158,9 +159,3 @@ let rec is_include_arrow typ =
       is_include_arrow typ1 || is_include_arrow typ2
   | _ ->
       false
-
-let generate_constructor (adt_ctx : context) : string =
-  List.fold_left
-    (fun acc (name, Forall typ) ->
-      if is_include_arrow typ then acc else acc ^ name ^ " = None\n")
-    "" adt_ctx
