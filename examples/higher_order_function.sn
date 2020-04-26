@@ -2,12 +2,6 @@ typedef List a =
   Nil
 | Cons of a * (List a)
 
-let l_1 = Cons (1,Nil)
-
-let l_2 = Cons(Cons(2,Nil),Nil)
-
-let l_3 = Cons(Cons(Cons(3,Nil),Nil),Nil)
-
 let rec map f l =
   match l with
     Nil -> Nil
@@ -15,10 +9,9 @@ let rec map f l =
 
 let map_id = map (fun x -> x) (Cons(1,Cons(2,Cons(3,Nil))))
 
-let map_nil = map (fun x -> Nil) (Cons(1,Cons(2,Cons(3,Nil))))
+let head l def =
+  match l with
+    Nil -> def
+  | Cons(x,xs) -> x
 
-let map_l_2 = map (fun x -> map (fun y -> y) x) l_2
-
-let map_l_3 = map (fun x -> map (fun y -> map (fun z -> Nil) y) x) l_3
-
-let main = map_nil
+let main = head map_id 5
