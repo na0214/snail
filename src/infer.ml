@@ -155,6 +155,19 @@ let rec get_pattern_var term =
   | _ ->
       []
 
+let rec get_pattern_var_unique term =
+  match term with
+  | Prod (t1, t2, _) ->
+      get_pattern_var_unique t1 @ get_pattern_var_unique t2
+  | App (t1, t2) ->
+      get_pattern_var_unique t1 @ get_pattern_var_unique t2
+  | Var (_, n, _) ->
+      [n]
+  | Cons (_, opt_app, _) -> (
+    match opt_app with Some x -> get_pattern_var_unique x | None -> [] )
+  | _ ->
+      []
+
 let generate_pattern_var_ctx sb bind_var =
   List.map (fun v -> (v, Forall (new_tyvar sb))) bind_var
 

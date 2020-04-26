@@ -20,3 +20,5 @@ let map_nil = map (fun x -> Nil) (Cons(1,Cons(2,Cons(3,Nil))))
 let map_l_2 = map (fun x -> map (fun y -> y) x) l_2
 
 let map_l_3 = map (fun x -> map (fun y -> map (fun z -> Nil) y) x) l_3
+
+let main = map_nil

@@ -32,7 +32,7 @@ let generate_unique_name_list name_list state =
   List.fold_left
     (fun acc x ->
       add_state state ;
-      (x, make_name x !state) :: acc)
+      (x, "m" ^ make_name x !state) :: acc)
     [] name_list
 
 let rec rename_patterns pat_list state ctx =

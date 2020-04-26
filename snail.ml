@@ -34,8 +34,6 @@ let _ =
   (*print_string (Syntax.show_snail_AST renamed_ast ^ "\n") ;*)
   let type_ctx = Infer.typeof_toplevel renamed_ast adt_context in
   print_context type_ctx ;
-  (*let _ = Eval.eval renamed_ast in
-  print_string (Eval.show_eval_context result ^ "\n") ;*)
   let output = Py_backend.translate_snail_to_python renamed_ast in
   let oc = open_out "output/test.py" in
   Core.fprintf oc "%s\n" output ;

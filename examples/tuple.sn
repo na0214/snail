@@ -7,3 +7,5 @@ let fst tuple =
 let tuple_1_fst = fst tuple_1
 
 let tuple_2_fst = fst tuple_2
+
+let main = fst tuple_2
