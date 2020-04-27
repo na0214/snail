@@ -8,8 +8,6 @@ exception CompileError of string
 let match_py =
   "\n\
    def match(pat1, pat2):\n\
-   \tprint(pat1,pat2)\n\
-   \tprint(type(pat1),type(pat2))\n\
    \tif (type(pat2) is dict) and (type(pat1) is dict):\n\
    \t\tif list(pat2.keys())[0] == list(pat1.keys())[0]:\n\
    \t\t\treturn match(pat2[list(pat2.keys())[0]], pat1[list(pat1.keys())[0]])\n\
@@ -85,12 +83,6 @@ let py_code_generate (pcode : py_code) : string =
   List.fold_left
     (fun acc top ->
       match top with
-      | Bind (_, name, py_term) when name = "main" ->
-          acc ^ match_py ^ "if __name__ == \"__main__\":\n\t" ^ "print("
-          ^ py_code_generate_term py_term
-          (*print_stringなどの関数を実装したら消す*)
-          ^ ")"
-          ^ "\n"
       | Bind (local_flag, name, py_term) when local_flag ->
           acc ^ "def " ^ name ^ "(_ctx):\n" ^ "\treturn ("
           ^ py_code_generate_term py_term
@@ -272,6 +264,7 @@ let translate_snail_to_python (ast : snail_AST) : string =
       | _ ->
           acc)
     "" ast
+  ^ match_py ^ "\nif __name__ == \"__main__\":\n\tprint(main())\n"
 
 let rec is_include_arrow typ =
   match typ with

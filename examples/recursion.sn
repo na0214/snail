@@ -8,3 +8,5 @@ let rec tail l =
     | Cons(x,xs) -> tail xs
 
 let t = tail (Cons(1,Cons(2,Nil)))
+
+let main = t
