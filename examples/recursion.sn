@@ -7,6 +7,4 @@ let rec tail l =
       Cons(x,Nil) -> x
     | Cons(x,xs) -> tail xs
 
-let t = tail (Cons(1,Cons(2,Nil)))
-
-let main = t
+let main = tail (Cons(1,Cons(2,Nil)))
