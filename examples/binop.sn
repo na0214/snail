@@ -2,6 +2,6 @@ let (@->) x y = x
 
 let f =
   let (+++) x y = y in
-  2 +++ 3
+  2 +++ 1
 
-let main = f
+let main = f @-> 3 @-> 4
