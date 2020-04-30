@@ -5,7 +5,7 @@ let make_lambda args term pos =
     (fun acc name -> Fun ([name], "", acc, pos))
     term (List.rev args)
 
-let let_expr_to_unary_function term =
+let rec let_expr_to_unary_function term =
   match term with
   | Let (rec_flag, name, _, args, sub_term1, sub_term2, pos) ->
       Let
@@ -13,8 +13,34 @@ let let_expr_to_unary_function term =
         , name
         , ""
         , args
-        , make_lambda args sub_term1 pos
-        , sub_term2
+        , make_lambda args (let_expr_to_unary_function sub_term1) pos
+        , let_expr_to_unary_function sub_term2
+        , pos )
+  | Fun (arg, name, sub_term, pos) ->
+      Fun (arg, name, let_expr_to_unary_function sub_term, pos)
+  | App (sub_term1, sub_term2) ->
+      App
+        ( let_expr_to_unary_function sub_term1
+        , let_expr_to_unary_function sub_term2 )
+  | Cons (name, Some t, pos) ->
+      Cons (name, Some (let_expr_to_unary_function t), pos)
+  | Prod (sub_term1, sub_term2, pos) ->
+      Prod
+        ( let_expr_to_unary_function sub_term1
+        , let_expr_to_unary_function sub_term2
+        , pos )
+  | Match (sub_term, pat_list, pos) ->
+      Match
+        ( let_expr_to_unary_function sub_term
+        , List.map
+            (fun (pat, t) -> (pat, let_expr_to_unary_function t))
+            pat_list
+        , pos )
+  | BinOp (name, sub_term1, sub_term2, pos) ->
+      BinOp
+        ( name
+        , let_expr_to_unary_function sub_term1
+        , let_expr_to_unary_function sub_term2
         , pos )
   | _ ->
       term

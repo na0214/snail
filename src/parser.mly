@@ -11,7 +11,7 @@
 %token <int*Syntax.pos_info> INT
 %token <float*Syntax.pos_info> FLOAT
 %token <string*Syntax.pos_info> STRING
-%token <string*Syntax.pos_info> ID CONS VAR
+%token <string*Syntax.pos_info> ID CONS VAR BINOP
 %token <Syntax.pos_info> LPAREN RPAREN LBRAC RBRAC LCBRAC RCBRAC
 %token <Syntax.pos_info> LET FUN IN REC TYPEDEF OF ASTE OR
 %token <Syntax.pos_info> MATCH WITH END
@@ -19,7 +19,7 @@
 %token <Syntax.pos_info> EOF
 
 %right ARROW
-%left ASTE
+%left ASTE BINOP
 
 %start snail_parse
 
@@ -162,6 +162,10 @@ term:
     pattern_dec = separated_list(OR,pattern_declare)
   {
     Match (t,pattern_dec,$1)
+  }
+  | t1 = term op = BINOP t2 = term
+  {
+    BinOp(fst op,t1,t2,snd op)
   }
 
 simple_term:

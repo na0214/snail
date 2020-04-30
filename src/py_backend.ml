@@ -92,9 +92,7 @@ let py_code_generate (pcode : py_code) : string =
           ^ py_code_generate_term py_term
           ^ ")\n"
       | TopLet (name, py_term) ->
-          acc ^ name ^ " = " ^ py_code_generate_term py_term ^ "\n"
-      | _ ->
-          "")
+          acc ^ name ^ " = " ^ py_code_generate_term py_term ^ "\n")
     "" pcode
 
 let rec translate_term_to_python term ctx inner_pat =
@@ -156,6 +154,8 @@ let rec translate_term_to_python term ctx inner_pat =
       translate_term_to_python sub_term
         ((uname, PyTerm_Var uname) :: ctx)
         inner_pat
+  | _ ->
+      PyTerm_None
 
 let rec replace_ctx_variable term ctx =
   match term with
@@ -198,7 +198,8 @@ let rec generate_local_var_func term ctx =
       let body =
         replace_ctx_variable (translate_term_to_python sub_term ctx false) ctx
       in
-      Bind (true, name, body) :: generate_local_var_func sub_term2 new_ctx
+      (Bind (true, name, body) :: generate_local_var_func sub_term new_ctx)
+      @ generate_local_var_func sub_term2 new_ctx
   | Fun (_, name, sub_term, _) ->
       let new_ctx = (name, PyTerm_Var name) :: ctx in
       generate_local_var_func sub_term new_ctx

@@ -21,6 +21,7 @@ and term =
   | Cons of string * term option * pos_info
   | Prod of term * term * pos_info
   | Match of term * pattern_list * pos_info
+  | BinOp of string * term * term * pos_info
 [@@deriving show]
 
 exception SyntaxError of string
@@ -61,4 +62,6 @@ let rec get_pos_info_term t =
   | Prod (_, _, p) ->
       p
   | Match (_, _, p) ->
+      p
+  | BinOp (_, _, _, p) ->
       p

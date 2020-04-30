@@ -28,6 +28,7 @@ let newline = '\r'|'\n'|"\r\n"
 let id = ['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '0'-'9' '_']*
 let cons = ['A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*
 let var = ['a'-'z']['a'-'z' 'A'-'Z' '0'-'9' '_']*
+let binop = ['@' '#' '&' '%' '#' '*' '-' '<' '>' '!' '$' '+' '=' '^' '~' '|']*
 
 rule token = parse
   | white {token lexbuf}
@@ -60,6 +61,7 @@ rule token = parse
   | "match" {MATCH(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "with" {WITH(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "end" {END(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
+  | binop {BINOP(Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | cons {CONS(Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | var {VAR(Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | id {ID (Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
