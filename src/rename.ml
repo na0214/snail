@@ -41,7 +41,6 @@ let rec rename_patterns pat_list state ctx =
       let unique_name_list =
         generate_unique_name_list (get_vars_name_pattern (fst pat)) state
       in
-      print_string (show_rename_context unique_name_list ^ "\n") ;
       let new_ctx = unique_name_list @ ctx in
       (rename (fst pat) state new_ctx, rename (snd pat) state new_ctx))
     pat_list

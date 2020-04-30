@@ -29,6 +29,54 @@ let match_py =
    \telse:\n\
    \t\treturn False\n"
 
+let add_ref r s = r := !r ^ s
+
+let rename_operator op =
+  let renamed_operator = ref "" in
+  String.iter
+    (fun c ->
+      match c with
+      | ':' ->
+          add_ref renamed_operator "_a"
+      | '@' ->
+          add_ref renamed_operator "_b"
+      | '#' ->
+          add_ref renamed_operator "_c"
+      | '&' ->
+          add_ref renamed_operator "_d"
+      | '%' ->
+          add_ref renamed_operator "_e"
+      | '*' ->
+          add_ref renamed_operator "_f"
+      | '-' ->
+          add_ref renamed_operator "_g"
+      | '<' ->
+          add_ref renamed_operator "_h"
+      | '>' ->
+          add_ref renamed_operator "_i"
+      | '$' ->
+          add_ref renamed_operator "_j"
+      | '+' ->
+          add_ref renamed_operator "_k"
+      | '=' ->
+          add_ref renamed_operator "_l"
+      | '^' ->
+          add_ref renamed_operator "_m"
+      | '~' ->
+          add_ref renamed_operator "_n"
+      | '|' ->
+          add_ref renamed_operator "_o"
+      | '/' ->
+          add_ref renamed_operator "_p"
+      | '!' ->
+          add_ref renamed_operator "_q"
+      | '?' ->
+          add_ref renamed_operator "_r"
+      | ch ->
+          add_ref renamed_operator (Char.escaped ch))
+    op ;
+  !renamed_operator
+
 let rec py_code_generate_term py_term =
   match py_term with
   | PyTerm_Int i ->
@@ -38,9 +86,9 @@ let rec py_code_generate_term py_term =
   | PyTerm_String s ->
       "\"" ^ s ^ "\""
   | PyTerm_Var v ->
-      v
+      rename_operator v
   | PyTerm_Lambda (name, sub_term) ->
-      "lambda " ^ name ^ ":" ^ py_code_generate_term sub_term
+      "lambda " ^ rename_operator name ^ ":" ^ py_code_generate_term sub_term
   | PyTerm_App (sub_term1, sub_term2) ->
       "("
       ^ py_code_generate_term sub_term1
@@ -57,7 +105,9 @@ let rec py_code_generate_term py_term =
       "{"
       ^ List.fold_left
           (fun acc (name, sub_term) ->
-            acc ^ "\'" ^ name ^ "\':" ^ py_code_generate_term sub_term ^ ",")
+            acc ^ "\'" ^ rename_operator name ^ "\':"
+            ^ py_code_generate_term sub_term
+            ^ ",")
           "" dict_l
       ^ "}"
   | PyTerm_If (cond, t_term, f_term) ->
@@ -84,15 +134,17 @@ let py_code_generate (pcode : py_code) : string =
     (fun acc top ->
       match top with
       | Bind (local_flag, name, py_term) when local_flag ->
-          acc ^ "def " ^ name ^ "(_ctx):\n" ^ "\treturn ("
+          acc ^ "def " ^ rename_operator name ^ "(_ctx):\n" ^ "\treturn ("
           ^ py_code_generate_term py_term
           ^ ")\n"
       | Bind (_, name, py_term) ->
-          acc ^ "def " ^ name ^ "():\n" ^ "\treturn ("
+          acc ^ "def " ^ rename_operator name ^ "():\n" ^ "\treturn ("
           ^ py_code_generate_term py_term
           ^ ")\n"
       | TopLet (name, py_term) ->
-          acc ^ name ^ " = " ^ py_code_generate_term py_term ^ "\n")
+          acc ^ rename_operator name ^ " = "
+          ^ py_code_generate_term py_term
+          ^ "\n")
     "" pcode
 
 let rec translate_term_to_python term ctx inner_pat =
@@ -148,7 +200,6 @@ let rec translate_term_to_python term ctx inner_pat =
               , acc ))
           pat_list PyTerm_Error
       in
-      print_string (show_py_term r ^ "\n") ;
       r
   | Let (_, _, uname, _, _, sub_term, _) ->
       translate_term_to_python sub_term
@@ -256,7 +307,6 @@ let translate_snail_to_python (ast : snail_AST) : string =
           let result_str =
             py_code_generate (pattern_ctx @ local_ctx @ [new_bind])
           in
-          print_string (match_py ^ "\n") ;
           acc ^ result_str
       | _ ->
           acc)

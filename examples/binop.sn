@@ -1,3 +1,7 @@
+let (@->) x y = x
 
+let f =
+  let (+++) x y = y in
+  2 +++ 3
 
-let main = 2 @-> 3 @-> 4
+let main = f

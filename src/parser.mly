@@ -43,9 +43,9 @@ snail_parse:
   }
 
 toplevel:
-  | LET rec_flag = option(REC) name = VAR arguments = list(argument) EQUAL t = term
+  | LET rec_flag = option(REC) name = let_name arguments = list(argument) EQUAL t = term
   {
-    LetDec((match rec_flag with Some _ -> true | _ -> false),fst name,arguments,t,$1)
+    LetDec((match rec_flag with Some _ -> true | _ -> false),name,arguments,t,$1)
   }
   | TYPEDEF name = CONS typevars = type_argument EQUAL typedec = separated_list(OR,type_declare)
   {
@@ -146,6 +146,42 @@ pattern_declare:
     ($1,$3)
   }
 
+bin_op:
+  | BINOP1L
+  {
+    fst $1
+  }
+  | BINOP2L
+  {
+    fst $1
+  }
+  | BINOP3R
+  {
+    fst $1
+  }
+  | BINOP4R
+  {
+    fst $1
+  }
+  | BINOP5L
+  {
+    fst $1
+  }
+  | BINOP6R
+  {
+    fst $1
+  }
+
+let_name:
+  | VAR
+  {
+    fst $1
+  }
+  | LPAREN bin_op RPAREN
+  {
+    $2
+  }
+
 term:
   | simple_term
   {
@@ -155,9 +191,9 @@ term:
   {
     App($1,$2)
   }
-  | LET rec_flag = option(REC) name = VAR arguments = list(argument) EQUAL e1 = term IN e2 = term
+  | LET rec_flag = option(REC) name = let_name arguments = list(argument) EQUAL e1 = term IN e2 = term
   {
-    Let((match rec_flag with Some _ -> true | _ -> false),fst name,"",arguments,e1,e2,$1)
+    Let((match rec_flag with Some _ -> true | _ -> false),name,"",arguments,e1,e2,$1)
   }
   | FUN arguments = list(argument) ARROW e = term
   {
