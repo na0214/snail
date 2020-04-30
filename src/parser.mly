@@ -18,6 +18,7 @@
 %token <Syntax.pos_info> EQUAL LESS GREAT PERIOD COMMA COLON SEMICOLON ARROW
 %token <Syntax.pos_info> EOF
 
+%right ARROW
 %left ASTE
 
 %start snail_parse

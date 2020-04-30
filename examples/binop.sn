@@ -1,3 +1,5 @@
 let add2 = 1 + 2
 
-infix 2 left (+) x y =
+infix 2 left (++) x y = x + y
+infix 3 right (+->) x y = x + y
+infix 3 none (===) x y = x = y

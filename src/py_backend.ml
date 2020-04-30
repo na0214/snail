@@ -87,7 +87,7 @@ let py_code_generate (pcode : py_code) : string =
           acc ^ "def " ^ name ^ "(_ctx):\n" ^ "\treturn ("
           ^ py_code_generate_term py_term
           ^ ")\n"
-      | Bind (local_flag, name, py_term) when not local_flag ->
+      | Bind (_, name, py_term) ->
           acc ^ "def " ^ name ^ "():\n" ^ "\treturn ("
           ^ py_code_generate_term py_term
           ^ ")\n"
@@ -195,12 +195,10 @@ let rec generate_local_var_func term ctx =
   match term with
   | Let (_, _, name, _, sub_term, sub_term2, _) ->
       let new_ctx = (name, PyTerm_Var name) :: ctx in
-      Bind
-        ( true
-        , name
-        , replace_ctx_variable (translate_term_to_python sub_term ctx false) ctx
-        )
-      :: generate_local_var_func sub_term2 new_ctx
+      let body =
+        replace_ctx_variable (translate_term_to_python sub_term ctx false) ctx
+      in
+      Bind (true, name, body) :: generate_local_var_func sub_term2 new_ctx
   | Fun (_, name, sub_term, _) ->
       let new_ctx = (name, PyTerm_Var name) :: ctx in
       generate_local_var_func sub_term new_ctx
