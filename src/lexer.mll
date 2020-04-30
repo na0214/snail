@@ -28,7 +28,14 @@ let newline = '\r'|'\n'|"\r\n"
 let id = ['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '0'-'9' '_']*
 let cons = ['A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*
 let var = ['a'-'z']['a'-'z' 'A'-'Z' '0'-'9' '_']*
-let binop = ['@' '#' '&' '%' '#' '*' '-' '<' '>' '!' '$' '+' '=' '^' '~' '|']*
+let op = [':' '@' '#' '&' '%' '*' '-' '<' '>' '$' '+' '=' '^' '~' '|' '/']*
+let binop1_l = ['*' '/' '%'] op+
+let binop2_l = ['+' '-'] op+
+let binop3_r = [':'] op+
+let binop4_r = ['@' '^'] op+
+let binop5_l = ['=' '<' '>' '|' '&'] op+
+let binop6_r = ['$'] op+
+let prefixop = ['!' '~' '?'] op+
 
 rule token = parse
   | white {token lexbuf}
@@ -61,7 +68,12 @@ rule token = parse
   | "match" {MATCH(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "with" {WITH(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "end" {END(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
-  | binop {BINOP(Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
+  | binop1_l {BINOP1L(Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
+  | binop2_l {BINOP2L(Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
+  | binop3_r {BINOP3R (Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
+  | binop4_r {BINOP4R (Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
+  | binop5_l {BINOP5L (Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
+  | binop6_r {BINOP6R (Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | cons {CONS(Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | var {VAR(Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | id {ID (Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}

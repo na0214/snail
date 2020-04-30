@@ -36,12 +36,6 @@ let rec let_expr_to_unary_function term =
             (fun (pat, t) -> (pat, let_expr_to_unary_function t))
             pat_list
         , pos )
-  | BinOp (name, sub_term1, sub_term2, pos) ->
-      BinOp
-        ( name
-        , let_expr_to_unary_function sub_term1
-        , let_expr_to_unary_function sub_term2
-        , pos )
   | _ ->
       term
 

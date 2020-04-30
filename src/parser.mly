@@ -11,7 +11,7 @@
 %token <int*Syntax.pos_info> INT
 %token <float*Syntax.pos_info> FLOAT
 %token <string*Syntax.pos_info> STRING
-%token <string*Syntax.pos_info> ID CONS VAR BINOP
+%token <string*Syntax.pos_info> ID CONS VAR BINOP1L BINOP2L BINOP3R BINOP4R BINOP5L BINOP6R
 %token <Syntax.pos_info> LPAREN RPAREN LBRAC RBRAC LCBRAC RCBRAC
 %token <Syntax.pos_info> LET FUN IN REC TYPEDEF OF ASTE OR
 %token <Syntax.pos_info> MATCH WITH END
@@ -19,7 +19,13 @@
 %token <Syntax.pos_info> EOF
 
 %right ARROW
-%left ASTE BINOP
+%left BINOP1L
+%left BINOP2L
+%right BINOP3R
+%right BINOP4R
+%left BINOP5L
+%right BINOP6R
+%left ASTE
 
 %start snail_parse
 
@@ -163,9 +169,29 @@ term:
   {
     Match (t,pattern_dec,$1)
   }
-  | t1 = term op = BINOP t2 = term
+  | t1 = term op = BINOP1L t2 = term
   {
-    BinOp(fst op,t1,t2,snd op)
+    App(App(Var(fst op,"",snd op),t1),t2)
+  }
+  | t1 = term op = BINOP2L t2 = term
+  {
+    App(App(Var(fst op,"",snd op),t1),t2)
+  }
+  | t1 = term op = BINOP3R t2 = term
+  {
+    App(App(Var(fst op,"",snd op),t1),t2)
+  }
+  | t1 = term op = BINOP4R t2 = term
+  {
+    App(App(Var(fst op,"",snd op),t1),t2)
+  }
+  | t1 = term op = BINOP5L t2 = term
+  {
+    App(App(Var(fst op,"",snd op),t1),t2)
+  }
+  | t1 = term op = BINOP6R t2 = term
+  {
+    App(App(Var(fst op,"",snd op),t1),t2)
   }
 
 simple_term:

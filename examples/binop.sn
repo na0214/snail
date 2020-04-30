@@ -1,6 +1,3 @@
-let add2 = 1 + 2
 
-infix 3 right (-->)
-let (-->) a b = a + b
 
-let main = 2 --> 3 --> 4
+let main = 2 @-> 3 @-> 4
