@@ -18,6 +18,7 @@
 %token <Syntax.pos_info> EQUAL LESS GREAT PERIOD COMMA COLON SEMICOLON ARROW
 %token <Syntax.pos_info> EOF
 
+%left COLON
 %right ARROW
 %left BINOP1L
 %left BINOP2L
@@ -74,6 +75,12 @@ type_declare:
 
 cons_declare:
   | OF type_expr
+  {
+    $2
+  }
+
+type_annotation:
+  | COLON type_expr
   {
     $2
   }
@@ -239,9 +246,11 @@ simple_term:
   {
     translate_multi_tuple_to_pair tuple_list $1
   }
-  | LPAREN e = term RPAREN
+  | LPAREN e = term type_annot = option(type_annotation) RPAREN
   {
-    e
+    match type_annot with
+    | Some x ->
+    | None -> e
   }
   | INT
   {

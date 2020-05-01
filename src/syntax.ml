@@ -21,6 +21,7 @@ and term =
   | Cons of string * term option * pos_info
   | Prod of term * term * pos_info
   | Match of term * pattern_list * pos_info
+  | TypeAnnot of term * scheme
 [@@deriving show]
 
 exception SyntaxError of string
@@ -62,3 +63,5 @@ let rec get_pos_info_term t =
       p
   | Match (_, _, p) ->
       p
+  | TypeAnnot (t, _) ->
+      get_pos_info_term t
