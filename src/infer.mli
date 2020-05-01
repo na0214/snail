@@ -7,9 +7,14 @@ val get_pattern_var : Syntax.term -> string list
 val get_pattern_var_unique : Syntax.term -> string list
 
 val quantification :
-  Typedef.snail_type -> ('a * Typedef.scheme) list -> Typedef.scheme
+     Typedef.snail_type
+  -> ('a * Typedef.scheme) list
+  -> Syntax.pos_info
+  -> Typedef.scheme
 
 val typeof :
   bool -> string -> Syntax.term -> context -> context * Typedef.scheme
 
 val typeof_toplevel : Syntax.snail_AST -> context -> context
+
+exception TypeError of string * Syntax.pos_info

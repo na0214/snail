@@ -61,6 +61,10 @@ type_argument:
   {
     $2
   }
+  |
+  {
+    []
+  }
 
 type_declare:
   | CONS cons_def = option(cons_declare)

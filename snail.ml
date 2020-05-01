@@ -47,4 +47,4 @@ let _ =
     Core.fprintf oc "%s\n" output ;
     close_out oc ;
     close_in in_chan
-  with Typedef.TypeError err -> print_string err
+  with Infer.TypeError (err, pos) -> print_error pos err

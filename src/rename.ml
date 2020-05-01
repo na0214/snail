@@ -6,7 +6,7 @@ type count_state = int ref
 
 type rename_context = (string * string) list [@@deriving show]
 
-exception RenameError of string
+exception RenameError of string * pos_info
 
 let make_name name count = "_local__" ^ name ^ "_" ^ string_of_int count
 

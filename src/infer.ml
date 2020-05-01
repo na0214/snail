@@ -5,6 +5,8 @@ type subst = (tyvar * snail_type) list
 
 type context = (string * scheme) list [@@deriving show]
 
+exception TypeError of string * pos_info
+
 let rec get_unique_tyvar typ =
   match typ with
   | TyVar (Tyvar n) ->
@@ -36,7 +38,7 @@ let rec apply_subst sb typ =
   | other_typ ->
       other_typ
 
-let quantification typ ctx =
+let quantification typ ctx pos =
   let unique_tyvar =
     diff_list (get_unique_tyvar typ)
       (List.fold_left
@@ -51,52 +53,52 @@ let quantification typ ctx =
     | Base.List.Or_unequal_lengths.Ok zl ->
         zl
     | Base.List.Or_unequal_lengths.Unequal_lengths ->
-        TypeError "not match length" |> raise
+        TypeError ("not match length", pos) |> raise
   in
   Forall (apply_subst tyvar_with_gen typ)
 
-let find_context name ctx =
+let find_context name ctx pos =
   try List.assoc name ctx
-  with Not_found -> TypeError ("unbound identifier: " ^ name) |> raise
+  with Not_found -> TypeError ("unbound identifier: " ^ name, pos) |> raise
 
 let append_subst sb1 sb2 =
   sb1 @ List.map (fun x -> match x with u, t -> (u, apply_subst sb1 t)) sb2
 
-let var_bind v t =
+let var_bind v t pos =
   if t = TyVar v then []
   else if List.mem v (get_unique_tyvar t) then
-    TypeError "occurs check fails" |> raise
+    TypeError ("occurs check fails", pos) |> raise
   else [(v, t)]
 
-let rec mgu typ1 typ2 =
+let rec mgu typ1 typ2 pos =
   match (typ1, typ2) with
   | TyApp (tl1, tr1), TyApp (tl2, tr2) ->
-      let s1 = mgu tl1 tl2 in
-      let s2 = mgu (apply_subst s1 tr1) (apply_subst s1 tr2) in
+      let s1 = mgu tl1 tl2 pos in
+      let s2 = mgu (apply_subst s1 tr1) (apply_subst s1 tr2) pos in
       append_subst s2 s1
   | TyPair (tl1, tr1), TyApp (TyApp (TyCon (Tycon "*"), t1), t2) ->
-      let s1 = mgu tl1 t1 in
-      let s2 = mgu (apply_subst s1 tr1) (apply_subst s1 t2) in
+      let s1 = mgu tl1 t1 pos in
+      let s2 = mgu (apply_subst s1 tr1) (apply_subst s1 t2) pos in
       append_subst s2 s1
   | TyPair (tl1, tr1), TyPair (tl2, tr2) ->
-      let s1 = mgu tl1 tl2 in
-      let s2 = mgu (apply_subst s1 tr1) (apply_subst s1 tr2) in
+      let s1 = mgu tl1 tl2 pos in
+      let s2 = mgu (apply_subst s1 tr1) (apply_subst s1 tr2) pos in
       append_subst s2 s1
   | TyVar v, t ->
-      var_bind v t
+      var_bind v t pos
   | t, TyVar v ->
-      var_bind v t
+      var_bind v t pos
   | TyCon tc1, TyCon tc2 when tc1 = tc2 ->
       []
   | _ ->
       print_string
         (Typedef.print_type typ1 ^ " : " ^ Typedef.print_type typ2 ^ "\n") ;
-      TypeError "types do not unify" |> raise
+      TypeError ("types do not unify", pos) |> raise
 
-let unify typ1 typ2 sb =
+let unify typ1 typ2 sb pos =
   match !sb with
   | s, n ->
-      let u = mgu (apply_subst s typ1) (apply_subst s typ2) in
+      let u = mgu (apply_subst s typ1) (apply_subst s typ2) pos in
       sb := (append_subst u s, n)
 
 let new_tyvar sb =
@@ -174,40 +176,40 @@ let generate_pattern_var_ctx sb bind_var =
 let rec infer term typ (ctx : context) sb (local : local_let_context) =
   (*print_string (show_term term ^ "\n") ;*)
   match term with
-  | IntLit (_, _) ->
-      unify (TyCon (Tycon "Int")) typ sb
-  | FloatLit (_, _) ->
-      unify (TyCon (Tycon "Float")) typ sb
-  | StringLit (_, _) ->
-      unify (TyCon (Tycon "String")) typ sb
-  | Fun ([name], _, sub_term, _) ->
+  | IntLit (_, pos) ->
+      unify (TyCon (Tycon "Int")) typ sb pos
+  | FloatLit (_, pos) ->
+      unify (TyCon (Tycon "Float")) typ sb pos
+  | StringLit (_, pos) ->
+      unify (TyCon (Tycon "String")) typ sb pos
+  | Fun ([name], _, sub_term, pos) ->
       let a = new_tyvar sb in
       let b = new_tyvar sb in
-      unify (a @-> b) typ sb ;
+      unify (a @-> b) typ sb pos ;
       let new_ctx = (name, Forall a) :: ctx in
       infer sub_term b new_ctx sb local
-  | Var (name, _, _) ->
-      let sc = find_context name ctx in
+  | Var (name, _, pos) ->
+      let sc = find_context name ctx pos in
       let typ1 = fresh_inst sc sb in
-      unify typ1 typ sb
+      unify typ1 typ sb pos
   | App (sub_term1, sub_term2) ->
       let a = new_tyvar sb in
       infer sub_term1 (a @-> typ) ctx sb local ;
       infer sub_term2 a ctx sb local
-  | Let (rec_flag, name, unique_name, _, sub_term1, sub_term2, _) ->
+  | Let (rec_flag, name, unique_name, _, sub_term1, sub_term2, pos) ->
       let a = new_tyvar sb in
       if rec_flag then
         let b = new_tyvar sb in
         infer sub_term1 a ((name, Forall b) :: ctx) sb local
       else infer sub_term1 a ctx sb local ;
       add_local_let_context local unique_name
-        (quantification (apply_subst (get_subst sb) a) ctx) ;
+        (quantification (apply_subst (get_subst sb) a) ctx pos) ;
       let new_ctx =
-        (name, quantification (apply_subst (get_subst sb) a) ctx) :: ctx
+        (name, quantification (apply_subst (get_subst sb) a) ctx pos) :: ctx
       in
       infer sub_term2 typ new_ctx sb local
-  | Cons (name, app_term, _) -> (
-      let sc = find_context name ctx in
+  | Cons (name, app_term, pos) -> (
+      let sc = find_context name ctx pos in
       let typ1 = fresh_inst sc sb in
       match app_term with
       | Some app ->
@@ -217,15 +219,15 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
           ^ print_scheme (quantification (apply_subst (get_subst sb) a) ctx)
           ^ " ) \n"
           |> print_string ;*)
-          unify typ1 (a @-> typ) sb
+          unify typ1 (a @-> typ) sb pos
       | None ->
-          unify typ1 typ sb )
-  | Prod (sub_term1, sub_term2, _) ->
+          unify typ1 typ sb pos )
+  | Prod (sub_term1, sub_term2, pos) ->
       let a = new_tyvar sb in
       let b = new_tyvar sb in
       infer sub_term1 a ctx sb local ;
       infer sub_term2 b ctx sb local ;
-      unify (a @*@ b) typ sb
+      unify (a @*@ b) typ sb pos
   | Match (sub_term, pat_list, _) ->
       let sub_v = new_tyvar sb in
       infer sub_term sub_v ctx sb local ;
@@ -236,11 +238,11 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
             pat |> get_pattern_var |> generate_pattern_var_ctx sb
           in
           infer pat pat_v (bind_var_ctx @ ctx) sb local ;
-          unify sub_v pat_v sb ;
+          unify sub_v pat_v sb (Syntax.get_pos_info_term sub_t) ;
           infer sub_t typ (bind_var_ctx @ ctx) sb local)
         pat_list
   | _ ->
-      raise (TypeError "type error")
+      ()
 
 let typeof rec_flag name term ctx =
   let sb = ref ([], 0) in
@@ -249,10 +251,18 @@ let typeof rec_flag name term ctx =
   if rec_flag then (
     let b = new_tyvar sb in
     infer term b ((name, Forall b) :: ctx) sb local_let_ctx ;
-    (!local_let_ctx, quantification (apply_subst (get_subst sb) b) []) )
+    ( !local_let_ctx
+    , quantification
+        (apply_subst (get_subst sb) b)
+        []
+        (Syntax.get_pos_info_term term) ) )
   else (
     infer term result_t ctx sb local_let_ctx ;
-    (!local_let_ctx, quantification (apply_subst (get_subst sb) result_t) []) )
+    ( !local_let_ctx
+    , quantification
+        (apply_subst (get_subst sb) result_t)
+        []
+        (Syntax.get_pos_info_term term) ) )
 
 let default_context = []
 

@@ -1,11 +1,5 @@
-def _b_g_i():
-	return (lambda f_local__x_1:lambda f_local__y_2:f_local__x_1)
-def _local___k_k_k_3(_ctx):
-	return (lambda f_local__x_4:lambda f_local__y_5:f_local__y_5)
 def f():
-	return ((((_local___k_k_k_3) ({'_local___k_k_k_3':_local___k_k_k_3,})) ((((_local___k_k_k_3) ({'_local___k_k_k_3':_local___k_k_k_3,})) (2)) (5))) (6))
-def main():
-	return (((_b_g_i()) (f())) (((_b_g_i()) (3)) (4)))
+	return ((lambda f_local__x_2:f_local__x_2) (lambda f_local__x_1:f_local__x_1))
 
 def match(pat1, pat2):
 	if (type(pat2) is dict) and (type(pat1) is dict):

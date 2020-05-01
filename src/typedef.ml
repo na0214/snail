@@ -35,8 +35,6 @@ let rec print_type typ =
 
 let print_scheme sc = match sc with Forall t -> print_type t
 
-exception TypeError of string
-
 let arrow_t = TyCon (Tycon "->")
 
 let product_t = TyCon (Tycon "*")
