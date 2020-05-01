@@ -12,10 +12,10 @@
 
   let print_position outx lexbuf =
     let pos = lexbuf.lex_curr_p in
-      Core.fprintf outx "[filename %s,line %d,position %d]" pos.pos_fname pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
+      Core.fprintf outx "File \"%s\", line %d, position %d" pos.pos_fname pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
 
   let position_to_string pos =
-    Core.sprintf "[filename %s,line %d,position %d]" pos.pos_fname pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
+    Core.sprintf "File \"%s\", line %d, position %d" pos.pos_fname pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
 }
 
 let digit = ['0'-'9']

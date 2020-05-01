@@ -3,7 +3,7 @@ def _b_g_i():
 def _local___k_k_k_3(_ctx):
 	return (lambda f_local__x_4:lambda f_local__y_5:f_local__y_5)
 def f():
-	return ((((_local___k_k_k_3) ({'_local___k_k_k_3':_local___k_k_k_3,})) (2)) (1))
+	return ((((_local___k_k_k_3) ({'_local___k_k_k_3':_local___k_k_k_3,})) ((((_local___k_k_k_3) ({'_local___k_k_k_3':_local___k_k_k_3,})) (2)) (5))) (6))
 def main():
 	return (((_b_g_i()) (f())) (((_b_g_i()) (3)) (4)))
 
