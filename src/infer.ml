@@ -192,11 +192,10 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
       let sc = find_context name ctx pos in
       let typ1 = fresh_inst sc sb in
       unify typ1 typ sb pos
-  | TypeAnnot (sub_term, typ) ->
-      let typ1 = fresh_inst typ sb in
-      let a = new_tyvar sb in
-      infer sub_term a ctx sb local ;
-      unify typ1 a sb (Syntax.get_pos_info_term sub_term)
+  | TypeAnnot (sub_term, Forall typ11) ->
+      let annot_pos = Syntax.get_pos_info_term sub_term in
+      infer sub_term typ ctx sb local ;
+      unify typ typ11 sb annot_pos
   | App (sub_term1, sub_term2) ->
       let a = new_tyvar sb in
       infer sub_term1 (a @-> typ) ctx sb local ;

@@ -1,1 +1,3 @@
-let f = (fun x -> x) 2
+let f = ((fun x -> (x : a)) : b -> Int)
+
+let g y = (fun x -> (y : Int))
