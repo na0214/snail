@@ -1,5 +1,5 @@
 def f():
-	return ((lambda f_local__x_2:f_local__x_2) (lambda f_local__x_1:f_local__x_1))
+	return ((lambda f_local__x_1:f_local__x_1) (2))
 
 def match(pat1, pat2):
 	if (type(pat2) is dict) and (type(pat1) is dict):

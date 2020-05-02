@@ -1,14 +1,1 @@
-let f = (2 : Int)
-
-let g (x : a) (y : b) : a = a
-
-typedef List a =
-  Nil
-| Cons of a * List a
-
-let l = (Cons(2,Nil) : List Int)
-
-let rec map_int (f : Int -> Int) (l : List Int) : List Int =
-  match l with
-    Nil -> Nil
-  | Cons(x,xs) -> Cons(f x,map f xs)
+let f = (fun x -> x) 2

@@ -249,7 +249,7 @@ simple_term:
   | LPAREN e = term type_annot = option(type_annotation) RPAREN
   {
     match type_annot with
-    | Some x ->
+    | Some x -> TypeAnnot(e,Forall x)
     | None -> e
   }
   | INT

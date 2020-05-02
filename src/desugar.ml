@@ -36,6 +36,8 @@ let rec let_expr_to_unary_function term =
             (fun (pat, t) -> (pat, let_expr_to_unary_function t))
             pat_list
         , pos )
+  | TypeAnnot (sub_term, typ) ->
+      TypeAnnot (let_expr_to_unary_function sub_term, typ)
   | _ ->
       term
 

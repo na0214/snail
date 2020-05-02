@@ -205,6 +205,8 @@ let rec translate_term_to_python term ctx inner_pat =
       translate_term_to_python sub_term
         ((uname, PyTerm_Var uname) :: ctx)
         inner_pat
+  | TypeAnnot (sub_term, _) ->
+      translate_term_to_python sub_term ctx inner_pat
 
 let rec replace_ctx_variable term ctx =
   match term with

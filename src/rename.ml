@@ -80,6 +80,8 @@ and rename term state ctx =
         Cons (n, Some (rename x state ctx), pos)
     | None ->
         t )
+  | TypeAnnot (sub_term, typ) ->
+      TypeAnnot (rename sub_term state ctx, typ)
   | t ->
       t
 
