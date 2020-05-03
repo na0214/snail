@@ -8,6 +8,14 @@ def some_str():
 	return ({'Some':"abc",})
 def none():
 	return ({'None':None,})
+def a():
+	return (lambda f_local__b_4:lambda f_local__c_5:f_local__b_4)
+def _local__f_6(_ctx):
+	return (lambda f_local__x_7:f_local__x_7)
+def b():
+	return (((_local__f_6) ({'_local__f_6':_local__f_6,})) (2))
+def fn():
+	return (lambda f_local__x_8:f_local__x_8)
 def main():
 	return (((g()) (2)) (3))
 

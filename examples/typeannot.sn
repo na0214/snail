@@ -10,4 +10,12 @@ let some_str = (Some "abc" : Option String)
 
 let none = (None : Option a)
 
+let a (b : Int) (c : Int) = b
+
+let b =
+  let f (x : Int) = x in
+  f 2
+
+let fn = fun (x : Int) -> x
+
 let main = g 2 3

@@ -4,7 +4,7 @@ open Typedef
 type pos_info = {pos_fname: string; pos_lnum: int; pos_bol: int; pos_cnum: int}
 [@@deriving show]
 
-type argument = string [@@deriving show]
+type argument = string * scheme option [@@deriving show]
 
 type rec_flag = bool [@@deriving show]
 
@@ -30,7 +30,7 @@ type value_cons = string * snail_type option [@@deriving show]
 
 type toplevel =
   | LetDec of rec_flag * string * argument list * term * pos_info
-  | TypeDef of string * argument list * value_cons list * pos_info
+  | TypeDef of string * string list * value_cons list * pos_info
 [@@deriving show]
 
 type snail_AST = toplevel list [@@deriving show]

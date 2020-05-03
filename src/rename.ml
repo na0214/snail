@@ -64,11 +64,11 @@ and rename term state ctx =
       App (rename sub_term1 state ctx, rename sub_term2 state ctx)
   | Fun ([argument], _, sub_term, pos) ->
       add_state state ;
-      let unique_name = "f" ^ make_name argument !state in
+      let unique_name = "f" ^ make_name (fst argument) !state in
       Fun
         ( [argument]
         , unique_name
-        , rename sub_term state ((argument, unique_name) :: ctx)
+        , rename sub_term state ((fst argument, unique_name) :: ctx)
         , pos )
   | Prod (sub_term1, sub_term2, pos) ->
       Prod (rename sub_term1 state ctx, rename sub_term2 state ctx, pos)

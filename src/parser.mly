@@ -58,13 +58,19 @@ type_argument:
   {
     [fst $1]
   }
-  | LPAREN separated_list(COMMA,argument) RPAREN
+  | LPAREN separated_list(COMMA,type_tuple_argument) RPAREN
   {
     $2
   }
   |
   {
     []
+  }
+
+type_tuple_argument:
+  | VAR
+  {
+    fst $1
   }
 
 type_declare:
@@ -118,9 +124,13 @@ simple_type_expr:
   }
 
 argument:
+  | LPAREN VAR typ = type_annotation RPAREN
+  {
+    (fst $2,Some (Forall typ))
+  }
   | VAR
   {
-    fst $1
+    (fst $1,None)
   }
 
 pattern:

@@ -8,6 +8,7 @@ type snail_type =
   | TyApp of snail_type * snail_type
   | TyGen of int
   | TyPair of snail_type * snail_type
+  | TyNone
 [@@deriving show]
 
 type scheme = Forall of snail_type [@@deriving show]
@@ -32,6 +33,8 @@ let rec print_type typ =
       n + 96 |> Char.chr |> Char.escaped
   | TyPair (t1, t2) ->
       "(" ^ print_type t1 ^ "," ^ print_type t2 ^ ")"
+  | TyNone ->
+      "None"
 
 let print_scheme sc = match sc with Forall t -> print_type t
 

@@ -182,9 +182,14 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
       unify (TyCon (Tycon "Float")) typ sb pos
   | StringLit (_, pos) ->
       unify (TyCon (Tycon "String")) typ sb pos
-  | Fun ([name], _, sub_term, pos) ->
+  | Fun ([(name, type_annot)], _, sub_term, pos) ->
       let a = new_tyvar sb in
       let b = new_tyvar sb in
+      ( match type_annot with
+      | Some (Forall t_annot) ->
+          unify a t_annot sb pos
+      | None ->
+          () ) ;
       unify (a @-> b) typ sb pos ;
       let new_ctx = (name, Forall a) :: ctx in
       infer sub_term b new_ctx sb local
