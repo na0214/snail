@@ -1,3 +1,13 @@
 let f = ((fun x -> (x : a)) : b -> Int)
 
 let g y = (fun x -> (y : Int))
+
+typedef Option a = None | Some of a
+
+let some_2 = (Some 2 : Option Int)
+
+let some_str = (Some "abc" : Option String)
+
+let none = (None : Option a)
+
+let main = g 2 3

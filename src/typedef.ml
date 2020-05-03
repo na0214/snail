@@ -29,7 +29,7 @@ let rec print_type typ =
   | TyApp (t1, t2) ->
       print_type t1 ^ " " ^ print_type t2
   | TyGen n ->
-      string_of_int n
+      n + 96 |> Char.chr |> Char.escaped
   | TyPair (t1, t2) ->
       "(" ^ print_type t1 ^ "," ^ print_type t2 ^ ")"
 

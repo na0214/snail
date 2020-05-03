@@ -2,6 +2,14 @@ def f():
 	return (lambda f_local__x_1:f_local__x_1)
 def g():
 	return (lambda f_local__y_2:lambda f_local__x_3:f_local__y_2)
+def some_2():
+	return ({'Some':2,})
+def some_str():
+	return ({'Some':"abc",})
+def none():
+	return ({'None':None,})
+def main():
+	return (((g()) (2)) (3))
 
 def match(pat1, pat2):
 	if (type(pat2) is dict) and (type(pat1) is dict):
