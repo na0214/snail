@@ -1,20 +1,22 @@
 open Syntax
 
-let make_lambda args term pos =
+let make_lambda args term pos type_annot =
   List.fold_left
     (fun acc name -> Fun ([name], "", acc, pos))
-    term (List.rev args)
+    (match type_annot with Some x -> TypeAnnot (term, x) | None -> term)
+    (List.rev args)
 
 let rec let_expr_to_unary_function term =
   match term with
-  | Let (rec_flag, name, _, args, sub_term1, sub_term2, pos) ->
+  | Let (rec_flag, name, _, args, sub_term1, sub_term2, type_annot, pos) ->
       Let
         ( rec_flag
         , name
         , ""
         , args
-        , make_lambda args (let_expr_to_unary_function sub_term1) pos
+        , make_lambda args (let_expr_to_unary_function sub_term1) pos type_annot
         , let_expr_to_unary_function sub_term2
+        , type_annot
         , pos )
   | Fun (arg, name, sub_term, pos) ->
       Fun (arg, name, let_expr_to_unary_function sub_term, pos)
@@ -45,9 +47,14 @@ let desugar_term = let_expr_to_unary_function
 
 let translate_unary_function term =
   match term with
-  | LetDec (rec_f, name, args, sub_term, pos) ->
+  | LetDec (rec_f, name, args, sub_term, type_annot, pos) ->
       LetDec
-        (rec_f, name, args, make_lambda args (desugar_term sub_term) pos, pos)
+        ( rec_f
+        , name
+        , args
+        , make_lambda args (desugar_term sub_term) pos type_annot
+        , type_annot
+        , pos )
   | _ ->
       term
 

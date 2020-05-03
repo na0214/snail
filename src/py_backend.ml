@@ -201,7 +201,7 @@ let rec translate_term_to_python term ctx inner_pat =
           pat_list PyTerm_Error
       in
       r
-  | Let (_, _, uname, _, _, sub_term, _) ->
+  | Let (_, _, uname, _, _, sub_term, _, _) ->
       translate_term_to_python sub_term
         ((uname, PyTerm_Var uname) :: ctx)
         inner_pat
@@ -244,7 +244,7 @@ let rec replace_ctx_variable term ctx =
 (* ローカル束縛をトップレベルに展開 *)
 let rec generate_local_var_func term ctx =
   match term with
-  | Let (_, _, name, _, sub_term, sub_term2, _) ->
+  | Let (_, _, name, _, sub_term, sub_term2, _, _) ->
       let new_ctx = (name, PyTerm_Var name) :: ctx in
       let body =
         replace_ctx_variable (translate_term_to_python sub_term ctx false) ctx
@@ -275,7 +275,7 @@ let rec generate_local_var_func term ctx =
 
 let rec generate_pattern_var term =
   match term with
-  | Let (_, _, _, _, sub_term1, sub_term2, _) ->
+  | Let (_, _, _, _, sub_term1, sub_term2, _, _) ->
       generate_pattern_var sub_term1 @ generate_pattern_var sub_term2
   | Fun (_, _, sub_term, _) ->
       generate_pattern_var sub_term
@@ -300,7 +300,7 @@ let translate_snail_to_python (ast : snail_AST) : string =
   List.fold_left
     (fun acc top ->
       match top with
-      | LetDec (_, name, _, term, _) ->
+      | LetDec (_, name, _, term, _, _) ->
           let pattern_ctx = generate_pattern_var term in
           let local_ctx = generate_local_var_func term [] in
           let new_bind =

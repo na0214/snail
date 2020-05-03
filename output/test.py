@@ -1,39 +1,21 @@
+def i():
+	return (3)
 def f():
-	return (lambda f_local__x_1:f_local__x_1)
-def g():
-	return (lambda f_local__y_2:lambda f_local__x_3:f_local__y_2)
-def some_2():
-	return ({'Some':2,})
-def some_str():
-	return ({'Some':"abc",})
-def none():
-	return ({'None':None,})
-def a():
-	return (lambda f_local__b_4:lambda f_local__c_5:f_local__b_4)
-def _local__f_6(_ctx):
-	return (lambda f_local__x_7:f_local__x_7)
-def b():
-	return (((_local__f_6) ({'_local__f_6':_local__f_6,})) (2))
-def fn():
-	return (lambda f_local__x_8:f_local__x_8)
-m_local__a_10 = None
-m_local__b_11 = None
-def tuple():
-	return (lambda f_local__x_9:((m_local__b_11) if (match(f_local__x_9,("m_local__a_10","m_local__b_11"))) else (exit())))
-m_local__x_14 = None
-m_local__xs_15 = None
+	return (2.3)
+def s():
+	return ("abc")
 def map():
-	return (lambda f_local__f_12:lambda f_local__l_13:(({'Nil':None,}) if (match(f_local__l_13,{'Nil':None,})) else ((({'Cons':((f_local__f_12) (m_local__x_14),((map()) (f_local__f_12)) (m_local__xs_15)),}) if (match(f_local__l_13,{'Cons':("m_local__x_14","m_local__xs_15"),})) else (exit())))))
-m_local__a_17 = None
-def get_left_int():
-	return (lambda f_local__e_16:((m_local__a_17) if (match(f_local__e_16,{'Left':"m_local__a_17",})) else (exit())))
-m_local__x_19 = None
-m_local__xs_20 = None
-m_local__xxs_21 = None
-def fst_A_int():
-	return (lambda f_local__a_18:((m_local__x_19) if (match(f_local__a_18,{'A':(("m_local__x_19","m_local__xs_20"),"m_local__xxs_21"),})) else (exit())))
+	return (lambda f_local__f_1:lambda f_local__l_2:(({'Nil':None,}) if (match(f_local__l_2,{'Nil':None,})) else ((({'Cons':((f_local__f_1) (m_local__x_3),((map()) (f_local__f_1)) (m_local__xs_4)),}) if (match(f_local__l_2,{'Cons':("m_local__x_3","m_local__xs_4"),})) else (exit())))))
+def head():
+	return (lambda f_local__l_5:((m_local__x_6) if (match(f_local__l_5,{'Cons':("m_local__x_6","m_local__xs_7"),})) else (exit())))
+def head_int_list():
+	return (lambda f_local__l_8:((m_local__x_9) if (match(f_local__l_8,{'Cons':("m_local__x_9","m_local__xs_10"),})) else (exit())))
+def nil():
+	return ({'Nil':None,})
+def left_int():
+	return ({'Left':1,})
 def main():
-	return (((g()) (2)) (3))
+	return ((head_int_list()) (((map()) (lambda f_local__x_11:f_local__x_11)) ({'Cons':(1,{'Cons':(2,{'Nil':None,}),}),})))
 
 def match(pat1, pat2):
 	if (type(pat2) is dict) and (type(pat1) is dict):

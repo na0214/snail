@@ -1,44 +1,33 @@
-let f = ((fun x -> (x : a)) : b -> Int)
+let i : Int = 3
+let f : Float = 2.3
+let s : String = "abc"
 
-let g y = (fun x -> (y : Int))
 
-typedef Option a = None | Some of a
+typedef List a =
+  Nil
+| Cons of a * List a
 
-let some_2 = (Some 2 : Option Int)
-
-let some_str = (Some "abc" : Option String)
-
-let none = (None : Option a)
-
-let a (b : Int) (c : Int) = b
-
-let b =
-  let f (x : Int) = x in
-  f 2
-
-let fn = fun (x : Int) -> x
-
-let tuple (x : a * b) =
-  match x with
-    (a,b) -> b
-
-typedef List a = Nil | Cons of a * List a
-
-let rec map (f : a -> b) (l : List a) =
+let rec map (f : a -> b) (l : List a) : List b =
   match l with
     Nil -> Nil
   | Cons(x,xs) -> Cons(f x,map f xs)
 
-typedef Either (a,b) = Left of a | Right of b
+let head (l : List a) : a =
+  match l with
+    Cons(x,xs) -> x
 
-let get_left_int (e : Either (Int,a)) =
-  match e with
-    Left a -> a
+let head_int_list (l : List Int) : Int =
+  match l with
+    Cons(x,xs) -> x
 
-typedef A (a,b,c) = A of a * b * c
+let nil : List a = Nil
 
-let fst_A_int (a : A (Int,x,y)) =
-  match a with
-    A(x,xs,xxs) -> x
 
-let main = g 2 3
+typedef Either (a,b) =
+  Left of a
+| Right of b
+
+let left_int : Either (Int,a) = Left 1
+
+
+let main : Int = head_int_list (map (fun x -> x) (Cons(1,(Cons(2,Nil)))))

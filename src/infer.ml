@@ -205,7 +205,7 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
       let a = new_tyvar sb in
       infer sub_term1 (a @-> typ) ctx sb local ;
       infer sub_term2 a ctx sb local
-  | Let (rec_flag, name, unique_name, _, sub_term1, sub_term2, pos) ->
+  | Let (rec_flag, name, unique_name, _, sub_term1, sub_term2, _, pos) ->
       let a = new_tyvar sb in
       if rec_flag then
         let b = new_tyvar sb in
@@ -281,7 +281,7 @@ let typeof_toplevel toplevel context =
     List.fold_left
       (fun acc x ->
         ( match x with
-        | LetDec (rec_flag, name, _, sub_term, _) ->
+        | LetDec (rec_flag, name, _, sub_term, _, _) ->
             let typ = typeof rec_flag name sub_term acc in
             local_context := !local_context @ fst typ ;
             (name, snd typ)

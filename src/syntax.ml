@@ -11,7 +11,15 @@ type rec_flag = bool [@@deriving show]
 type pattern_list = (term * term) list [@@deriving show]
 
 and term =
-  | Let of rec_flag * string * string * argument list * term * term * pos_info
+  | Let of
+      rec_flag
+      * string
+      * string
+      * argument list
+      * term
+      * term
+      * scheme option
+      * pos_info
   | Fun of argument list * string * term * pos_info
   | App of term * term
   | IntLit of int * pos_info
@@ -29,7 +37,8 @@ exception SyntaxError of string
 type value_cons = string * snail_type option [@@deriving show]
 
 type toplevel =
-  | LetDec of rec_flag * string * argument list * term * pos_info
+  | LetDec of
+      rec_flag * string * argument list * term * scheme option * pos_info
   | TypeDef of string * string list * value_cons list * pos_info
 [@@deriving show]
 
@@ -43,7 +52,7 @@ let translate_lexbuf_to_pos_info (pos : Lexing.position) : pos_info =
 
 let rec get_pos_info_term t =
   match t with
-  | Let (_, _, _, _, _, _, p) ->
+  | Let (_, _, _, _, _, _, _, p) ->
       p
   | Fun (_, _, _, p) ->
       p

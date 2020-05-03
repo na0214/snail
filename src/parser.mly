@@ -49,9 +49,9 @@ snail_parse:
   }
 
 toplevel:
-  | LET rec_flag = option(REC) name = let_name arguments = list(argument) EQUAL t = term
+  | LET rec_flag = option(REC) name = let_name arguments = list(argument) type_annot = option(type_annotation) EQUAL t = term
   {
-    LetDec((match rec_flag with Some _ -> true | _ -> false),name,arguments,t,$1)
+    LetDec((match rec_flag with Some _ -> true | _ -> false),name,arguments,t,type_annot,$1)
   }
   | TYPEDEF name = CONS typevars = type_argument EQUAL typedec = separated_list(OR,type_declare)
   {
@@ -93,7 +93,7 @@ cons_declare:
 type_annotation:
   | COLON type_expr
   {
-    $2
+    Forall $2
   }
 
 type_expr:
@@ -135,7 +135,7 @@ simple_type_expr:
 argument:
   | LPAREN VAR typ = type_annotation RPAREN
   {
-    (fst $2,Some (Forall typ))
+    (fst $2,Some (typ))
   }
   | VAR
   {
@@ -221,9 +221,9 @@ term:
   {
     App($1,$2)
   }
-  | LET rec_flag = option(REC) name = let_name arguments = list(argument) EQUAL e1 = term IN e2 = term
+  | LET rec_flag = option(REC) name = let_name arguments = list(argument) type_annot = option(type_annotation) EQUAL e1 = term IN e2 = term
   {
-    Let((match rec_flag with Some _ -> true | _ -> false),name,"",arguments,e1,e2,$1)
+    Let((match rec_flag with Some _ -> true | _ -> false),name,"",arguments,e1,e2,type_annot,$1)
   }
   | FUN arguments = list(argument) ARROW e = term
   {
@@ -268,7 +268,7 @@ simple_term:
   | LPAREN e = term type_annot = option(type_annotation) RPAREN
   {
     match type_annot with
-    | Some x -> TypeAnnot(e,Forall x)
+    | Some x -> TypeAnnot(e,x)
     | None -> e
   }
   | INT

@@ -49,7 +49,7 @@ and rename term state ctx =
   match term with
   | Match (sub_term, pat_list, pos) ->
       Match (rename sub_term state ctx, rename_patterns pat_list state ctx, pos)
-  | Let (rec_flag, name, _, argument, sub_term1, sub_term2, pos) ->
+  | Let (rec_flag, name, _, argument, sub_term1, sub_term2, type_annot, pos) ->
       add_state state ;
       let unique_name = make_name name !state in
       Let
@@ -59,6 +59,7 @@ and rename term state ctx =
         , argument
         , rename sub_term1 state ((name, unique_name) :: ctx)
         , rename sub_term2 state ((name, unique_name) :: ctx)
+        , type_annot
         , pos )
   | App (sub_term1, sub_term2) ->
       App (rename sub_term1 state ctx, rename sub_term2 state ctx)
@@ -90,8 +91,9 @@ let rename_toplevel toplevel =
   List.map
     (fun top ->
       match top with
-      | LetDec (rec_f, name, argument, term, pos_info) ->
-          LetDec (rec_f, name, argument, rename term count [], pos_info)
+      | LetDec (rec_f, name, argument, term, type_annot, pos_info) ->
+          LetDec
+            (rec_f, name, argument, rename term count [], type_annot, pos_info)
       | t ->
           t)
     toplevel
