@@ -16,6 +16,22 @@ def b():
 	return (((_local__f_6) ({'_local__f_6':_local__f_6,})) (2))
 def fn():
 	return (lambda f_local__x_8:f_local__x_8)
+m_local__a_10 = None
+m_local__b_11 = None
+def tuple():
+	return (lambda f_local__x_9:((m_local__b_11) if (match(f_local__x_9,("m_local__a_10","m_local__b_11"))) else (exit())))
+m_local__x_14 = None
+m_local__xs_15 = None
+def map():
+	return (lambda f_local__f_12:lambda f_local__l_13:(({'Nil':None,}) if (match(f_local__l_13,{'Nil':None,})) else ((({'Cons':((f_local__f_12) (m_local__x_14),((map()) (f_local__f_12)) (m_local__xs_15)),}) if (match(f_local__l_13,{'Cons':("m_local__x_14","m_local__xs_15"),})) else (exit())))))
+m_local__a_17 = None
+def get_left_int():
+	return (lambda f_local__e_16:((m_local__a_17) if (match(f_local__e_16,{'Left':"m_local__a_17",})) else (exit())))
+m_local__x_19 = None
+m_local__xs_20 = None
+m_local__xxs_21 = None
+def fst_A_int():
+	return (lambda f_local__a_18:((m_local__x_19) if (match(f_local__a_18,{'A':(("m_local__x_19","m_local__xs_20"),"m_local__xxs_21"),})) else (exit())))
 def main():
 	return (((g()) (2)) (3))
 

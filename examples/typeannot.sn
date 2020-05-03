@@ -18,4 +18,27 @@ let b =
 
 let fn = fun (x : Int) -> x
 
+let tuple (x : a * b) =
+  match x with
+    (a,b) -> b
+
+typedef List a = Nil | Cons of a * List a
+
+let rec map (f : a -> b) (l : List a) =
+  match l with
+    Nil -> Nil
+  | Cons(x,xs) -> Cons(f x,map f xs)
+
+typedef Either (a,b) = Left of a | Right of b
+
+let get_left_int (e : Either (Int,a)) =
+  match e with
+    Left a -> a
+
+typedef A (a,b,c) = A of a * b * c
+
+let fst_A_int (a : A (Int,x,y)) =
+  match a with
+    A(x,xs,xxs) -> x
+
 let main = g 2 3

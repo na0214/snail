@@ -6,6 +6,11 @@
   match tup_list with
    [] -> Cons (",",None,pos)
   | x :: xs -> List.fold_left (fun acc -> fun a -> Prod(acc,a,pos)) x xs
+
+  let make_type_level_pair var_list =
+    match var_list with
+    | h :: xs -> List.fold_left (fun acc x -> TyPair(acc,x)) h xs
+    | [] -> TyCon(Tycon "none")
 %}
 
 %token <int*Syntax.pos_info> INT
@@ -121,6 +126,10 @@ simple_type_expr:
   | CONS
   {
     TyCon (Tycon (fst $1))
+  }
+  | LPAREN separated_list(COMMA,type_expr) RPAREN
+  {
+    make_type_level_pair $2
   }
 
 argument:
