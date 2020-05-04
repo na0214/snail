@@ -273,7 +273,7 @@ let typeof rec_flag name term ctx =
         []
         (Syntax.get_pos_info_term term) ) )
 
-let default_context = []
+let default_context = [("()", Forall (TyCon (Tycon "()")))]
 
 let typeof_toplevel toplevel context =
   let local_context = ref [] in

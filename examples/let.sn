@@ -5,4 +5,4 @@ let f =
     let z x = x in
       z g
 
-let main = f
+let main = ()

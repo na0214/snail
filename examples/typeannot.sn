@@ -14,7 +14,7 @@ let rec map (f : a -> b) (l : List a) : List b =
 
 let head (l : List a) : a =
   match l with
-    Cons(x,xs) -> x
+    Cons(x,xs) -> (x : a)
 
 let head_int_list (l : List Int) : Int =
   match l with
@@ -30,4 +30,19 @@ typedef Either (a,b) =
 let left_int : Either (Int,a) = Left 1
 
 
-let main : Int = head_int_list (map (fun x -> x) (Cons(1,(Cons(2,Nil)))))
+let local_let_annot =
+  let i : Int = 1 in
+  let f (x : a) : a = x in
+  f i
+
+
+let (|>) (x : a) (y : a -> b) : b = y x
+
+let pipe_example : Int =
+  Cons(1,(Cons(2,Nil))) 
+  |> map (fun x -> x)
+  |> head
+  |> fun (x : Int) -> Cons(x,Nil)
+  |> head_int_list
+
+let main = pipe_example

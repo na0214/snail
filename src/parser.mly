@@ -17,9 +17,9 @@
 %token <float*Syntax.pos_info> FLOAT
 %token <string*Syntax.pos_info> STRING
 %token <string*Syntax.pos_info> ID CONS VAR BINOP1L BINOP2L BINOP3R BINOP4R BINOP5L BINOP6R
-%token <Syntax.pos_info> LPAREN RPAREN LBRAC RBRAC LCBRAC RCBRAC
+%token <Syntax.pos_info> LPAREN RPAREN LBRAC RBRAC LCBRAC RCBRAC 
 %token <Syntax.pos_info> LET FUN IN REC TYPEDEF OF ASTE OR
-%token <Syntax.pos_info> MATCH WITH END
+%token <Syntax.pos_info> MATCH WITH END UNIT
 %token <Syntax.pos_info> EQUAL LESS GREAT PERIOD COMMA COLON SEMICOLON ARROW
 %token <Syntax.pos_info> EOF
 
@@ -130,6 +130,10 @@ simple_type_expr:
   | LPAREN separated_list(COMMA,type_expr) RPAREN
   {
     make_type_level_pair $2
+  }
+  | UNIT
+  {
+    TyCon (Tycon "()")
   }
 
 argument:
@@ -290,4 +294,8 @@ simple_term:
   | CONS app = option(simple_term)
   {
     Cons(fst $1,app,snd $1)
+  }
+  | UNIT
+  {
+    Cons("()",None,$1)
   }
