@@ -35,6 +35,16 @@ let generate_unique_name_list name_list state =
       (x, "m" ^ make_name x !state) :: acc)
     [] name_list
 
+let make_mutual_bind_context mut_bind state =
+  List.map
+    (fun x ->
+      match x with
+      | MutLetBind (name, _, _, _, _, _) ->
+          (name, make_name name !state)
+      | _ ->
+          ("error", "error"))
+    mut_bind
+
 let rec rename_patterns pat_list state ctx =
   List.map
     (fun pat ->
@@ -49,18 +59,35 @@ and rename term state ctx =
   match term with
   | Match (sub_term, pat_list, pos) ->
       Match (rename sub_term state ctx, rename_patterns pat_list state ctx, pos)
-  | Let (rec_flag, name, _, argument, sub_term1, sub_term2, type_annot, pos) ->
+  | Let
+      ( rec_flag
+      , name
+      , _
+      , argument
+      , sub_term1
+      , sub_term2
+      , type_annot
+      , pos
+      , let_bind ) ->
       add_state state ;
       let unique_name = make_name name !state in
+      let new_context =
+        ((name, unique_name) :: make_mutual_bind_context let_bind state) @ ctx
+      in
       Let
         ( rec_flag
         , name
         , unique_name
         , argument
-        , rename sub_term1 state ((name, unique_name) :: ctx)
-        , rename sub_term2 state ((name, unique_name) :: ctx)
+        , rename sub_term1 state new_context
+        , rename sub_term2 state new_context
         , type_annot
-        , pos )
+        , pos
+        , List.map (fun x -> rename x state new_context) let_bind )
+  | MutLetBind (name, _, arguments, sub_term, type_annot, pos) ->
+      let uname = find_rename_context name ctx in
+      MutLetBind
+        (name, uname, arguments, rename sub_term state ctx, type_annot, pos)
   | App (sub_term1, sub_term2) ->
       App (rename sub_term1 state ctx, rename sub_term2 state ctx)
   | Fun ([argument], _, sub_term, pos) ->
@@ -86,14 +113,20 @@ and rename term state ctx =
   | t ->
       t
 
-let rename_toplevel toplevel =
+let rec rename_toplevel toplevel =
   let count = ref 0 in
   List.map
     (fun top ->
       match top with
-      | LetDec (rec_f, name, argument, term, type_annot, pos_info) ->
+      | LetDec (rec_f, name, argument, term, type_annot, pos_info, let_bind) ->
           LetDec
-            (rec_f, name, argument, rename term count [], type_annot, pos_info)
+            ( rec_f
+            , name
+            , argument
+            , rename term count []
+            , type_annot
+            , pos_info
+            , rename_toplevel let_bind )
       | t ->
           t)
     toplevel

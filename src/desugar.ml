@@ -8,7 +8,9 @@ let make_lambda args term pos type_annot =
 
 let rec let_expr_to_unary_function term =
   match term with
-  | Let (rec_flag, name, _, args, sub_term1, sub_term2, type_annot, pos) ->
+  | Let
+      (rec_flag, name, _, args, sub_term1, sub_term2, type_annot, pos, let_bind)
+    ->
       Let
         ( rec_flag
         , name
@@ -16,6 +18,15 @@ let rec let_expr_to_unary_function term =
         , args
         , make_lambda args (let_expr_to_unary_function sub_term1) pos type_annot
         , let_expr_to_unary_function sub_term2
+        , type_annot
+        , pos
+        , List.map let_expr_to_unary_function let_bind )
+  | MutLetBind (name, _, args, sub_term, type_annot, pos) ->
+      MutLetBind
+        ( name
+        , ""
+        , args
+        , make_lambda args (let_expr_to_unary_function sub_term) pos type_annot
         , type_annot
         , pos )
   | Fun (arg, name, sub_term, pos) ->
@@ -45,16 +56,17 @@ let rec let_expr_to_unary_function term =
 
 let desugar_term = let_expr_to_unary_function
 
-let translate_unary_function term =
+let rec translate_unary_function term =
   match term with
-  | LetDec (rec_f, name, args, sub_term, type_annot, pos) ->
+  | LetDec (rec_f, name, args, sub_term, type_annot, pos, let_bind) ->
       LetDec
         ( rec_f
         , name
         , args
         , make_lambda args (desugar_term sub_term) pos type_annot
         , type_annot
-        , pos )
+        , pos
+        , List.map translate_unary_function let_bind )
   | _ ->
       term
 

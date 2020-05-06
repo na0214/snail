@@ -1,5 +1,17 @@
 def f():
-	return (3)
+	return (g())
+def g():
+	return (2)
+m_local__x_2 = None
+m_local__xs_3 = None
+def a():
+	return (lambda f_local__l_1:(("even") if (match(f_local__l_1,{'Nil':None,})) else ((((b()) (m_local__xs_3)) if (match(f_local__l_1,{'Cons':("m_local__x_2","m_local__xs_3"),})) else (exit())))))
+m_local__x_2 = None
+m_local__xs_3 = None
+def b():
+	return (lambda f_local__l_1:(("odd") if (match(f_local__l_1,{'Nil':None,})) else ((((a()) (m_local__xs_3)) if (match(f_local__l_1,{'Cons':("m_local__x_2","m_local__xs_3"),})) else (exit())))))
+def main():
+	return ((a()) ({'Cons':(1,{'Cons':(2,{'Cons':(3,{'Cons':(4,{'Nil':None,}),}),}),}),}))
 
 def match(pat1, pat2):
 	if (type(pat2) is dict) and (type(pat1) is dict):

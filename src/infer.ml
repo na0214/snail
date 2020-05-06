@@ -7,6 +7,8 @@ type context = (string * scheme) list [@@deriving show]
 
 exception TypeError of string * pos_info
 
+let default_context = [("()", Forall (TyCon (Tycon "()")))]
+
 let rec get_unique_tyvar typ =
   match typ with
   | TyVar (Tyvar n) ->
@@ -173,8 +175,17 @@ let rec get_pattern_var_unique term =
 let generate_pattern_var_ctx sb bind_var =
   List.map (fun v -> (v, Forall (new_tyvar sb))) bind_var
 
+let generate_mutual_bind_context_let let_bind sb =
+  List.map
+    (fun x ->
+      match x with
+      | MutLetBind (_, uname, _, _, _, _) ->
+          (uname, Forall (new_tyvar sb))
+      | _ ->
+          ("error", Forall (TyCon (Tycon "error"))))
+    let_bind
+
 let rec infer term typ (ctx : context) sb (local : local_let_context) =
-  (*print_string (show_term term ^ "\n") ;*)
   match term with
   | IntLit (_, pos) ->
       unify (TyCon (Tycon "Int")) typ sb pos
@@ -205,7 +216,7 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
       let a = new_tyvar sb in
       infer sub_term1 (a @-> typ) ctx sb local ;
       infer sub_term2 a ctx sb local
-  | Let (rec_flag, name, unique_name, _, sub_term1, sub_term2, _, pos) ->
+  | Let (rec_flag, name, unique_name, _, sub_term1, sub_term2, _, pos, []) ->
       let a = new_tyvar sb in
       if rec_flag then
         let b = new_tyvar sb in
@@ -217,6 +228,23 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
         (name, quantification (apply_subst (get_subst sb) a) ctx pos) :: ctx
       in
       infer sub_term2 typ new_ctx sb local
+  | Let (_, _, unique_name, _, sub_term1, sub_term2, _, _, let_bind) ->
+      let a = new_tyvar sb in
+      let new_ctx =
+        (unique_name, Forall a) :: generate_mutual_bind_context_let let_bind sb
+      in
+      infer sub_term1 a new_ctx sb local ;
+      List.iter
+        (fun x ->
+          match x with
+          | MutLetBind (_, uname, _, sub_term, _, pos) ->
+              infer sub_term
+                (match find_context uname new_ctx pos with Forall x -> x)
+                new_ctx sb local
+          | _ ->
+              print_string "error")
+        let_bind ;
+      infer sub_term2 typ new_ctx sb local
   | Cons (name, app_term, pos) -> (
       let sc = find_context name ctx pos in
       let typ1 = fresh_inst sc sb in
@@ -224,10 +252,6 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
       | Some app ->
           let a = new_tyvar sb in
           infer app a ctx sb local ;
-          (*" ( "
-          ^ print_scheme (quantification (apply_subst (get_subst sb) a) ctx)
-          ^ " ) \n"
-          |> print_string ;*)
           unify typ1 (a @-> typ) sb pos
       | None ->
           unify typ1 typ sb pos )
@@ -253,6 +277,16 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
   | _ ->
       ()
 
+let generate_mutual_bind_context_top let_bind sb =
+  List.map
+    (fun x ->
+      match x with
+      | LetDec (_, name, _, _, _, _, _) ->
+          (name, Forall (new_tyvar sb))
+      | _ ->
+          ("error", Forall (TyCon (Tycon "error"))))
+    let_bind
+
 let typeof rec_flag name term ctx =
   let sb = ref ([], 0) in
   let local_let_ctx = ref [] in
@@ -273,7 +307,34 @@ let typeof rec_flag name term ctx =
         []
         (Syntax.get_pos_info_term term) ) )
 
-let default_context = [("()", Forall (TyCon (Tycon "()")))]
+let typeof_mutually_recursive name term let_bind ctx local_let_ctx =
+  let sb = ref ([], 0) in
+  let a = new_tyvar sb in
+  let new_tyvar_ctx =
+    (name, Forall a) :: generate_mutual_bind_context_top let_bind sb
+  in
+  let new_ctx = new_tyvar_ctx @ ctx in
+  infer term a new_ctx sb local_let_ctx ;
+  List.iter
+    (fun x ->
+      match x with
+      | LetDec (_, name, _, sub_term, _, _, _) ->
+          infer sub_term
+            ( match find_context name new_ctx (get_pos_info_term sub_term) with
+            | Forall x ->
+                x )
+            new_ctx sb local_let_ctx
+      | _ ->
+          print_string "error")
+    let_bind ;
+  List.map
+    (fun (n, Forall v) ->
+      ( n
+      , quantification
+          (apply_subst (get_subst sb) v)
+          []
+          (Syntax.get_pos_info_term term) ))
+    new_tyvar_ctx
 
 let typeof_toplevel toplevel context =
   let local_context = ref [] in
@@ -281,13 +342,20 @@ let typeof_toplevel toplevel context =
     List.fold_left
       (fun acc x ->
         ( match x with
-        | LetDec (rec_flag, name, _, sub_term, _, _) ->
+        | LetDec (rec_flag, name, _, sub_term, _, _, []) ->
             let typ = typeof rec_flag name sub_term acc in
             local_context := !local_context @ fst typ ;
-            (name, snd typ)
+            [(name, snd typ)]
+        | LetDec (_, name, _, sub_term, _, _, let_bind) ->
+            let local_let_ctx = ref [] in
+            let type_ctx =
+              typeof_mutually_recursive name sub_term let_bind acc local_let_ctx
+            in
+            local_context := !local_context @ !local_let_ctx ;
+            type_ctx
         | _ ->
-            ("__none__", Forall (TyCon (Tycon "None"))) )
-        :: acc)
+            [("__none__", Forall (TyCon (Tycon "None")))] )
+        @ acc)
       (context @ default_context)
       toplevel
   in

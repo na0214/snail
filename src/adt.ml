@@ -19,11 +19,11 @@ let generate_adt_type type_name tyvars typ pos =
       (typ @-> TyApp (TyCon (Tycon type_name), generate_tyvars_product tyvars))
       [] pos
 
-let generate_adt_context toplevel =
+let rec generate_adt_context toplevel =
   List.fold_left
     (fun acc_1 x ->
       match x with
-      | TypeDef (type_name, tyvars, value_cons, pos) ->
+      | TypeDef (type_name, tyvars, value_cons, pos, typedef) ->
           acc_1
           @ List.fold_left
               (fun acc_2 value_con ->
@@ -40,6 +40,7 @@ let generate_adt_context toplevel =
                         [] pos )
                     :: acc_2)
               [] value_cons
+          @ generate_adt_context typedef
       | _ ->
           acc_1 @ [])
     [] toplevel

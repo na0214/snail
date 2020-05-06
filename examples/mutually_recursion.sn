@@ -1,0 +1,15 @@
+let rec f = g
+and g = 2
+
+typedef List a = Nil | Cons of a * List a
+
+let rec a l = 
+  match l with
+    Nil -> "even"
+  | Cons(x,xs) -> b xs
+and b l =
+  match l with
+    Nil -> "odd"
+  | Cons(x,xs) -> a xs
+
+let main = a (Cons(1,Cons(2,Cons(3,Cons(4,Nil)))))

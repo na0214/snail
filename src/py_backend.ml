@@ -147,6 +147,16 @@ let py_code_generate (pcode : py_code) : string =
           ^ "\n")
     "" pcode
 
+let make_mutual_bind_python_context mut_bind =
+  List.map
+    (fun x ->
+      match x with
+      | MutLetBind (_, uname, _, _, _, _) ->
+          (uname, PyTerm_Var uname)
+      | _ ->
+          ("error", PyTerm_Var "error"))
+    mut_bind
+
 let rec translate_term_to_python term ctx inner_pat =
   match term with
   | IntLit (v, _) ->
@@ -184,29 +194,28 @@ let rec translate_term_to_python term ctx inner_pat =
         ( translate_term_to_python sub_term1 ctx inner_pat
         , translate_term_to_python sub_term2 ctx inner_pat )
   | Match (sub_term, pat_list, _) ->
-      let r =
-        List.fold_right
-          (fun (pat, t) acc ->
-            let new_ctx =
-              ctx
-              @ List.map
-                  (fun n -> (n, PyTerm_Var n))
-                  (get_pattern_var_unique pat)
-            in
-            PyTerm_Match_If
-              ( translate_term_to_python sub_term ctx inner_pat
-              , translate_term_to_python pat new_ctx true
-              , translate_term_to_python t new_ctx inner_pat
-              , acc ))
-          pat_list PyTerm_Error
+      List.fold_right
+        (fun (pat, t) acc ->
+          let new_ctx =
+            ctx
+            @ List.map (fun n -> (n, PyTerm_Var n)) (get_pattern_var_unique pat)
+          in
+          PyTerm_Match_If
+            ( translate_term_to_python sub_term ctx inner_pat
+            , translate_term_to_python pat new_ctx true
+            , translate_term_to_python t new_ctx inner_pat
+            , acc ))
+        pat_list PyTerm_Error
+  | Let (_, _, uname, _, _, sub_term, _, _, let_bind) ->
+      let new_ctx =
+        ((uname, PyTerm_Var uname) :: make_mutual_bind_python_context let_bind)
+        @ ctx
       in
-      r
-  | Let (_, _, uname, _, _, sub_term, _, _) ->
-      translate_term_to_python sub_term
-        ((uname, PyTerm_Var uname) :: ctx)
-        inner_pat
+      translate_term_to_python sub_term new_ctx inner_pat
   | TypeAnnot (sub_term, _) ->
       translate_term_to_python sub_term ctx inner_pat
+  | _ ->
+      PyTerm_String "error"
 
 let rec replace_ctx_variable term ctx =
   match term with
@@ -244,13 +253,25 @@ let rec replace_ctx_variable term ctx =
 (* ローカル束縛をトップレベルに展開 *)
 let rec generate_local_var_func term ctx =
   match term with
-  | Let (_, _, name, _, sub_term, sub_term2, _, _) ->
-      let new_ctx = (name, PyTerm_Var name) :: ctx in
+  | Let (_, _, name, _, sub_term, sub_term2, _, _, let_bind) ->
+      let new_ctx =
+        ((name, PyTerm_Var name) :: make_mutual_bind_python_context let_bind)
+        @ ctx
+      in
       let body =
-        replace_ctx_variable (translate_term_to_python sub_term ctx false) ctx
+        replace_ctx_variable
+          (translate_term_to_python sub_term new_ctx false)
+          new_ctx
       in
       (Bind (true, name, body) :: generate_local_var_func sub_term new_ctx)
       @ generate_local_var_func sub_term2 new_ctx
+      @ List.flatten
+          (List.map (fun x -> generate_local_var_func x new_ctx) let_bind)
+  | MutLetBind (_, name, _, sub_term, _, _) ->
+      let body =
+        replace_ctx_variable (translate_term_to_python sub_term ctx false) ctx
+      in
+      [Bind (true, name, body)]
   | Fun (_, name, sub_term, _) ->
       let new_ctx = (name, PyTerm_Var name) :: ctx in
       generate_local_var_func sub_term new_ctx
@@ -275,8 +296,12 @@ let rec generate_local_var_func term ctx =
 
 let rec generate_pattern_var term =
   match term with
-  | Let (_, _, _, _, sub_term1, sub_term2, _, _) ->
-      generate_pattern_var sub_term1 @ generate_pattern_var sub_term2
+  | Let (_, _, _, _, sub_term1, sub_term2, _, _, let_bind) ->
+      generate_pattern_var sub_term1
+      @ generate_pattern_var sub_term2
+      @ List.flatten (List.map generate_pattern_var let_bind)
+  | MutLetBind (_, _, _, sub_term, _, _) ->
+      generate_pattern_var sub_term
   | Fun (_, _, sub_term, _) ->
       generate_pattern_var sub_term
   | App (sub_term1, sub_term2) ->
@@ -296,18 +321,36 @@ let rec generate_pattern_var term =
   | _ ->
       []
 
-let translate_snail_to_python (ast : snail_AST) : string =
-  List.fold_left
-    (fun acc top ->
-      match top with
-      | LetDec (_, name, _, term, _, _) ->
+let generate_mutual_bind_context let_bind =
+  List.map
+    (fun x ->
+      match x with
+      | LetDec (_, name, _, term, _, _, _) ->
           let pattern_ctx = generate_pattern_var term in
           let local_ctx = generate_local_var_func term [] in
           let new_bind =
             Bind (false, name, translate_term_to_python term [] false)
           in
+          pattern_ctx @ local_ctx @ [new_bind]
+      | _ ->
+          [])
+    let_bind
+  |> List.flatten
+
+let translate_snail_to_python (ast : snail_AST) : string =
+  List.fold_left
+    (fun acc top ->
+      match top with
+      | LetDec (_, name, _, term, _, _, let_bind) ->
+          let pattern_ctx = generate_pattern_var term in
+          let local_ctx = generate_local_var_func term [] in
+          let new_bind =
+            Bind (false, name, translate_term_to_python term [] false)
+          in
+          let mutual_bind_ctx = generate_mutual_bind_context let_bind in
           let result_str =
-            py_code_generate (pattern_ctx @ local_ctx @ [new_bind])
+            py_code_generate
+              (pattern_ctx @ local_ctx @ [new_bind] @ mutual_bind_ctx)
           in
           acc ^ result_str
       | _ ->
