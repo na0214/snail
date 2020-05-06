@@ -20,6 +20,9 @@ and term =
       * term
       * scheme option
       * pos_info
+      * term list
+  | MutLetBind of
+      string * string * argument list * term * scheme option * pos_info
   | Fun of argument list * string * term * pos_info
   | App of term * term
   | IntLit of int * pos_info
@@ -38,8 +41,14 @@ type value_cons = string * snail_type option [@@deriving show]
 
 type toplevel =
   | LetDec of
-      rec_flag * string * argument list * term * scheme option * pos_info
-  | TypeDef of string * string list * value_cons list * pos_info
+      rec_flag
+      * string
+      * argument list
+      * term
+      * scheme option
+      * pos_info
+      * toplevel list
+  | TypeDef of string * string list * value_cons list * pos_info * toplevel list
 [@@deriving show]
 
 type snail_AST = toplevel list [@@deriving show]
@@ -52,7 +61,7 @@ let translate_lexbuf_to_pos_info (pos : Lexing.position) : pos_info =
 
 let rec get_pos_info_term t =
   match t with
-  | Let (_, _, _, _, _, _, _, p) ->
+  | Let (_, _, _, _, _, _, _, p, _) ->
       p
   | Fun (_, _, _, p) ->
       p
@@ -74,3 +83,5 @@ let rec get_pos_info_term t =
       p
   | TypeAnnot (t, _) ->
       get_pos_info_term t
+  | MutLetBind (_, _, _, _, _, p) ->
+      p

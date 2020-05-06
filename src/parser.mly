@@ -49,13 +49,33 @@ snail_parse:
   }
 
 toplevel:
-  | LET rec_flag = option(REC) name = let_name arguments = list(argument) type_annot = option(type_annotation) EQUAL t = term
+  | LET rec_flag = option(REC) name = let_name arguments = list(argument) type_annot = option(type_annotation) EQUAL t = term mutual_rec = mutual_recursion_top_let
   {
-    LetDec((match rec_flag with Some _ -> true | _ -> false),name,arguments,t,type_annot,$1)
+    LetDec((match rec_flag with Some _ -> true | _ -> false),name,arguments,t,type_annot,$1,mutual_rec)
   }
-  | TYPEDEF name = CONS typevars = type_argument EQUAL typedec = separated_list(OR,type_declare)
+  | TYPEDEF name = CONS typevars = type_argument EQUAL typedec = separated_list(OR,type_declare) mutual_rec = mutual_recursion_top_typedec
   {
-    TypeDef(fst name,typevars,typedec,$1)
+    TypeDef(fst name,typevars,typedec,$1,mutual_rec)
+  }
+
+mutual_recursion_top_let:
+  |
+  {
+    []
+  }
+  | AND name = let_name arguments = list(argument) type_annot = option(type_annotation) EQUAL t = term mutual_rec = mutual_recursion_top_let
+  {
+    LetDec(true,name,arguments,t,type_annot,$1,[]) :: mutual_rec
+  }
+
+mutual_recursion_top_typedec:
+  |
+  {
+    []
+  }
+  | AND name = CONS typevars = type_argument EQUAL typedec = separated_list(OR,type_declare) mutual_rec = mutual_recursion_top_typedec
+  {
+    TypeDef(fst name,typevars,typedec,$1,[]) :: mutual_rec
   }
 
 type_argument:
@@ -216,6 +236,16 @@ let_name:
     $2
   }
 
+mutual_recursion_let:
+  |
+  {
+    []
+  }
+  | AND name = let_name arguments = list(argument) type_annot = option(type_annotation) EQUAL e1 = term mutual_rec = mutual_recursion_let
+  {
+    MutLetBind(name,"",arguments,e1,type_annot,$1) :: mutual_rec
+  }
+
 term:
   | simple_term
   {
@@ -225,9 +255,9 @@ term:
   {
     App($1,$2)
   }
-  | LET rec_flag = option(REC) name = let_name arguments = list(argument) type_annot = option(type_annotation) EQUAL e1 = term IN e2 = term
+  | LET rec_flag = option(REC) name = let_name arguments = list(argument) type_annot = option(type_annotation) EQUAL e1 = term IN e2 = term mutual_rec = mutual_recursion_let
   {
-    Let((match rec_flag with Some _ -> true | _ -> false),name,"",arguments,e1,e2,type_annot,$1)
+    Let((match rec_flag with Some _ -> true | _ -> false),name,"",arguments,e1,e2,type_annot,$1,mutual_rec)
   }
   | FUN arguments = list(argument) ARROW e = term
   {
