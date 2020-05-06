@@ -179,8 +179,8 @@ let generate_mutual_bind_context_let let_bind sb =
   List.map
     (fun x ->
       match x with
-      | MutLetBind (_, uname, _, _, _, _) ->
-          (uname, Forall (new_tyvar sb))
+      | MutLetBind (name, _, _, _, _, _) ->
+          (name, Forall (new_tyvar sb))
       | _ ->
           ("error", Forall (TyCon (Tycon "error"))))
     let_bind
@@ -228,19 +228,24 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
         (name, quantification (apply_subst (get_subst sb) a) ctx pos) :: ctx
       in
       infer sub_term2 typ new_ctx sb local
-  | Let (_, _, unique_name, _, sub_term1, sub_term2, _, _, let_bind) ->
+  | Let (_, name, unique_name, _, sub_term1, sub_term2, _, pos, let_bind) ->
       let a = new_tyvar sb in
       let new_ctx =
-        (unique_name, Forall a) :: generate_mutual_bind_context_let let_bind sb
+        ((name, Forall a) :: generate_mutual_bind_context_let let_bind sb) @ ctx
       in
       infer sub_term1 a new_ctx sb local ;
+      add_local_let_context local unique_name
+        (quantification (apply_subst (get_subst sb) a) ctx pos) ;
       List.iter
         (fun x ->
           match x with
-          | MutLetBind (_, uname, _, sub_term, _, pos) ->
-              infer sub_term
-                (match find_context uname new_ctx pos with Forall x -> x)
-                new_ctx sb local
+          | MutLetBind (name, unique_name, _, sub_term, _, pos) ->
+              let tyvar =
+                match find_context name new_ctx pos with Forall x -> x
+              in
+              infer sub_term tyvar new_ctx sb local ;
+              add_local_let_context local unique_name
+                (quantification (apply_subst (get_subst sb) tyvar) new_ctx pos)
           | _ ->
               print_string "error")
         let_bind ;

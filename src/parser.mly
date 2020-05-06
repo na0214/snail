@@ -255,7 +255,7 @@ term:
   {
     App($1,$2)
   }
-  | LET rec_flag = option(REC) name = let_name arguments = list(argument) type_annot = option(type_annotation) EQUAL e1 = term IN e2 = term mutual_rec = mutual_recursion_let
+  | LET rec_flag = option(REC) name = let_name arguments = list(argument) type_annot = option(type_annotation) EQUAL e1 = term mutual_rec = mutual_recursion_let IN e2 = term
   {
     Let((match rec_flag with Some _ -> true | _ -> false),name,"",arguments,e1,e2,type_annot,$1,mutual_rec)
   }
