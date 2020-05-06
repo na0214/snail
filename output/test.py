@@ -1,13 +1,5 @@
-def _local__g_1(_ctx):
-	return (((_local__e_4) ({'_local__e_4':_local__e_4,})) (3))
-def _local__e_4(_ctx):
-	return (lambda f_local__x_5:f_local__x_5)
-def _local__z_2(_ctx):
-	return (lambda f_local__x_3:f_local__x_3)
 def f():
-	return (((_local__z_2) ({'_local__z_2':_local__z_2,'_local__g_1':_local__g_1,})) ((_local__g_1) ({'_local__z_2':_local__z_2,'_local__g_1':_local__g_1,})))
-def main():
-	return ({'()':None,})
+	return (3)
 
 def match(pat1, pat2):
 	if (type(pat2) is dict) and (type(pat1) is dict):

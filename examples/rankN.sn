@@ -1,0 +1,8 @@
+let rank2 (f : forall x.x -> x) =
+  let a = f 2 in
+  let b = f "abc" in
+  
+let rank3 (f : forall x.(forall y.y -> y) -> x) =
+  let a = f (fun x -> x) in a
+
+let main = rank2 (fun x -> x)

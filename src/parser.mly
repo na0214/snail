@@ -19,7 +19,7 @@
 %token <string*Syntax.pos_info> ID CONS VAR BINOP1L BINOP2L BINOP3R BINOP4R BINOP5L BINOP6R
 %token <Syntax.pos_info> LPAREN RPAREN LBRAC RBRAC LCBRAC RCBRAC 
 %token <Syntax.pos_info> LET FUN IN REC TYPEDEF OF ASTE OR
-%token <Syntax.pos_info> MATCH WITH END UNIT
+%token <Syntax.pos_info> MATCH WITH END UNIT AND
 %token <Syntax.pos_info> EQUAL LESS GREAT PERIOD COMMA COLON SEMICOLON ARROW
 %token <Syntax.pos_info> EOF
 
