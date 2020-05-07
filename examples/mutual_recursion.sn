@@ -10,7 +10,7 @@ and b l =
   | Cons(x,xs) -> a xs
 
 let f =
-  let rec p x = Cons(1,q x)
+  let rec p x : List Int = Cons(1,q x)
   and q x = Cons(2,p x) in
   p
 
