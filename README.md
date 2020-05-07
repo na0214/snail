@@ -2,6 +2,13 @@
 
 SnailMLはシンプルな関数型言語です
 
+## Installation
+
+```bash
+git clone https://github.com/na0214/SnailML.git
+dune install
+```
+
 ## 現在実装したもの
 
 - unificationベースの型推論
