@@ -1,0 +1,11 @@
+opam-version: "1.2"
+maintainer: "nk.aoi0214@gmail.com"
+authors: ["Aoi Nakamura"]
+homepage: "https://github.com/na0214/SnailML"
+bug-reports: "https://github.com/na0214/SnailML/issues"
+license: "MIT"
+build:
+[[ "dune" "build" "--only-packages" "%{name}%" "--root" "." "-j" jobs "@install" ]]
+depends: [
+  "dune" {build}
+]

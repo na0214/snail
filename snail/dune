@@ -1,0 +1,1 @@
+(executable (name snail) (public_name snail) (libraries src))
