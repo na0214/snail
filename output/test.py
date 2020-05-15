@@ -1,3 +1,15 @@
+def add():
+	return (lambda f_local__x_1:lambda f_local__y_2:((_k()) (f_local__x_1)) (f_local__y_2))
+def sub():
+	return (lambda f_local__x_3:lambda f_local__y_4:((_g()) (f_local__x_3)) (f_local__y_4))
+def mul():
+	return (lambda f_local__x_5:lambda f_local__y_6:((_f()) (f_local__x_5)) (f_local__y_6))
+def div():
+	return (lambda f_local__x_7:lambda f_local__y_8:((_p()) (f_local__x_7)) (f_local__y_8))
+def add23():
+	return (((add()) (2)) (3))
+def main():
+	return ((print_string()) ("abc"))
 
 def match(pat1, pat2):
 	if (type(pat2) is dict) and (type(pat1) is dict):

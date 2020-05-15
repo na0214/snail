@@ -269,6 +269,10 @@ term:
   {
     Match (t,pattern_dec,$1)
   }
+  | t1 = term op = ASTE t2 = term
+  {
+    App(App(Var("*","",op),t1),t2)
+  }
   | t1 = term op = BINOP1L t2 = term
   {
     App(App(Var(fst op,"",snd op),t1),t2)
