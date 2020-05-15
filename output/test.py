@@ -1,19 +1,31 @@
-m_local__x_2 = None
-m_local__xs_3 = None
-def a():
-	return (lambda f_local__l_1:(("even") if (match(f_local__l_1,{'Nil':None,})) else ((((b()) (m_local__xs_3)) if (match(f_local__l_1,{'Cons':("m_local__x_2","m_local__xs_3"),})) else (exit())))))
-m_local__x_2 = None
-m_local__xs_3 = None
-def b():
-	return (lambda f_local__l_1:(("odd") if (match(f_local__l_1,{'Nil':None,})) else ((((a()) (m_local__xs_3)) if (match(f_local__l_1,{'Cons':("m_local__x_2","m_local__xs_3"),})) else (exit())))))
-def _local__p_4(_ctx):
-	return (lambda f_local__x_6:{'Cons':(1,((_ctx["_local__q_4"]) ({'f_local__x_6':f_local__x_6,'_local__p_4':_ctx["_local__p_4"],'_local__q_4':_ctx["_local__q_4"],})) (f_local__x_6)),})
-def _local__q_4(_ctx):
-	return (lambda f_local__x_5:{'Cons':(2,((_ctx["_local__p_4"]) ({'f_local__x_5':f_local__x_5,'_local__p_4':_ctx["_local__p_4"],'_local__q_4':_ctx["_local__q_4"],})) (f_local__x_5)),})
+def i():
+	return (3)
 def f():
-	return ((_local__p_4) ({'_local__p_4':_local__p_4,'_local__q_4':_local__q_4,}))
+	return (2.3)
+def s():
+	return ("abc")
+def map():
+	return (lambda f_local__f_1:lambda f_local__l_2:(({'Nil':None,}) if (match(f_local__l_2,{'Nil':None,})) else ((({'Cons':((f_local__f_1) (m_local__x_3),((map()) (f_local__f_1)) (m_local__xs_4)),}) if (match(f_local__l_2,{'Cons':("m_local__x_3","m_local__xs_4"),})) else (exit())))))
+def head():
+	return (lambda f_local__l_5:((m_local__x_6) if (match(f_local__l_5,{'Cons':("m_local__x_6","m_local__xs_7"),})) else (exit())))
+def head_int_list():
+	return (lambda f_local__l_8:((m_local__x_9) if (match(f_local__l_8,{'Cons':("m_local__x_9","m_local__xs_10"),})) else (exit())))
+def nil():
+	return ({'Nil':None,})
+def left_int():
+	return ({'Left':1,})
+def _local__i_11(_ctx):
+	return (1)
+def _local__f_12(_ctx):
+	return (lambda f_local__x_13:f_local__x_13)
+def local_let_annot():
+	return (((_local__f_12) ({'_local__f_12':_local__f_12,'_local__i_11':_local__i_11,})) ((_local__i_11) ({'_local__f_12':_local__f_12,'_local__i_11':_local__i_11,})))
+def _o_i():
+	return (lambda f_local__x_14:lambda f_local__y_15:(f_local__y_15) (f_local__x_14))
+def pipe_example():
+	return (((_o_i()) (((_o_i()) (((_o_i()) ({'Cons':(1,{'Cons':(2,{'Nil':None,}),}),})) ((map()) (lambda f_local__x_17:f_local__x_17)))) (head()))) (lambda f_local__x_16:((_o_i()) ({'Cons':(f_local__x_16,{'Nil':None,}),})) (head_int_list())))
 def main():
-	return ((a()) ({'Cons':(1,{'Cons':(2,{'Cons':(3,{'Cons':(4,{'Nil':None,}),}),}),}),}))
+	return (pipe_example())
 
 def match(pat1, pat2):
 	if (type(pat2) is dict) and (type(pat1) is dict):

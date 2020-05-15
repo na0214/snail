@@ -16,30 +16,31 @@ let parse_with_error lexbuf =
         lexbuf ;
       exit (-1)
 
+(* print type context *)
 let print_context ctx =
   List.iter
     (fun (name, sc) ->
       print_string (name ^ " : " ^ Typedef.print_scheme sc ^ "\n"))
     ( List.filter
         (fun (_, sc) -> not (sc = Typedef.Forall (TyCon (Tycon "None"))))
+        (* remove jank type definition *)
         ctx
     |> List.rev )
+
+let parse in_chan =
+  let lexbuf = Lexing.from_channel in_chan in
+  lexbuf.lex_curr_p <- {lexbuf.lex_curr_p with pos_fname= "test"} ;
+  parse_with_error lexbuf
 
 let _ =
   let in_chan =
     if Array.length Sys.argv = 2 then open_in Sys.argv.(1) else stdin
   in
-  let lexbuf = Lexing.from_channel in_chan in
-  lexbuf.lex_curr_p <- {lexbuf.lex_curr_p with pos_fname= "test"} ;
-  let toplevel = parse_with_error lexbuf in
-  (*print_string (Syntax.show_snail_AST toplevel ^ "\n") ;*)
+  let toplevel = parse in_chan in
   try
     let desugared_ast = Desugar.desugar toplevel in
     let renamed_ast = Rename.rename_toplevel desugared_ast in
-    (*print_string (Syntax.show_snail_AST renamed_ast ^ "\n") ;*)
     let adt_context = Adt.generate_adt_context renamed_ast in
-    (* print_string (Infer.show_context adt_context ^ "\n") ; *)
-    (*print_string (Syntax.show_snail_AST renamed_ast ^ "\n") ;*)
     let type_ctx = Infer.typeof_toplevel renamed_ast adt_context in
     print_context type_ctx ;
     let output = Py_backend.translate_snail_to_python renamed_ast in

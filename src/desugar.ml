@@ -1,11 +1,13 @@
 open Syntax
 
+(* generate lambda-abstractions from let,fun term that have multiple-arguments *)
 let make_lambda args term pos type_annot =
   List.fold_left
     (fun acc name -> Fun ([name], "", acc, pos))
     (match type_annot with Some x -> TypeAnnot (term, x) | None -> term)
     (List.rev args)
 
+(* translate let-term that have multi arguments to unary lambda abstractions *)
 let rec let_expr_to_unary_function term =
   match term with
   | Let
@@ -54,8 +56,6 @@ let rec let_expr_to_unary_function term =
   | _ ->
       term
 
-let desugar_term = let_expr_to_unary_function
-
 let rec translate_unary_function term =
   match term with
   | LetDec (rec_f, name, args, sub_term, type_annot, pos, let_bind) ->
@@ -63,11 +63,11 @@ let rec translate_unary_function term =
         ( rec_f
         , name
         , args
-        , make_lambda args (desugar_term sub_term) pos type_annot
+        , make_lambda args (let_expr_to_unary_function sub_term) pos type_annot
         , type_annot
         , pos
         , List.map translate_unary_function let_bind )
   | _ ->
       term
 
-let desugar = List.map translate_unary_function
+let desugar toplevel = List.map translate_unary_function toplevel
