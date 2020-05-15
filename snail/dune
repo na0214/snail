@@ -1,1 +1,1 @@
-(executable (name snail) (public_name snail) (libraries src))
+(executable (name snail) (public_name snail) (libraries snailml))

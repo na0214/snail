@@ -1,4 +1,4 @@
-open Src
+open Snailml
 
 let print_error pos err =
   Core.fprintf stderr "File \"%s\", line %d, position %d:\nError %s\n"

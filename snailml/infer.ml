@@ -7,7 +7,21 @@ type context = (string * scheme) list [@@deriving show]
 
 exception TypeError of string * pos_info
 
-let default_context = [("()", Forall (TyCon (Tycon "()")))]
+let default_context =
+  [ ("()", Forall (TyCon (Tycon "()")))
+  ; ( "+"
+    , Forall
+        (TyCon (Tycon "Int") @-> TyCon (Tycon "Int") @-> TyCon (Tycon "Int")) )
+  ; ( "-"
+    , Forall
+        (TyCon (Tycon "Int") @-> TyCon (Tycon "Int") @-> TyCon (Tycon "Int")) )
+  ; ( "*"
+    , Forall
+        (TyCon (Tycon "Int") @-> TyCon (Tycon "Int") @-> TyCon (Tycon "Int")) )
+  ; ( "/"
+    , Forall
+        (TyCon (Tycon "Int") @-> TyCon (Tycon "Int") @-> TyCon (Tycon "Int")) )
+  ; ("print_string", Forall (TyCon (Tycon "String") @-> TyCon (Tycon "()"))) ]
 
 let rec get_unique_tyvar typ =
   match typ with
