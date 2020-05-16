@@ -88,7 +88,7 @@ let rec py_code_generate_term py_term =
   | PyTerm_Float f ->
       string_of_float f
   | PyTerm_String s ->
-      "\"" ^ s ^ "\""
+      "\"" ^ String.escaped s ^ "\""
   | PyTerm_Var v ->
       rename_operator v
   | PyTerm_Lambda (name, sub_term) ->

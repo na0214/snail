@@ -12,7 +12,7 @@ def div():
 def add23():
 	return (((add()) (2)) (3))
 def main():
-	return ((print_string()) ("abc"))
+	return ((print_string()) ("abc\n"))
 
 def match(pat1, pat2):
 	if (type(pat2) is dict) and (type(pat1) is dict):
