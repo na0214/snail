@@ -7,6 +7,7 @@ SnailMLはシンプルな関数型言語です
 ```bash
 $ git clone https://github.com/na0214/SnailML.git
 $ cd SnailML
+$ dune build
 $ dune install
 ```
 
