@@ -1,11 +1,14 @@
+
+def print_string():
+	return (lambda x:print(x))
 def add():
-	return (lambda f_local__x_1:lambda f_local__y_2:((_k()) (f_local__x_1)) (f_local__y_2))
+	return (lambda f_local__x_1:lambda f_local__y_2:(f_local__x_1) + (f_local__y_2))
 def sub():
-	return (lambda f_local__x_3:lambda f_local__y_4:((_g()) (f_local__x_3)) (f_local__y_4))
+	return (lambda f_local__x_3:lambda f_local__y_4:(f_local__x_3) - (f_local__y_4))
 def mul():
-	return (lambda f_local__x_5:lambda f_local__y_6:((_f()) (f_local__x_5)) (f_local__y_6))
+	return (lambda f_local__x_5:lambda f_local__y_6:(f_local__x_5) * (f_local__y_6))
 def div():
-	return (lambda f_local__x_7:lambda f_local__y_8:((_p()) (f_local__x_7)) (f_local__y_8))
+	return (lambda f_local__x_7:lambda f_local__y_8:(f_local__x_7) / (f_local__y_8))
 def add23():
 	return (((add()) (2)) (3))
 def main():
@@ -34,5 +37,5 @@ def match(pat1, pat2):
 		return False
 
 if __name__ == "__main__":
-	print(main())
+	main()
 

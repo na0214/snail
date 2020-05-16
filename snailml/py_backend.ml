@@ -29,6 +29,10 @@ let match_py =
    \telse:\n\
    \t\treturn False\n"
 
+let builtin_function = "\ndef print_string():\n\treturn (lambda x:print(x))\n"
+
+let builtin_binop_name = ["+()"; "-()"; "*()"; "/()"]
+
 let add_ref r s = r := !r ^ s
 
 let rename_operator op =
@@ -89,6 +93,15 @@ let rec py_code_generate_term py_term =
       rename_operator v
   | PyTerm_Lambda (name, sub_term) ->
       "lambda " ^ rename_operator name ^ ":" ^ py_code_generate_term sub_term
+  | PyTerm_App (PyTerm_App (PyTerm_Var op, term1), term2)
+    when List.mem op builtin_binop_name ->
+      "("
+      ^ py_code_generate_term term1
+      ^ ") "
+      ^ (op.[0] |> Char.escaped)
+      ^ " ("
+      ^ py_code_generate_term term2
+      ^ ")"
   | PyTerm_App (sub_term1, sub_term2) ->
       "("
       ^ py_code_generate_term sub_term1
@@ -281,12 +294,6 @@ let rec generate_local_var_func term ctx =
       generate_local_var_func sub_term ctx
       @ List.fold_left
           (fun acc (pat, t) ->
-            (*let new_ctx =
-              ctx
-              @ List.map
-                  (fun n -> (n, PyTerm_Var n))
-                  (get_pattern_var_unique pat)
-            in*)
             acc
             @ generate_local_var_func pat ctx
             @ generate_local_var_func t ctx)
@@ -338,25 +345,26 @@ let generate_mutual_bind_context let_bind =
   |> List.flatten
 
 let translate_snail_to_python (ast : snail_AST) : string =
-  List.fold_left
-    (fun acc top ->
-      match top with
-      | LetDec (_, name, _, term, _, _, let_bind) ->
-          let pattern_ctx = generate_pattern_var term in
-          let local_ctx = generate_local_var_func term [] in
-          let new_bind =
-            Bind (false, name, translate_term_to_python term [] false)
-          in
-          let mutual_bind_ctx = generate_mutual_bind_context let_bind in
-          let result_str =
-            py_code_generate
-              (pattern_ctx @ local_ctx @ [new_bind] @ mutual_bind_ctx)
-          in
-          acc ^ result_str
-      | _ ->
-          acc)
-    "" ast
-  ^ match_py ^ "\nif __name__ == \"__main__\":\n\tprint(main())\n"
+  builtin_function
+  ^ List.fold_left
+      (fun acc top ->
+        match top with
+        | LetDec (_, name, _, term, _, _, let_bind) ->
+            let pattern_ctx = generate_pattern_var term in
+            let local_ctx = generate_local_var_func term [] in
+            let new_bind =
+              Bind (false, name, translate_term_to_python term [] false)
+            in
+            let mutual_bind_ctx = generate_mutual_bind_context let_bind in
+            let result_str =
+              py_code_generate
+                (pattern_ctx @ local_ctx @ [new_bind] @ mutual_bind_ctx)
+            in
+            acc ^ result_str
+        | _ ->
+            acc)
+      "" ast
+  ^ match_py ^ "\nif __name__ == \"__main__\":\n\tmain()\n"
 
 let rec is_include_arrow typ =
   match typ with
