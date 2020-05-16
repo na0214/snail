@@ -1,27 +1,12 @@
 open Syntax
 open Typedef
+open Builtin
 
 type subst = (tyvar * snail_type) list
 
 type context = (string * scheme) list [@@deriving show]
 
 exception TypeError of string * pos_info
-
-let default_context =
-  [ ("()", Forall (TyCon (Tycon "()")))
-  ; ( "+"
-    , Forall
-        (TyCon (Tycon "Int") @-> TyCon (Tycon "Int") @-> TyCon (Tycon "Int")) )
-  ; ( "-"
-    , Forall
-        (TyCon (Tycon "Int") @-> TyCon (Tycon "Int") @-> TyCon (Tycon "Int")) )
-  ; ( "*"
-    , Forall
-        (TyCon (Tycon "Int") @-> TyCon (Tycon "Int") @-> TyCon (Tycon "Int")) )
-  ; ( "/"
-    , Forall
-        (TyCon (Tycon "Int") @-> TyCon (Tycon "Int") @-> TyCon (Tycon "Int")) )
-  ; ("print_string", Forall (TyCon (Tycon "String") @-> TyCon (Tycon "()"))) ]
 
 let rec get_unique_tyvar typ =
   match typ with
@@ -375,7 +360,7 @@ let typeof_toplevel toplevel context =
         | _ ->
             [("__none__", Forall (TyCon (Tycon "None")))] )
         @ acc)
-      (context @ default_context)
+      (context @ builtin_type_context)
       toplevel
   in
   !local_context @ new_ctx
