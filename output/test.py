@@ -1,6 +1,6 @@
 
 def print_string():
-	return (lambda x:print(x))
+	return (lambda x:print(x,end=""))
 def add():
 	return (lambda f_local__x_1:lambda f_local__y_2:(f_local__x_1) + (f_local__y_2))
 def sub():

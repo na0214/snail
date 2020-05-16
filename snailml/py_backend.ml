@@ -29,7 +29,8 @@ let match_py =
    \telse:\n\
    \t\treturn False\n"
 
-let builtin_function = "\ndef print_string():\n\treturn (lambda x:print(x))\n"
+let builtin_function =
+  "\ndef print_string():\n\treturn (lambda x:print(x,end=\"\"))\n"
 
 let builtin_binop_name = ["+()"; "-()"; "*()"; "/()"]
 
