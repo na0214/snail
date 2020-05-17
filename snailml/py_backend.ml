@@ -304,7 +304,7 @@ let generate_mutual_bind_context let_bind =
   |> List.flatten
 
 let translate_snail_to_python (ast : snail_AST) : string =
-  builtin_function
+  py_settings ^ builtin_function
   ^ List.fold_left
       (fun acc -> function LetDec (_, name, _, term, _, _, let_bind) ->
             let pattern_ctx = generate_pattern_var term in

@@ -1,3 +1,5 @@
+import sys
+sys.setrecursionlimit(10 ** 9)
 def print_string():
 	return (lambda x:print(x,end=""))
 def print_int():

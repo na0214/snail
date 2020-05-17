@@ -60,6 +60,8 @@ let builtin_value_constructor =
     builtin_typedef
   |> List.flatten
 
+let py_settings = "import sys\nsys.setrecursionlimit(10 ** 9)\n"
+
 let match_py =
   "\n\
    def match(pat1, pat2):\n\
