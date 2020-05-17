@@ -20,7 +20,7 @@ def _i_l():
 
 	return (lambda x:lambda y:{'True':None} if x >= y else {'False':None})
 def main():
-	return ((((print_string()) ("true\n")) if (match(((_i_l()) (1)) (2),{'True':None,})) else ((((print_string()) ("false\n")) if (match(((_i_l()) (1)) (2),{'False':None,})) else (exit())))))
+	return ((((print_string()) ("true\n")) if (match(((_l_l()) ((1) + (2))) (2),{'True':None,})) else ((((print_string()) ("false\n")) if (match(((_l_l()) ((1) + (2))) (2),{'False':None,})) else (exit())))))
 
 def match(pat1, pat2):
 	if (type(pat2) is dict) and (type(pat1) is dict):

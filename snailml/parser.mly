@@ -25,12 +25,12 @@
 
 %left COLON
 %right ARROW
-%left BINOP1L
-%left BINOP2L
-%right BINOP3R
-%right BINOP4R
-%left BINOP5L
 %right BINOP6R
+%left BINOP5L
+%right BINOP4R
+%right BINOP3R
+%left BINOP2L
+%left BINOP1L
 %left ASTE
 
 %start snail_parse
