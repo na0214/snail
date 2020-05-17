@@ -20,7 +20,7 @@
 %token <Syntax.pos_info> LPAREN RPAREN LBRAC RBRAC LCBRAC RCBRAC 
 %token <Syntax.pos_info> LET FUN IN REC TYPEDEF OF ASTE OR IF THEN ELSE
 %token <Syntax.pos_info> MATCH WITH END UNIT AND WILDCARD
-%token <Syntax.pos_info> EQUAL PERIOD COMMA COLON SEMICOLON ARROW
+%token <Syntax.pos_info> EQUAL PERIOD COMMA COLON SEMICOLON ARROW NILLIST
 %token <Syntax.pos_info> EOF
 
 %left COLON
@@ -201,6 +201,10 @@ simple_pattern:
   {
     Var("___none","",$1)
   }
+  | NILLIST
+  {
+    Cons("[]",None,$1)
+  }
 
 pattern_declare:
   | pattern ARROW term
@@ -344,4 +348,8 @@ simple_term:
   | UNIT
   {
     Cons("()",None,$1)
+  }
+  | NILLIST
+  {
+    Cons("[]",None,$1)
   }

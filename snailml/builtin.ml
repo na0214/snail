@@ -45,7 +45,7 @@ let builtin_typedef =
   ; TypeDef
       ( "List"
       , ["a"]
-      , [ ("Nil", None)
+      , [ ("[]", None)
         ; ( "::"
           , Some
               ( TyVar (Tyvar "a")

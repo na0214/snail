@@ -25,8 +25,13 @@ m_local__x_4 = None
 m_local_____none_5 = None
 def head():
 	return (lambda f_local__l_3:((m_local__x_4) if (match(f_local__l_3,{'_a_a':("m_local__x_4","m_local_____none_5"),})) else (exit())))
+m_local_____none_7 = None
+def is_list_empty():
+	return (lambda f_local__l_6:(({'True':None,}) if (match(f_local__l_6,{'[]':None,})) else ((({'False':None,}) if (match(f_local__l_6,"m_local_____none_7")) else (exit())))))
+def l():
+	return ({'_a_a':(1,{'_a_a':(2,{'[]':None,}),}),})
 def main():
-	return (((_o_i()) (((_o_i()) ({'_a_a':(1,{'Nil':None,}),})) (head()))) (print_int()))
+	return (((_o_i()) (((0) if (match((is_list_empty()) (l()),{'True':None,})) else ((((head()) (l())) if (match((is_list_empty()) (l()),{'False':None,})) else (exit())))))) (print_int()))
 
 def match(pat1, pat2):
 	if (type(pat2) is dict) and (type(pat1) is dict):

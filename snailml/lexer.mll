@@ -71,6 +71,7 @@ rule token = parse
   | "with" {WITH(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "end" {END(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "()" {UNIT(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
+  | "[]" {NILLIST(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | binop1_l {BINOP1L(Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | binop2_l {BINOP2L(Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | binop3_r {BINOP3R (Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}

@@ -40,7 +40,6 @@ let _ =
   try
     let desugared_ast = Desugar.desugar toplevel in
     let renamed_ast = Rename.rename_toplevel desugared_ast in
-    print_string (Syntax.show_snail_AST renamed_ast) ;
     let adt_context =
       Adt.generate_adt_context (Builtin.builtin_typedef @ renamed_ast)
     in
