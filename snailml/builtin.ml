@@ -14,7 +14,26 @@ let builtin_type_context =
   ; ( "/"
     , Forall
         (TyCon (Tycon "Int") @-> TyCon (Tycon "Int") @-> TyCon (Tycon "Int")) )
-  ; ("print_string", Forall (TyCon (Tycon "String") @-> TyCon (Tycon "()"))) ]
+  ; ( ">="
+    , Forall
+        (TyCon (Tycon "Int") @-> TyCon (Tycon "Int") @-> TyCon (Tycon "Bool"))
+    )
+  ; ( "<="
+    , Forall
+        (TyCon (Tycon "Int") @-> TyCon (Tycon "Int") @-> TyCon (Tycon "Bool"))
+    )
+  ; ( "<"
+    , Forall
+        (TyCon (Tycon "Int") @-> TyCon (Tycon "Int") @-> TyCon (Tycon "Bool"))
+    )
+  ; ( ">"
+    , Forall
+        (TyCon (Tycon "Int") @-> TyCon (Tycon "Int") @-> TyCon (Tycon "Bool"))
+    )
+  ; ("==", Forall (TyGen 0 @-> TyGen 0 @-> TyCon (Tycon "Bool")))
+  ; ("print_string", Forall (TyCon (Tycon "String") @-> TyCon (Tycon "()")))
+  ; ("print_int", Forall (TyCon (Tycon "Int") @-> TyCon (Tycon "()")))
+  ; ("print_float", Forall (TyCon (Tycon "Float") @-> TyCon (Tycon "()"))) ]
 
 let match_py =
   "\n\
@@ -42,5 +61,8 @@ let match_py =
 
 let builtin_function =
   "\ndef print_string():\n\treturn (lambda x:print(x,end=\"\"))\n"
+  ^ "\ndef print_int():\n\treturn (lambda x:print(x,end=\"\"))\n"
+  ^ "\ndef print_float():\n\treturn (lambda x:print(x,end=\"\"))\n"
 
-let builtin_binop_name = ["+()"; "-()"; "*()"; "/()"]
+let builtin_binop_name =
+  ["+()"; "-()"; "*()"; "/()"; "<()"; ">()"; "==()"; "<=()"; ">=()"]

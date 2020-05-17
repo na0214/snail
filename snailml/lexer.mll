@@ -49,8 +49,6 @@ rule token = parse
   | ")" {RPAREN(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "{" {LCBRAC(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "}" {RCBRAC(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
-  | "<" {LESS(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
-  | ">" {GREAT(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "=" {EQUAL(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "." {PERIOD(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "," {COMMA(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}

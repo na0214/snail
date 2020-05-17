@@ -8,4 +8,6 @@ let div x y = x / y
 
 let add23 = add 2 3
 
+let a = 2 < 3
+
 let main = print_string "abc\n"

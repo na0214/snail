@@ -20,7 +20,7 @@
 %token <Syntax.pos_info> LPAREN RPAREN LBRAC RBRAC LCBRAC RCBRAC 
 %token <Syntax.pos_info> LET FUN IN REC TYPEDEF OF ASTE OR
 %token <Syntax.pos_info> MATCH WITH END UNIT AND
-%token <Syntax.pos_info> EQUAL LESS GREAT PERIOD COMMA COLON SEMICOLON ARROW
+%token <Syntax.pos_info> EQUAL PERIOD COMMA COLON SEMICOLON ARROW
 %token <Syntax.pos_info> EOF
 
 %left COLON
