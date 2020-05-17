@@ -1,4 +1,5 @@
 open Syntax
+open Builtin
 
 (* generate lambda-abstractions from let,fun term that have multiple-arguments *)
 let make_lambda args term pos type_annot =
@@ -32,6 +33,16 @@ let rec let_expr_to_unary_function = function
         , pos )
   | Fun (arg, name, sub_term, pos) ->
       Fun (arg, name, let_expr_to_unary_function sub_term, pos)
+  | App (App (Var (name, _, _), term1), term2)
+    when List.mem name builtin_value_constructor ->
+      Cons
+        ( name
+        , Some
+            (Prod
+               ( let_expr_to_unary_function term1
+               , let_expr_to_unary_function term2
+               , get_pos_info_term term1 ))
+        , get_pos_info_term term1 )
   | App (sub_term1, sub_term2) ->
       App
         ( let_expr_to_unary_function sub_term1

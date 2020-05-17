@@ -175,6 +175,10 @@ pattern:
   {
     App($1,$2)
   }
+  | simple_pattern binop = bin_op simple_pattern
+  {
+    Cons(fst binop,Some (Prod($1,$3,snd binop)),snd binop)
+  }
 
 simple_pattern:
   | LPAREN e = pattern RPAREN
@@ -203,27 +207,27 @@ pattern_declare:
 bin_op:
   | BINOP1L
   {
-    fst $1
+    $1
   }
   | BINOP2L
   {
-    fst $1
+    $1
   }
   | BINOP3R
   {
-    fst $1
+    $1
   }
   | BINOP4R
   {
-    fst $1
+    $1
   }
   | BINOP5L
   {
-    fst $1
+    $1
   }
   | BINOP6R
   {
-    fst $1
+    $1
   }
 
 let_name:
@@ -233,7 +237,7 @@ let_name:
   }
   | LPAREN bin_op RPAREN
   {
-    $2
+    fst $2
   }
 
 mutual_recursion_let:

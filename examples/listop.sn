@@ -1,9 +1,6 @@
-typedef List a = Nil | Cons of a * List a
-
-let (::) x xs = Cons(x,xs)
+let (|>) x f = f x
 
 let head l =
-  match l with
-    Cons(x,xs) -> x
+  match l with x :: xs -> x
 
-let main = print_int (head (1 :: Nil))
+let main = (1 :: Nil) |> head |> print_int

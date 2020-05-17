@@ -41,7 +41,24 @@ let builtin_type_context =
   ; ("print_float", Forall (TyCon (Tycon "Float") @-> TyCon (Tycon "()"))) ]
 
 let builtin_typedef =
-  [TypeDef ("Bool", [], [("True", None); ("False", None)], empty_pos, [])]
+  [ TypeDef ("Bool", [], [("True", None); ("False", None)], empty_pos, [])
+  ; TypeDef
+      ( "List"
+      , ["a"]
+      , [ ("Nil", None)
+        ; ( "::"
+          , Some
+              ( TyVar (Tyvar "a")
+              @*@ TyApp (TyCon (Tycon "List"), TyVar (Tyvar "a")) ) ) ]
+      , empty_pos
+      , [] ) ]
+
+let builtin_value_constructor =
+  List.map
+    (function
+      | TypeDef (_, _, vc, _, _) -> List.map (function x, _ -> x) vc | _ -> [])
+    builtin_typedef
+  |> List.flatten
 
 let match_py =
   "\n\

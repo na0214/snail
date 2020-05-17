@@ -19,14 +19,14 @@ def _h_l():
 def _i_l():
 
 	return (lambda x:lambda y:{'True':None} if x >= y else {'False':None})
-def _a_a():
-	return (lambda f_local__x_1:lambda f_local__xs_2:{'Cons':(f_local__x_1,f_local__xs_2),})
+def _o_i():
+	return (lambda f_local__x_1:lambda f_local__f_2:(f_local__f_2) (f_local__x_1))
 m_local__x_4 = None
 m_local__xs_5 = None
 def head():
-	return (lambda f_local__l_3:((m_local__x_4) if (match(f_local__l_3,{'Cons':("m_local__x_4","m_local__xs_5"),})) else (exit())))
+	return (lambda f_local__l_3:((m_local__x_4) if (match(f_local__l_3,{'_a_a':("m_local__x_4","m_local__xs_5"),})) else (exit())))
 def main():
-	return ((print_int()) ((head()) (((_a_a()) (1)) ({'Nil':None,}))))
+	return (((_o_i()) (((_o_i()) ({'_a_a':(1,{'Nil':None,}),})) (head()))) (print_int()))
 
 def match(pat1, pat2):
 	if (type(pat2) is dict) and (type(pat1) is dict):
