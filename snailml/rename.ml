@@ -15,8 +15,7 @@ let add_state state = state := !state + 1
 let find_rename_context name ctx =
   try List.assoc name ctx with Not_found -> name
 
-let rec get_vars_name_pattern pat =
-  match pat with
+let rec get_vars_name_pattern = function
   | Var (name, _, _) ->
       [name]
   | App (pat1, pat2) ->
@@ -37,8 +36,7 @@ let generate_unique_name_list name_list state =
 
 let make_mutual_bind_context mut_bind state =
   List.map
-    (fun x ->
-      match x with
+    (function
       | MutLetBind (name, _, _, _, _, _) ->
           (name, make_name name !state)
       | _ ->

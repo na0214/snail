@@ -4,8 +4,7 @@ open Infer
 
 (* generate type-level products from multiple type variables *)
 (* ex. translate (List a b) to (List (a,b)) *)
-let generate_tyvars_product tyvars =
-  match tyvars with
+let generate_tyvars_product = function
   | [] ->
       TyCon (Tycon "type error")
   | h :: xs ->

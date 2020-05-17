@@ -8,8 +8,7 @@ type context = (string * scheme) list [@@deriving show]
 
 exception TypeError of string * pos_info
 
-let rec get_unique_tyvar typ =
-  match typ with
+let rec get_unique_tyvar = function
   | TyVar (Tyvar n) ->
       [Tyvar n]
   | TyApp (typ1, typ2) ->
@@ -28,8 +27,7 @@ let range n =
   let irange x = if x > n then None else Some (x, x + 1) in
   unfold_right irange 1
 
-let rec apply_subst sb typ =
-  match typ with
+let rec apply_subst sb = function
   | TyVar v -> (
     try List.assoc v sb with Not_found -> TyVar v )
   | TyApp (typ1, typ2) ->
@@ -63,7 +61,7 @@ let find_context name ctx pos =
   with Not_found -> TypeError ("unbound identifier: " ^ name, pos) |> raise
 
 let append_subst sb1 sb2 =
-  sb1 @ List.map (fun x -> match x with u, t -> (u, apply_subst sb1 t)) sb2
+  sb1 @ List.map (function u, t -> (u, apply_subst sb1 t)) sb2
 
 let var_bind v t pos =
   if t = TyVar v then []
@@ -121,8 +119,7 @@ let rec instantiate typ tyvar_list =
   | t ->
       t
 
-let rec get_max_tygen typ =
-  match typ with
+let rec get_max_tygen = function
   | TyApp (typ1, typ2) ->
       max (get_max_tygen typ1) (get_max_tygen typ2)
   | TyPair (typ1, typ2) ->
@@ -145,8 +142,7 @@ let fresh_inst sc sb =
 
 let add_local_let_context local name typ = local := (name, typ) :: !local
 
-let rec get_pattern_var term =
-  match term with
+let rec get_pattern_var = function
   | Prod (t1, t2, _) ->
       get_pattern_var t1 @ get_pattern_var t2
   | App (t1, t2) ->
@@ -158,8 +154,7 @@ let rec get_pattern_var term =
   | _ ->
       []
 
-let rec get_pattern_var_unique term =
-  match term with
+let rec get_pattern_var_unique = function
   | Prod (t1, t2, _) ->
       get_pattern_var_unique t1 @ get_pattern_var_unique t2
   | App (t1, t2) ->

@@ -59,8 +59,7 @@ let translate_lexbuf_to_pos_info (pos : Lexing.position) : pos_info =
   ; pos_bol= pos.pos_bol
   ; pos_cnum= pos.pos_cnum }
 
-let rec get_pos_info_term t =
-  match t with
+let rec get_pos_info_term = function
   | Let (_, _, _, _, _, _, _, p, _) ->
       p
   | Fun (_, _, _, p) ->

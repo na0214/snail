@@ -8,8 +8,7 @@ let make_lambda args term pos type_annot =
     (List.rev args)
 
 (* translate let-term that have multi arguments to unary lambda abstractions *)
-let rec let_expr_to_unary_function term =
-  match term with
+let rec let_expr_to_unary_function = function
   | Let
       (rec_flag, name, _, args, sub_term1, sub_term2, type_annot, pos, let_bind)
     ->
@@ -53,11 +52,10 @@ let rec let_expr_to_unary_function term =
         , pos )
   | TypeAnnot (sub_term, typ) ->
       TypeAnnot (let_expr_to_unary_function sub_term, typ)
-  | _ ->
+  | term ->
       term
 
-let rec translate_unary_function term =
-  match term with
+let rec translate_unary_function = function
   | LetDec (rec_f, name, args, sub_term, type_annot, pos, let_bind) ->
       LetDec
         ( rec_f
@@ -67,7 +65,7 @@ let rec translate_unary_function term =
         , type_annot
         , pos
         , List.map translate_unary_function let_bind )
-  | _ ->
+  | term ->
       term
 
 let desugar toplevel = List.map translate_unary_function toplevel
