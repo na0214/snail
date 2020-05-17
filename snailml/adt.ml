@@ -26,10 +26,13 @@ let generate_constructor value_con type_name tyvars pos =
   | Some vc ->
       (fst value_con, generate_adt_type type_name tyvars vc pos)
   | None ->
-      ( fst value_con
-      , quantification
-          (TyApp (TyCon (Tycon type_name), generate_tyvars_product tyvars))
-          [] pos )
+      if List.length tyvars = 0 then
+        (fst value_con, quantification (TyCon (Tycon type_name)) [] pos)
+      else
+        ( fst value_con
+        , quantification
+            (TyApp (TyCon (Tycon type_name), generate_tyvars_product tyvars))
+            [] pos )
 
 (* generate value-constructor's contexts from ADT definitions *)
 let rec generate_adt_context toplevel =

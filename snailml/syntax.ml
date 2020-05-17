@@ -59,6 +59,8 @@ let translate_lexbuf_to_pos_info (pos : Lexing.position) : pos_info =
   ; pos_bol= pos.pos_bol
   ; pos_cnum= pos.pos_cnum }
 
+let empty_pos = {pos_fname= "builtin"; pos_lnum= 0; pos_bol= 0; pos_cnum= 0}
+
 let rec get_pos_info_term = function
   | Let (_, _, _, _, _, _, _, p, _) ->
       p

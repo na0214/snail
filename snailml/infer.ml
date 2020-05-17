@@ -1,6 +1,5 @@
 open Syntax
 open Typedef
-open Builtin
 
 type subst = (tyvar * snail_type) list
 
@@ -355,7 +354,6 @@ let typeof_toplevel toplevel context =
         | _ ->
             [("__none__", Forall (TyCon (Tycon "None")))] )
         @ acc)
-      (context @ builtin_type_context)
-      toplevel
+      context toplevel
   in
   !local_context @ new_ctx

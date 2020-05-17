@@ -1,13 +1,4 @@
-let add x y = x + y
-
-let sub x y = x - y
-
-let mul x y = x * y
-
-let div x y = x / y
-
-let add23 = add 2 3
-
-let a = 2 < 3
-
-let main = print_string "abc\n"
+let main =
+  match 1 == 2 with
+    True -> print_string "true\n"
+  | False -> print_string "false\n"

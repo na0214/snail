@@ -40,8 +40,13 @@ let _ =
   try
     let desugared_ast = Desugar.desugar toplevel in
     let renamed_ast = Rename.rename_toplevel desugared_ast in
-    let adt_context = Adt.generate_adt_context renamed_ast in
-    let type_ctx = Infer.typeof_toplevel renamed_ast adt_context in
+    let adt_context =
+      Adt.generate_adt_context (Builtin.builtin_typedef @ renamed_ast)
+    in
+    let type_ctx =
+      Infer.typeof_toplevel renamed_ast
+        (Builtin.builtin_type_context @ adt_context)
+    in
     print_context type_ctx ;
     let output = Py_backend.translate_snail_to_python renamed_ast in
     let oc = open_out "output/test.py" in

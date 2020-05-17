@@ -1,20 +1,26 @@
-
 def print_string():
 	return (lambda x:print(x,end=""))
-def add():
-	return (lambda f_local__x_1:lambda f_local__y_2:(f_local__x_1) + (f_local__y_2))
-def sub():
-	return (lambda f_local__x_3:lambda f_local__y_4:(f_local__x_3) - (f_local__y_4))
-def mul():
-	return (lambda f_local__x_5:lambda f_local__y_6:(f_local__x_5) * (f_local__y_6))
-def div():
-	return (lambda f_local__x_7:lambda f_local__y_8:(f_local__x_7) / (f_local__y_8))
-def add23():
-	return (((add()) (2)) (3))
-def a():
-	return ((2) < (3))
+def print_int():
+	return (lambda x:print(x,end=""))
+def print_float():
+	return (lambda x:print(x,end=""))
+def _h():
+
+	return (lambda x:lambda y:{'True':None} if x < y else {'False':None})
+def _i():
+
+	return (lambda x:lambda y:{'True':None} if x > y else {'False':None})
+def _l_l():
+
+	return (lambda x:lambda y:{'True':None} if x == y else {'False':None})
+def _h_l():
+
+	return (lambda x:lambda y:{'True':None} if x <= y else {'False':None})
+def _i_l():
+
+	return (lambda x:lambda y:{'True':None} if x >= y else {'False':None})
 def main():
-	return ((print_string()) ("abc\n"))
+	return ((((print_string()) ("true\n")) if (match(((_i_l()) (1)) (2),{'True':None,})) else ((((print_string()) ("false\n")) if (match(((_i_l()) (1)) (2),{'False':None,})) else (exit())))))
 
 def match(pat1, pat2):
 	if (type(pat2) is dict) and (type(pat1) is dict):
