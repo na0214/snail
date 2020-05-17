@@ -43,6 +43,14 @@ let rec let_expr_to_unary_function = function
         ( let_expr_to_unary_function sub_term1
         , let_expr_to_unary_function sub_term2
         , pos )
+  | If (cond, then_t, else_t, pos) ->
+      Match
+        ( cond
+        , [ ( Cons ("True", None, get_pos_info_term then_t)
+            , let_expr_to_unary_function then_t )
+          ; ( Cons ("False", None, get_pos_info_term else_t)
+            , let_expr_to_unary_function else_t ) ]
+        , pos )
   | Match (sub_term, pat_list, pos) ->
       Match
         ( let_expr_to_unary_function sub_term

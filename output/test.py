@@ -19,8 +19,12 @@ def _h_l():
 def _i_l():
 
 	return (lambda x:lambda y:{'True':None} if x >= y else {'False':None})
+def _o_i():
+	return (lambda f_local__x_1:lambda f_local__f_2:(f_local__f_2) (f_local__x_1))
+def fib():
+	return (lambda f_local__n_3:((f_local__n_3) if (match(((_h()) (f_local__n_3)) (2),{'True':None,})) else (((((fib()) ((f_local__n_3) - (1))) + ((fib()) ((f_local__n_3) - (2)))) if (match(((_h()) (f_local__n_3)) (2),{'False':None,})) else (exit())))))
 def main():
-	return ((((print_string()) ("true\n")) if (match(((_l_l()) ((1) + (2))) (2),{'True':None,})) else ((((print_string()) ("false\n")) if (match(((_l_l()) ((1) + (2))) (2),{'False':None,})) else (exit())))))
+	return (((_o_i()) ((fib()) (20))) (print_int()))
 
 def match(pat1, pat2):
 	if (type(pat2) is dict) and (type(pat1) is dict):

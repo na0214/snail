@@ -57,6 +57,12 @@ and rename term state ctx =
   match term with
   | Match (sub_term, pat_list, pos) ->
       Match (rename sub_term state ctx, rename_patterns pat_list state ctx, pos)
+  | If (cond, then_t, else_t, pos) ->
+      If
+        ( rename cond state ctx
+        , rename then_t state ctx
+        , rename else_t state ctx
+        , pos )
   | Let
       ( rec_flag
       , name

@@ -230,8 +230,7 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
       add_local_let_context local unique_name
         (quantification (apply_subst (get_subst sb) a) ctx pos) ;
       List.iter
-        (fun x ->
-          match x with
+        (function
           | MutLetBind (name, unique_name, _, sub_term, _, pos) ->
               let tyvar =
                 match find_context name new_ctx pos with Forall x -> x

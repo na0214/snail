@@ -32,6 +32,7 @@ and term =
   | Cons of string * term option * pos_info
   | Prod of term * term * pos_info
   | Match of term * pattern_list * pos_info
+  | If of term * term * term * pos_info
   | TypeAnnot of term * scheme
 [@@deriving show]
 
@@ -85,4 +86,6 @@ let rec get_pos_info_term = function
   | TypeAnnot (t, _) ->
       get_pos_info_term t
   | MutLetBind (_, _, _, _, _, p) ->
+      p
+  | If (_, _, _, p) ->
       p

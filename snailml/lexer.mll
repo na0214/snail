@@ -63,6 +63,9 @@ rule token = parse
   | "in" {IN(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "rec" {REC(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "of" {OF(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
+  | "if" {IF(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
+  | "then" {THEN(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
+  | "else" {ELSE(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "typedef" {TYPEDEF(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "match" {MATCH(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "with" {WITH(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}

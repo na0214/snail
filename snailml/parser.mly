@@ -18,7 +18,7 @@
 %token <string*Syntax.pos_info> STRING
 %token <string*Syntax.pos_info> ID CONS VAR BINOP1L BINOP2L BINOP3R BINOP4R BINOP5L BINOP6R
 %token <Syntax.pos_info> LPAREN RPAREN LBRAC RBRAC LCBRAC RCBRAC 
-%token <Syntax.pos_info> LET FUN IN REC TYPEDEF OF ASTE OR
+%token <Syntax.pos_info> LET FUN IN REC TYPEDEF OF ASTE OR IF THEN ELSE
 %token <Syntax.pos_info> MATCH WITH END UNIT AND
 %token <Syntax.pos_info> EQUAL PERIOD COMMA COLON SEMICOLON ARROW
 %token <Syntax.pos_info> EOF
@@ -268,6 +268,10 @@ term:
     pattern_dec = separated_list(OR,pattern_declare)
   {
     Match (t,pattern_dec,$1)
+  }
+  | IF cond = term THEN then_term = term ELSE else_term = term
+  {
+    If(cond,then_term,else_term,$1)
   }
   | t1 = term op = ASTE t2 = term
   {
