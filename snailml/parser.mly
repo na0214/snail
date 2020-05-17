@@ -3,9 +3,12 @@
   open Syntax
 
   let translate_multi_tuple_to_pair tup_list pos =
-  match tup_list with
-   [] -> Cons (",",None,pos)
-  | x :: xs -> List.fold_left (fun acc -> fun a -> Prod(acc,a,pos)) x xs
+    match tup_list with
+      [] -> Cons (",",None,pos)
+    | x :: xs -> List.fold_left (fun acc -> fun a -> Prod(acc,a,pos)) x xs
+
+  let generate_list base_list pos =
+    List.fold_right (fun x acc -> Cons("::",Some(Prod(x,acc,pos)),pos)) base_list (Cons("[]",None,pos))
 
   let make_type_level_pair var_list =
     match var_list with
@@ -352,4 +355,8 @@ simple_term:
   | NILLIST
   {
     Cons("[]",None,$1)
+  }
+  | LBRAC base_list = separated_list(COMMA,term) RBRAC
+  {
+    generate_list base_list $1
   }

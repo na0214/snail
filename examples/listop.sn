@@ -8,6 +8,6 @@ let is_list_empty l =
   | [] -> True
   | _ -> False
 
-let l = 1 :: 2 :: []
+let l = [1,2,3]
 
 let main = (if is_list_empty l then 0 else head l) |> print_int
