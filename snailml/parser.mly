@@ -73,7 +73,7 @@ mutual_recursion_top_typedec:
   {
     []
   }
-  | AND name = CONS typevars = type_argument EQUAL typedec = separated_list(OR,type_declare) mutual_rec = mutual_recursion_top_typedec
+  | AND name = CONS typevars = type_argument EQUAL option(OR) typedec = separated_list(OR,type_declare) mutual_rec = mutual_recursion_top_typedec
   {
     TypeDef(fst name,typevars,typedec,$1,[]) :: mutual_rec
   }
@@ -264,7 +264,7 @@ term:
     Fun(arguments,"",e,$1)
   }
   | MATCH 
-    t = term WITH 
+    t = term WITH option(OR)
     pattern_dec = separated_list(OR,pattern_declare)
   {
     Match (t,pattern_dec,$1)
