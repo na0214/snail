@@ -16,10 +16,10 @@
 %token <int*Syntax.pos_info> INT
 %token <float*Syntax.pos_info> FLOAT
 %token <string*Syntax.pos_info> STRING
-%token <string*Syntax.pos_info> ID CONS VAR BINOP1L BINOP2L BINOP3R BINOP4R BINOP5L BINOP6R
+%token <string*Syntax.pos_info> CONS VAR BINOP1L BINOP2L BINOP3R BINOP4R BINOP5L BINOP6R
 %token <Syntax.pos_info> LPAREN RPAREN LBRAC RBRAC LCBRAC RCBRAC 
 %token <Syntax.pos_info> LET FUN IN REC TYPEDEF OF ASTE OR IF THEN ELSE
-%token <Syntax.pos_info> MATCH WITH END UNIT AND
+%token <Syntax.pos_info> MATCH WITH END UNIT AND WILDCARD
 %token <Syntax.pos_info> EQUAL PERIOD COMMA COLON SEMICOLON ARROW
 %token <Syntax.pos_info> EOF
 
@@ -196,6 +196,10 @@ simple_pattern:
   | CONS app = option(simple_pattern)
   {
     Cons(fst $1,app,snd $1)
+  }
+  | WILDCARD
+  {
+    Var("___none","",$1)
   }
 
 pattern_declare:

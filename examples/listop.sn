@@ -1,6 +1,6 @@
 let (|>) x f = f x
 
 let head l =
-  match l with x :: xs -> x
+  match l with x :: _ -> x
 
 let main = (1 :: Nil) |> head |> print_int

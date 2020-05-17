@@ -25,7 +25,6 @@ let int = digit*
 let float = digit* frac? exp?
 let white = [' ' '\t']+
 let newline = '\r'|'\n'|"\r\n"
-let id = ['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '0'-'9' '_']*
 let cons = ['A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*
 let var = ['a'-'z']['a'-'z' 'A'-'Z' '0'-'9' '_']*
 let op = [':' '@' '#' '&' '%' '*' '-' '<' '>' '$' '+' '=' '^' '~' '|' '/']*
@@ -49,6 +48,7 @@ rule token = parse
   | ")" {RPAREN(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "{" {LCBRAC(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "}" {RCBRAC(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
+  | "_" {WILDCARD(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "=" {EQUAL(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "." {PERIOD(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "," {COMMA(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
@@ -79,7 +79,6 @@ rule token = parse
   | binop6_r {BINOP6R (Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | cons {CONS(Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | var {VAR(Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
-  | id {ID (Lexing.lexeme lexbuf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | eof {EOF(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
 and read_string buf = parse
   | '"' {STRING (Buffer.contents buf,translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}

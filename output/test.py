@@ -22,9 +22,9 @@ def _i_l():
 def _o_i():
 	return (lambda f_local__x_1:lambda f_local__f_2:(f_local__f_2) (f_local__x_1))
 m_local__x_4 = None
-m_local__xs_5 = None
+m_local_____none_5 = None
 def head():
-	return (lambda f_local__l_3:((m_local__x_4) if (match(f_local__l_3,{'_a_a':("m_local__x_4","m_local__xs_5"),})) else (exit())))
+	return (lambda f_local__l_3:((m_local__x_4) if (match(f_local__l_3,{'_a_a':("m_local__x_4","m_local_____none_5"),})) else (exit())))
 def main():
 	return (((_o_i()) (((_o_i()) ({'_a_a':(1,{'Nil':None,}),})) (head()))) (print_int()))
 
