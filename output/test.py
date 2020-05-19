@@ -21,19 +21,14 @@ def _h_l():
 def _i_l():
 
 	return (lambda x:lambda y:{'True':None} if x >= y else {'False':None})
-def _o_i():
-	return (lambda f_local__x_1:lambda f_local__f_2:(f_local__f_2) (f_local__x_1))
-m_local__x_4 = None
-m_local_____none_5 = None
-def head():
-	return (lambda f_local__l_3:((m_local__x_4) if (match(f_local__l_3,{'_a_a':("m_local__x_4","m_local_____none_5"),})) else (exit())))
-m_local_____none_7 = None
-def is_list_empty():
-	return (lambda f_local__l_6:(({'True':None,}) if (match(f_local__l_6,{'[]':None,})) else ((({'False':None,}) if (match(f_local__l_6,"m_local_____none_7")) else (exit())))))
-def l():
-	return ({'_a_a':(1,{'_a_a':(2,{'_a_a':(3,{'[]':None,}),}),}),})
-def main():
-	return (((_o_i()) (((0) if (match((is_list_empty()) (l()),{'True':None,})) else ((((head()) (l())) if (match((is_list_empty()) (l()),{'False':None,})) else (exit())))))) (print_int()))
+def f():
+	return (3)
+def g():
+	return (f())
+def f():
+	return (3)
+def g():
+	return (f())
 
 def match(pat1, pat2):
 	if (type(pat2) is dict) and (type(pat1) is dict):

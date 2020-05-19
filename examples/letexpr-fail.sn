@@ -1,0 +1,5 @@
+let f = 3
+and g = f
+
+let rec f = 3
+and g = f

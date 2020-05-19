@@ -1,0 +1,18 @@
+let f x =
+  let g = fun x -> x in
+  g x
+
+let i =
+  let f = 
+    let g = 3 in g in
+  f
+
+let rec mut1 l =
+  match l with
+  | [] -> "even"
+  | x :: xs -> mut2 xs
+
+and mut2 l =
+  match l with
+  | [] -> "odd"
+  | x :: xs -> mut1 xs

@@ -1,7 +1,0 @@
-let (@->) x y = x
-
-let f =
-  let (+++) x y = y in
-  2 +++ 5 +++ 6
-
-let main = f @-> 3 @-> 4

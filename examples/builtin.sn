@@ -1,4 +1,0 @@
-let main =
-  match 1 + 2 == 2 with
-    True -> print_string "true\n"
-  | False -> print_string "false\n"

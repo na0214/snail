@@ -1,8 +1,0 @@
-typedef List a = Nil | Cons of a * List a
-
-let v = Cons(1,Nil)
-
-let main = 
-  match v with
-    Nil -> 2
-  | Cons(x,xs) -> x

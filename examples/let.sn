@@ -1,8 +1,0 @@
-let f =
-  let g = 
-    let e x = x in e 3
-   in
-    let z x = x in
-      z g
-
-let main = ()
