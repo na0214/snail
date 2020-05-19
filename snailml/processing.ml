@@ -31,7 +31,9 @@ let parse in_chan =
   parse_with_error lexbuf
 
 let processing input_files output_file =
-  let in_chan = open_in (List.hd input_files) in
+  let in_chan =
+    if List.length input_files = 0 then stdin else open_in (List.hd input_files)
+  in
   let toplevel = parse in_chan in
   let desugared_ast = Desugar.desugar toplevel in
   let renamed_ast = Rename.rename_toplevel desugared_ast in
@@ -44,7 +46,7 @@ let processing input_files output_file =
   in
   print_context type_ctx ;
   let output = Py_backend.translate_snail_to_python renamed_ast in
-  let oc = open_out output_file in
+  let oc = if output_file = "" then stdout else open_out output_file in
   Core.fprintf oc "%s\n" output ;
   close_out oc ;
   close_in in_chan
