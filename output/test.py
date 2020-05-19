@@ -21,14 +21,10 @@ def _h_l():
 def _i_l():
 
 	return (lambda x:lambda y:{'True':None} if x >= y else {'False':None})
+def id():
+	return (lambda f_local__x_1:f_local__x_1)
 def f():
-	return (3)
-def g():
-	return (f())
-def f():
-	return (3)
-def g():
-	return (f())
+	return (lambda f_local__x_2:(id()) (f_local__x_2))
 
 def match(pat1, pat2):
 	if (type(pat2) is dict) and (type(pat1) is dict):
