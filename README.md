@@ -10,3 +10,7 @@ $ cd snail
 $ dune build
 $ dune install
 ```
+
+## Reference
+
+- Petricek, Tomas and Orchard, Dominic and Mycroft, Alan (2014) "Coeffects: A calculus of context-dependent computation" Proceedings of International Conference on Functional Programming.
