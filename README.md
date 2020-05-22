@@ -1,6 +1,6 @@
-# SnailML
+# Snail
 
-SnailMLはシンプルな関数型言語です
+Snail is a statically-typed functional programming language that based on the Coeffect Calculus and Graded Modal Type Theory.
 
 ## Installation
 
