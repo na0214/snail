@@ -1,6 +1,6 @@
 # Snail
 
-Snail is a statically-typed functional programming language that based on the Coeffect Calculus and Graded Modal Type Theory.
+Snail is a statically-typed functional programming language that based on Coeffect Calculus and Graded Modal Type Theory.
 
 ## Installation
 
