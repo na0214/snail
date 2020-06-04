@@ -30,7 +30,7 @@ let parse in_chan =
   lexbuf.lex_curr_p <- {lexbuf.lex_curr_p with pos_fname= "test"} ;
   parse_with_error lexbuf
 
-let processing input_files output_file =
+let processing input_files =
   let in_chan =
     if List.length input_files = 0 then stdin else open_in (List.hd input_files)
   in
@@ -45,8 +45,8 @@ let processing input_files output_file =
       (Builtin.builtin_type_context @ adt_context)
   in
   print_context type_ctx ;
-  let output = Py_backend.translate_snail_to_python renamed_ast in
+  (*let output = Py_backend.translate_snail_to_python renamed_ast in
   let oc = if output_file = "" then stdout else open_out output_file in
   Core.fprintf oc "%s\n" output ;
-  close_out oc ;
+  close_out oc ; *)
   close_in in_chan
