@@ -130,9 +130,9 @@ type_expr:
   {
     $1 @-> $3
   }
-  | EXPMOD LBRAC expmod_info RBRAC LCBRAC type_expr RCBRAC %prec EXPMODALITY
+  | EXPMOD LBRAC expmod = expmod_info RBRAC LCBRAC t = type_expr RCBRAC %prec EXPMODALITY
   {
-    $6
+    TyExp(expmod,t)
   }
   | simple_type_expr
   {
@@ -146,11 +146,11 @@ type_expr:
 expmod_info:
   | INT
   {
-    1
+    Int(fst $1)
   }
   | INFINITY
   {
-    0
+    Infinity
   }
 
 simple_type_expr:

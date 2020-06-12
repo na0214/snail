@@ -34,6 +34,7 @@ and term =
   | Match of term * pattern_list * pos_info
   | If of term * term * term * pos_info
   | TypeAnnot of term * scheme
+  | ExpMod of term
 [@@deriving show]
 
 exception SyntaxError of string
@@ -89,3 +90,5 @@ let rec get_pos_info_term = function
       p
   | If (_, _, _, p) ->
       p
+  | ExpMod t ->
+      get_pos_info_term t

@@ -2,12 +2,15 @@ type tycons = Tycon of string [@@deriving show]
 
 type tyvar = Tyvar of string [@@deriving show]
 
+type semiring = Int of int | Infinity [@@deriving show]
+
 type snail_type =
   | TyCon of tycons
   | TyVar of tyvar
   | TyApp of snail_type * snail_type
   | TyGen of int
   | TyPair of snail_type * snail_type
+  | TyExp of semiring * snail_type
   | TyNone
 [@@deriving show]
 
@@ -33,6 +36,8 @@ let rec print_type typ =
       n + 96 |> Char.chr |> Char.escaped
   | TyPair (t1, t2) ->
       "(" ^ print_type t1 ^ "," ^ print_type t2 ^ ")"
+  | TyExp (r, t) ->
+      "! [" ^ show_semiring r ^ "] {" ^ print_type t ^ "}"
   | TyNone ->
       "None"
 
