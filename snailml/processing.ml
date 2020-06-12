@@ -44,9 +44,4 @@ let processing input_files =
     Infer.typeof_toplevel renamed_ast
       (Builtin.builtin_type_context @ adt_context)
   in
-  print_context type_ctx ;
-  (*let output = Py_backend.translate_snail_to_python renamed_ast in
-  let oc = if output_file = "" then stdout else open_out output_file in
-  Core.fprintf oc "%s\n" output ;
-  close_out oc ; *)
-  close_in in_chan
+  print_context type_ctx ; close_in in_chan

@@ -1,0 +1,5 @@
+let id (x : Int) = x
+
+let fst (x : Int) (y : Int) = x
+
+let snd (x : Int) (y : Int) = y
