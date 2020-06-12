@@ -1,5 +1,7 @@
-let id (x : Int) = x
+let id (x : Int [1]) : Int [1] = x
 
-let fst (x : Int) (y : Int) = x
+let fst (x : Int [1]) (y : Int [1]) : Int [1] = x
 
-let snd (x : Int) (y : Int) = y
+let snd (x : Int [1]) (y : Int [1]) : Int [1] = y
+
+let non_restricted (x : Int [∞]) : (Int [∞] * Int [∞] * Int [∞] * Int [∞] * Int [∞] * Int [∞] * Int [∞] * Int [∞] * Int [∞] * Int [∞]) = (x,x,x,x,x,x,x,x,x,x)
