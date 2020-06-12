@@ -1,7 +1,10 @@
-let id (x : Int [1]) : Int [1] = x
+let id (x : ![1]{Int}) : Int = x
 
-let fst (x : Int [1]) (y : Int [1]) : Int [1] = x
+let fst (x : ![2]{Int}) (y : ![1]{Int}) : Int = x
 
-let snd (x : Int [1]) (y : Int [1]) : Int [1] = y
+let snd (x : ![1]{Int}) (y : ![1]{Int}) : Int = y
 
-let non_restricted (x : Int [∞]) : (Int [∞] * Int [∞] * Int [∞] * Int [∞] * Int [∞] * Int [∞] * Int [∞] * Int [∞] * Int [∞] * Int [∞]) = (x,x,x,x,x,x,x,x,x,x)
+let pair (x : ![2]{Int}) : ![∞]{(Int * Int)} = !(x,x)
+
+let non_restricted (x : ![∞]{Int}) : (Int * Int * Int) = (x,x,x)
+

@@ -34,7 +34,7 @@ let binop3_r = [':'] op+
 let binop4_r = ['@' '^'] op+
 let binop5_l = ['=' '<' '>' '|' '&'] op+
 let binop6_r = ['$'] op+
-let prefixop = ['!' '~' '?'] op+
+let prefixop = ['~' '?'] op+
 
 rule token = parse
   | white {token lexbuf}
@@ -55,7 +55,9 @@ rule token = parse
   | ":" {COLON(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | ";" {SEMICOLON(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "*" {ASTE(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
+  | "∞" {INFINITY(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "|" {OR(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
+  | "!" {EXPMOD(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "->" {ARROW(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "and" {AND(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}
   | "let" {LET(translate_lexbuf_to_pos_info lexbuf.lex_curr_p)}

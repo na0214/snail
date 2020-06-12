@@ -1,0 +1,1 @@
+let pair (x : ![1]{Int}) : (Int,Int) = (x,x)

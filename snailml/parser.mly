@@ -22,8 +22,8 @@
 %token <string*Syntax.pos_info> CONS VAR BINOP1L BINOP2L BINOP3R BINOP4R BINOP5L BINOP6R
 %token <Syntax.pos_info> LPAREN RPAREN LBRAC RBRAC LCBRAC RCBRAC 
 %token <Syntax.pos_info> LET FUN IN REC TYPEDEF OF ASTE OR IF THEN ELSE
-%token <Syntax.pos_info> MATCH WITH END UNIT AND WILDCARD
-%token <Syntax.pos_info> EQUAL PERIOD COMMA COLON SEMICOLON ARROW NILLIST
+%token <Syntax.pos_info> MATCH WITH END UNIT AND WILDCARD INFINITY
+%token <Syntax.pos_info> EQUAL PERIOD COMMA COLON SEMICOLON ARROW NILLIST EXPMOD
 %token <Syntax.pos_info> EOF
 
 %left COLON
@@ -35,6 +35,8 @@
 %left BINOP2L
 %left BINOP1L
 %left ASTE
+
+%left EXPMODALITY
 
 %start snail_parse
 
@@ -128,6 +130,10 @@ type_expr:
   {
     $1 @-> $3
   }
+  | EXPMOD LBRAC expmod_info RBRAC LCBRAC type_expr RCBRAC %prec EXPMODALITY
+  {
+    $6
+  }
   | simple_type_expr
   {
     $1
@@ -135,6 +141,16 @@ type_expr:
   | type_expr simple_type_expr
   {
     TyApp ($1,$2)
+  }
+
+expmod_info:
+  | INT
+  {
+    1
+  }
+  | INFINITY
+  {
+    0
   }
 
 simple_type_expr:
@@ -265,6 +281,10 @@ term:
   | simple_term
   {
     $1
+  }
+  | EXPMOD term %prec EXPMODALITY
+  {
+    $2
   }
   | term simple_term
   {

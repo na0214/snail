@@ -36,6 +36,7 @@ let processing input_files =
   in
   let toplevel = parse in_chan in
   let desugared_ast = Desugar.desugar toplevel in
+  print_string (Syntax.show_snail_AST desugared_ast) ;
   let renamed_ast = Rename.rename_toplevel desugared_ast in
   let adt_context =
     Adt.generate_adt_context (Builtin.builtin_typedef @ renamed_ast)
