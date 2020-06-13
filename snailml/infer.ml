@@ -104,6 +104,8 @@ let rec mgu typ1 typ2 pos =
         TypeError
           (string_of_int n1 ^ " <= " ^ string_of_int n2 ^ " is invalid ", pos)
         |> raise
+  | Int _, Infinity ->
+      []
   | _ ->
       print_string
         (Typedef.print_type typ1 ^ " : " ^ Typedef.print_type typ2 ^ "\n") ;
