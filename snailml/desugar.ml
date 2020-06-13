@@ -71,6 +71,8 @@ let rec let_expr_to_unary_function = function
         , pos )
   | TypeAnnot (sub_term, typ) ->
       TypeAnnot (let_expr_to_unary_function sub_term, typ)
+  | ExpMod term ->
+      ExpMod (let_expr_to_unary_function term)
   | term ->
       term
 

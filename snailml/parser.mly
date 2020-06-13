@@ -346,7 +346,7 @@ simple_term:
   }
   | EXPMOD term %prec EXPMODALITY
   {
-    $2
+    ExpMod($2)
   }
   | INT
   {

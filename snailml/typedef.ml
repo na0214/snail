@@ -16,6 +16,10 @@ type snail_type =
 
 type scheme = Forall of snail_type [@@deriving show]
 
+type coeffect = string * semiring [@@deriving show]
+
+type coeff_ctx = coeffect list [@@deriving show]
+
 let rec print_type typ =
   match typ with
   | TyVar (Tyvar s) ->
@@ -37,7 +41,7 @@ let rec print_type typ =
   | TyPair (t1, t2) ->
       "(" ^ print_type t1 ^ "," ^ print_type t2 ^ ")"
   | TyExp (r, t) ->
-      "! [" ^ show_semiring r ^ "] {" ^ print_type t ^ "}"
+      "![" ^ show_semiring r ^ "] {" ^ print_type t ^ "}"
   | TyNone ->
       "None"
 

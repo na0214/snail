@@ -114,6 +114,8 @@ and rename term state ctx =
         t )
   | TypeAnnot (sub_term, typ) ->
       TypeAnnot (rename sub_term state ctx, typ)
+  | ExpMod term ->
+      ExpMod (rename term state ctx)
   | t ->
       t
 
