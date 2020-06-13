@@ -178,14 +178,35 @@ let generate_mutual_bind_context_let let_bind sb =
           ("error", Forall (TyCon (Tycon "error"))))
     let_bind
 
+let add_coeff coeff1 coeff2 =
+  match (coeff1, coeff2) with Int n1, Int n2 -> Int (n1 + n2) | _ -> Infinity
+
+let add_coeff_ctx coeff1 coeff2 =
+  let unique_coeffect =
+    List.map (fun (a, _) -> a) (coeff1 @ coeff2 |> ExtList.List.unique)
+  in
+  List.map
+    (fun coeff ->
+      let coeff_from_coeff1 =
+        try List.assoc coeff coeff1 with Not_found -> Int 0
+      in
+      let coeff_from_coeff2 =
+        try List.assoc coeff coeff2 with Not_found -> Int 0
+      in
+      (coeff, add_coeff coeff_from_coeff1 coeff_from_coeff2))
+    unique_coeffect
+
 let rec infer term typ (ctx : context) sb (local : local_let_context) =
   match term with
   | IntLit (_, pos) ->
-      (unify (TyCon (Tycon "Int")) typ sb pos, [])
+      unify (TyCon (Tycon "Int")) typ sb pos ;
+      []
   | FloatLit (_, pos) ->
-      (unify (TyCon (Tycon "Float")) typ sb pos, [])
+      unify (TyCon (Tycon "Float")) typ sb pos ;
+      []
   | StringLit (_, pos) ->
-      (unify (TyCon (Tycon "String")) typ sb pos, [])
+      unify (TyCon (Tycon "String")) typ sb pos ;
+      []
   | Fun ([(name, type_annot)], _, sub_term, pos) ->
       let a = new_tyvar sb in
       let b = new_tyvar sb in
@@ -200,33 +221,37 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
   | Var (name, _, pos) ->
       let sc = find_context name ctx pos in
       let typ1 = fresh_inst sc sb in
-      (unify typ1 typ sb pos, [])
+      unify typ1 typ sb pos ; [(name, Int 1)]
   | TypeAnnot (sub_term, Forall typ11) ->
       let annot_pos = Syntax.get_pos_info_term sub_term in
-      infer sub_term typ ctx sb local |> fst ;
-      (unify typ typ11 sb annot_pos, [])
+      let coeff = infer sub_term typ ctx sb local in
+      unify typ typ11 sb annot_pos ;
+      coeff
   | App (sub_term1, sub_term2) ->
       let a = new_tyvar sb in
-      infer sub_term1 (a @-> typ) ctx sb local |> fst ;
-      infer sub_term2 a ctx sb local
+      add_coeff_ctx
+        (infer sub_term1 (a @-> typ) ctx sb local)
+        (infer sub_term2 a ctx sb local)
   | Let (rec_flag, name, unique_name, _, sub_term1, sub_term2, _, pos, []) ->
       let a = new_tyvar sb in
-      if rec_flag then
-        let b = new_tyvar sb in
-        infer sub_term1 a ((name, Forall b) :: ctx) sb local |> fst
-      else infer sub_term1 a ctx sb local |> fst ;
+      let sub_term1_coeff =
+        if rec_flag then
+          let b = new_tyvar sb in
+          infer sub_term1 a ((name, Forall b) :: ctx) sb local
+        else infer sub_term1 a ctx sb local
+      in
       add_local_let_context local unique_name
         (quantification (apply_subst (get_subst sb) a) ctx pos) ;
       let new_ctx =
         (name, quantification (apply_subst (get_subst sb) a) ctx pos) :: ctx
       in
-      infer sub_term2 typ new_ctx sb local
+      add_coeff_ctx sub_term1_coeff (infer sub_term2 typ new_ctx sb local)
   | Let (_, name, unique_name, _, sub_term1, sub_term2, _, pos, let_bind) ->
       let a = new_tyvar sb in
       let new_ctx =
         ((name, Forall a) :: generate_mutual_bind_context_let let_bind sb) @ ctx
       in
-      infer sub_term1 a new_ctx sb local |> fst ;
+      let _ = infer sub_term1 a new_ctx sb local in
       add_local_let_context local unique_name
         (quantification (apply_subst (get_subst sb) a) ctx pos) ;
       List.iter
@@ -235,7 +260,7 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
               let tyvar =
                 match find_context name new_ctx pos with Forall x -> x
               in
-              infer sub_term tyvar new_ctx sb local |> fst ;
+              let _ = infer sub_term tyvar new_ctx sb local in
               add_local_let_context local unique_name
                 (quantification (apply_subst (get_subst sb) tyvar) new_ctx pos)
           | _ ->
@@ -248,32 +273,36 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
       match app_term with
       | Some app ->
           let a = new_tyvar sb in
-          infer app a ctx sb local |> fst ;
-          (unify typ1 (a @-> typ) sb pos, [])
+          let coeff_ctx = infer app a ctx sb local in
+          unify typ1 (a @-> typ) sb pos ;
+          coeff_ctx
       | None ->
-          (unify typ1 typ sb pos, []) )
+          unify typ1 typ sb pos ; [] )
   | Prod (sub_term1, sub_term2, pos) ->
       let a = new_tyvar sb in
       let b = new_tyvar sb in
-      infer sub_term1 a ctx sb local |> fst ;
-      infer sub_term2 b ctx sb local |> fst ;
-      (unify (a @*@ b) typ sb pos, [])
+      let sub_term1_coeff = infer sub_term1 a ctx sb local in
+      let sub_term2_coeff = infer sub_term2 b ctx sb local in
+      unify (a @*@ b) typ sb pos ;
+      add_coeff_ctx sub_term1_coeff sub_term2_coeff
   | Match (sub_term, pat_list, _) ->
       let sub_v = new_tyvar sb in
-      infer sub_term sub_v ctx sb local |> fst ;
-      ( List.iter
-          (fun (pat, sub_t) ->
+      let sub_term_coeff = infer sub_term sub_v ctx sb local in
+      let pat_coeff =
+        List.fold_left
+          (fun acc (pat, sub_t) ->
             let pat_v = new_tyvar sb in
             let bind_var_ctx =
               pat |> get_pattern_var |> generate_pattern_var_ctx sb
             in
-            infer pat pat_v (bind_var_ctx @ ctx) sb local |> fst ;
+            let _ = infer pat pat_v (bind_var_ctx @ ctx) sb local in
             unify sub_v pat_v sb (Syntax.get_pos_info_term sub_t) ;
-            infer sub_t typ (bind_var_ctx @ ctx) sb local |> fst)
-          pat_list
-      , [] )
+            acc @ infer sub_t typ (bind_var_ctx @ ctx) sb local)
+          [] pat_list
+      in
+      add_coeff_ctx sub_term_coeff pat_coeff
   | _ ->
-      ((), [])
+      []
 
 let generate_mutual_bind_context_top let_bind sb =
   List.map
@@ -291,19 +320,21 @@ let typeof rec_flag name term ctx =
   let result_t = new_tyvar sb in
   if rec_flag then (
     let b = new_tyvar sb in
-    infer term b ((name, Forall b) :: ctx) sb local_let_ctx |> fst ;
+    let coeff = infer term b ((name, Forall b) :: ctx) sb local_let_ctx in
+    print_string (show_coeff_ctx coeff) ;
     ( !local_let_ctx
     , quantification
         (apply_subst (get_subst sb) b)
         []
         (Syntax.get_pos_info_term term) ) )
-  else (
-    infer term result_t ctx sb local_let_ctx |> fst ;
+  else
+    let coeff = infer term result_t ctx sb local_let_ctx in
+    print_string (show_coeff_ctx coeff) ;
     ( !local_let_ctx
     , quantification
         (apply_subst (get_subst sb) result_t)
         []
-        (Syntax.get_pos_info_term term) ) )
+        (Syntax.get_pos_info_term term) )
 
 let typeof_mutually_recursive name term let_bind ctx local_let_ctx =
   let sb = ref ([], 0) in
@@ -312,17 +343,20 @@ let typeof_mutually_recursive name term let_bind ctx local_let_ctx =
     (name, Forall a) :: generate_mutual_bind_context_top let_bind sb
   in
   let new_ctx = new_tyvar_ctx @ ctx in
-  infer term a new_ctx sb local_let_ctx |> fst ;
+  let coeff = infer term a new_ctx sb local_let_ctx in
+  print_string (show_coeff_ctx coeff) ;
   List.iter
     (fun x ->
       match x with
       | LetDec (_, name, _, sub_term, _, _, _) ->
-          infer sub_term
-            ( match find_context name new_ctx (get_pos_info_term sub_term) with
-            | Forall x ->
-                x )
-            new_ctx sb local_let_ctx
-          |> fst
+          let _ =
+            infer sub_term
+              ( match find_context name new_ctx (get_pos_info_term sub_term) with
+              | Forall x ->
+                  x )
+              new_ctx sb local_let_ctx
+          in
+          ()
       | _ ->
           print_string "error")
     let_bind ;
