@@ -14,6 +14,8 @@ let rec get_unique_tyvar = function
       ExtList.List.unique (get_unique_tyvar typ1 @ get_unique_tyvar typ2)
   | TyPair (typ1, typ2) ->
       ExtList.List.unique (get_unique_tyvar typ1 @ get_unique_tyvar typ2)
+  | TyExp (typ1, typ2) ->
+      ExtList.List.unique (get_unique_tyvar typ1 @ get_unique_tyvar typ2)
   | _ ->
       []
 
@@ -33,6 +35,8 @@ let rec apply_subst sb = function
       TyApp (apply_subst sb typ1, apply_subst sb typ2)
   | TyPair (typ1, typ2) ->
       TyPair (apply_subst sb typ1, apply_subst sb typ2)
+  | TyExp (typ1, typ2) ->
+      TyExp (apply_subst sb typ1, apply_subst sb typ2)
   | other_typ ->
       other_typ
 
@@ -88,6 +92,18 @@ let rec mgu typ1 typ2 pos =
       var_bind v t pos
   | TyCon tc1, TyCon tc2 when tc1 = tc2 ->
       []
+  | Infinity, Infinity ->
+      []
+  | TyExp (n1, t1), TyExp (n2, t2) ->
+      let s1 = mgu n1 n2 pos in
+      let s2 = mgu (apply_subst s1 t1) (apply_subst s1 t2) pos in
+      append_subst s2 s1
+  | Int n1, Int n2 ->
+      if n1 <= n2 then []
+      else
+        TypeError
+          (string_of_int n1 ^ " <= " ^ string_of_int n2 ^ " is invalid ", pos)
+        |> raise
   | _ ->
       print_string
         (Typedef.print_type typ1 ^ " : " ^ Typedef.print_type typ2 ^ "\n") ;
@@ -113,15 +129,15 @@ let rec instantiate typ tyvar_list =
       TyApp (instantiate typ1 tyvar_list, instantiate typ2 tyvar_list)
   | TyPair (typ1, typ2) ->
       TyPair (instantiate typ1 tyvar_list, instantiate typ2 tyvar_list)
+  | TyExp (typ1, typ2) ->
+      TyExp (instantiate typ1 tyvar_list, instantiate typ2 tyvar_list)
   | TyGen n ->
       List.assoc n tyvar_list
   | t ->
       t
 
 let rec get_max_tygen = function
-  | TyApp (typ1, typ2) ->
-      max (get_max_tygen typ1) (get_max_tygen typ2)
-  | TyPair (typ1, typ2) ->
+  | TyApp (typ1, typ2) | TyPair (typ1, typ2) | TyExp (typ1, typ2) ->
       max (get_max_tygen typ1) (get_max_tygen typ2)
   | TyGen n ->
       n
@@ -196,6 +212,17 @@ let add_coeff_ctx coeff1 coeff2 =
       (coeff, add_coeff coeff_from_coeff1 coeff_from_coeff2))
     unique_coeffect
 
+let leq_coeff coeff1 coeff2 =
+  match (coeff1, coeff2) with
+  | Int n1, Int n2 ->
+      n1 <= n2
+  | Infinity, Int _ ->
+      false
+  | Int _, Infinity ->
+      true
+  | _ ->
+      true
+
 let rec infer term typ (ctx : context) sb (local : local_let_context) =
   match term with
   | IntLit (_, pos) ->
@@ -207,6 +234,17 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
   | StringLit (_, pos) ->
       unify (TyCon (Tycon "String")) typ sb pos ;
       []
+  | Fun ([(name, Some (Forall (TyExp (sring, t) as t_annot)))], _, sub_term, pos)
+    ->
+      let a = new_tyvar sb in
+      let b = new_tyvar sb in
+      unify a t_annot sb pos ;
+      unify (a @-> b) typ sb pos ;
+      let new_ctx = (name, Forall t) :: ctx in
+      let coeff_term = infer sub_term b new_ctx sb local in
+      let coeff = try List.assoc name coeff_term with Not_found -> Int 0 in
+      if leq_coeff coeff sring then coeff_term
+      else raise (TypeError ("usage error", pos))
   | Fun ([(name, type_annot)], _, sub_term, pos) ->
       let a = new_tyvar sb in
       let b = new_tyvar sb in
@@ -301,6 +339,11 @@ let rec infer term typ (ctx : context) sb (local : local_let_context) =
           [] pat_list
       in
       add_coeff_ctx sub_term_coeff pat_coeff
+  | ExpMod sub_term ->
+      let a = new_tyvar sb in
+      let coeff = infer sub_term a ctx sb local in
+      unify (TyExp (new_tyvar sb, a)) typ sb (Syntax.get_pos_info_term sub_term) ;
+      coeff
   | _ ->
       []
 
@@ -318,18 +361,16 @@ let typeof rec_flag name term ctx =
   let sb = ref ([], 0) in
   let local_let_ctx = ref [] in
   let result_t = new_tyvar sb in
-  if rec_flag then (
+  if rec_flag then
     let b = new_tyvar sb in
-    let coeff = infer term b ((name, Forall b) :: ctx) sb local_let_ctx in
-    print_string (show_coeff_ctx coeff) ;
+    let _ = infer term b ((name, Forall b) :: ctx) sb local_let_ctx in
     ( !local_let_ctx
     , quantification
         (apply_subst (get_subst sb) b)
         []
-        (Syntax.get_pos_info_term term) ) )
+        (Syntax.get_pos_info_term term) )
   else
-    let coeff = infer term result_t ctx sb local_let_ctx in
-    print_string (show_coeff_ctx coeff) ;
+    let _ = infer term result_t ctx sb local_let_ctx in
     ( !local_let_ctx
     , quantification
         (apply_subst (get_subst sb) result_t)
@@ -343,8 +384,7 @@ let typeof_mutually_recursive name term let_bind ctx local_let_ctx =
     (name, Forall a) :: generate_mutual_bind_context_top let_bind sb
   in
   let new_ctx = new_tyvar_ctx @ ctx in
-  let coeff = infer term a new_ctx sb local_let_ctx in
-  print_string (show_coeff_ctx coeff) ;
+  let _ = infer term a new_ctx sb local_let_ctx in
   List.iter
     (fun x ->
       match x with

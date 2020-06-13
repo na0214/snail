@@ -2,21 +2,21 @@ type tycons = Tycon of string [@@deriving show]
 
 type tyvar = Tyvar of string [@@deriving show]
 
-type semiring = Int of int | Infinity [@@deriving show]
-
 type snail_type =
+  | Int of int
+  | Infinity
   | TyCon of tycons
   | TyVar of tyvar
   | TyApp of snail_type * snail_type
   | TyGen of int
   | TyPair of snail_type * snail_type
-  | TyExp of semiring * snail_type
+  | TyExp of snail_type * snail_type
   | TyNone
 [@@deriving show]
 
 type scheme = Forall of snail_type [@@deriving show]
 
-type coeffect = string * semiring [@@deriving show]
+type coeffect = string * snail_type [@@deriving show]
 
 type coeff_ctx = coeffect list [@@deriving show]
 
@@ -41,7 +41,11 @@ let rec print_type typ =
   | TyPair (t1, t2) ->
       "(" ^ print_type t1 ^ "," ^ print_type t2 ^ ")"
   | TyExp (r, t) ->
-      "![" ^ show_semiring r ^ "] {" ^ print_type t ^ "}"
+      "![" ^ print_type r ^ "] {" ^ print_type t ^ "}"
+  | Int n ->
+      string_of_int n
+  | Infinity ->
+      "∞"
   | TyNone ->
       "None"
 
