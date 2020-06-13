@@ -8,3 +8,4 @@ let pair (x : ![2]{Int}) : ![∞]{(Int * Int)} = !(x,x)
 
 let non_restricted (x : ![∞]{Int}) : (Int * Int * Int) = (x,x,x)
 
+let pair_apply = pair (id !1)

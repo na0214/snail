@@ -282,10 +282,6 @@ term:
   {
     $1
   }
-  | EXPMOD term %prec EXPMODALITY
-  {
-    $2
-  }
   | term simple_term
   {
     App($1,$2)
@@ -347,6 +343,10 @@ simple_term:
     match type_annot with
     | Some x -> TypeAnnot(e,x)
     | None -> e
+  }
+  | EXPMOD term %prec EXPMODALITY
+  {
+    $2
   }
   | INT
   {
