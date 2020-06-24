@@ -2,6 +2,15 @@
 
 Snail is a statically-typed functional programming language that based on Coeffect Calculus and Graded Modal Type Theory.
 
+## Features
+
+- Coeffect based Bounded Linear Type
+- Lightweight Dependent Type(Indexed Type)
+- ML-style Module System
+- Effect System
+- Lazy Evaluation
+- Relaxed Value Restriction
+
 ## Installation
 
 ```bash
