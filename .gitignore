@@ -26,6 +26,11 @@ setup.log
 .omakedb
 .omakedb.lock
 
+*.aux
+*.dvi
+*.log
+*.synctex.gz
+
 .DS_Store
 
 .merlin
