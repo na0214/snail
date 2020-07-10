@@ -1,0 +1,82 @@
+\documentclass{jsarticle}
+\usepackage{amsmath}
+
+
+\title{The Definition of Snail}
+\author{letexpr}
+
+\newcommand{\bnfdef}{::=}
+\newcommand{\bs}{\boldsymbol}
+\newlength{\len}
+\settowidth{\len}{$\bnfdef$}
+\newcommand{\bnfor}{\makebox[\len]{$|$}}
+
+\DeclareMathSymbol{\mhyph}{\mathalpha}{operators}{`-}
+
+\begin{document}
+\maketitle
+
+\section{Snailの構文定義}
+
+EBNF記法を用いてSnailの具象構文を以下に示す.
+
+\begin{eqnarray*}
+  toplevel &\bnfdef& let\ [ rec ]\ var\ \{ var\ [\ \colon\ \langle type \rangle ] \} \colon \langle type \rangle = \langle term \rangle\ \{ \langle mutual \mhyph recursion \mhyph top \mhyph let \rangle \} \\
+  &\bnfor& typedef\ cons\ \{ var \} = [\ |\ ]\ \{ \langle type \mhyph dec \rangle\ |\ \}\ \langle type \mhyph dec \rangle\ \{ \langle mutual \mhyph recursion \mhyph type \rangle \} \\ \\
+  mutual \mhyph recursion \mhyph type &\bnfdef& and\ cons\ \{ var \} = [\ |\ ]\ \{ \langle type \mhyph dec \rangle\  |\ \}\ \langle type \mhyph dec \rangle \\ \\
+  mutual \mhyph recursion \mhyph top \mhyph let &\bnfdef& and\ var\ \{ var\ [\ \colon\ \langle type \rangle ] \}\ \colon\ \langle type \rangle = \langle term \rangle \\ \\
+  type \mhyph dec &\bnfdef& cons\ [ of\ \langle type \rangle ] \\ \\
+  type &\bnfdef& \langle type \rangle \rightarrow \langle type \rangle \\
+  &\bnfor& !\ '['\ \langle expmod \rangle\ ']'\ '\{'\ \langle type \rangle\ '\}' \\
+  &\bnfor& \langle simple \mhyph type \rangle \\
+  &\bnfor& \langle type \rangle\ \langle simple \mhyph type \rangle \\ \\
+  expmod &\bnfdef& int \\
+  &\bnfor& \infty \\ \\
+  simple \mhyph type &\bnfdef& '('\ \langle type \rangle\ ')' \\
+  &\bnfor& var \\
+  &\bnfor& cons \\
+  &\bnfor& () \\ \\
+  pattern &\bnfdef& \langle simple \mhyph pattern \rangle \\
+  &\bnfor& \langle pattern \rangle\ \langle simple \mhyph pattern \rangle \\
+  &\bnfor& \langle simple \mhyph pattern \rangle\ binop\ \langle simple \mhyph pattern \rangle \\
+\end{eqnarray*}
+
+\newpage
+
+\begin{eqnarray*}
+  simple \mhyph pattern &\bnfdef& '('\ \langle pattern \rangle\ ')' \\
+  &\bnfor& var \\
+  &\bnfor& cons\ '['\ \langle simple \mhyph pattern \rangle\ ']' \\
+  &\bnfor& [\ ] \\
+  &\bnfor& \_ \\ \\
+  mutual \mhyph recursion \mhyph let &\bnfdef& and\ var\ \{ var\ [\ \colon\ \langle type \rangle ] \}\ \colon\ \langle type \rangle = \langle term \rangle \\ \\
+  term &\bnfdef& \langle simple \mhyph term \rangle \\
+  &\bnfor& \langle term \rangle\ \langle simple \mhyph term \rangle \\
+  &\bnfor& let\ [ rec ]\ var\ \{ var\ [\ \colon\ \langle type \rangle ] \} \colon \langle type \rangle = \langle term \rangle\ \{ \langle mutual \mhyph recursion \mhyph let \rangle \}\ in\ \langle term \rangle \\
+  &\bnfor& fun\ \{ var\ [\ \colon\ \langle type \rangle ] \}\ \rightarrow \langle term \rangle \\
+  &\bnfor& match\ \langle term \rangle\ with\ [\ |\ ]\ \{ \langle pattern \rangle \rightarrow \langle term \rangle\ |\ \}\ \langle pattern \rangle \rightarrow \langle term \rangle\\
+  &\bnfor& if\ \langle term \rangle\ then\ \langle term \rangle\ else\ \langle term \rangle \\ \\
+  simple \mhyph term &\bnfdef& '('\ \langle term \rangle\ [\ \colon \langle type \rangle]\ ')'\\
+  &\bnfor& !\ \langle term \rangle\\
+  &\bnfor& int \\
+  &\bnfor& float \\
+  &\bnfor& string \\
+  &\bnfor& var \\
+  &\bnfor& cons\ [ \langle simple \mhyph term \rangle ] \\
+  &\bnfor& () \\
+  &\bnfor& [\ ] \\
+  &\bnfor& list
+\end{eqnarray*}
+
+いくつかの終端記号の意味を以下のように定義する.
+
+\begin{itemize}
+  \item var\ 先頭が小文字で始まる文字列.
+  \item cons\ 先頭が大文字で始まる文字列.
+  \item list\ 組み込みリストの構文糖衣,[1,2,3]など.
+  \item string\ 文字列リテラル.
+  \item int\ 整数リテラル.
+  \item float\ 小数リテラル.
+\end{itemize}
+
+\end{document}
