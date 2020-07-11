@@ -1,8 +1,10 @@
 \documentclass{jsarticle}
-\usepackage{amsmath}
+\usepackage{amssymb,amsmath}
+\usepackage{bcprules}
+\usepackage{multicol}
 
 
-\title{The Definition of Snail}
+\title{The Definition of Snail Programming Language}
 \author{letexpr}
 
 \newcommand{\bnfdef}{::=}
@@ -68,7 +70,7 @@ EBNF記法を用いてSnailの具象構文を以下に示す.
   &\bnfor& list
 \end{eqnarray*}
 
-いくつかの終端記号の意味を以下のように定義する.
+終端記号の意味を以下のように定義する.
 
 \begin{itemize}
   \item var\ 先頭が小文字で始まる文字列.
@@ -77,6 +79,87 @@ EBNF記法を用いてSnailの具象構文を以下に示す.
   \item string\ 文字列リテラル.
   \item int\ 整数リテラル.
   \item float\ 小数リテラル.
+  \item その他\ 予約語.
 \end{itemize}
+
+\newpage
+
+\section{Snailの型システム}
+
+Snailは次のような型付け規則を持つ.
+
+\begin{multicols}{2}
+
+  \infrule[Int]{}{
+    \vdash int\ \colon Int
+  }
+
+  \infrule[Float]{}{
+    \vdash float\ \colon Float
+  }
+
+  \infrule[String]{}{
+    \vdash string\ \colon String
+  }
+
+  \infrule[id]{}{
+    x\ \colon A \vdash x\ \colon A
+  }
+
+  \infrule[der]{
+    \Gamma , x\ \colon A \vdash e\ \colon B
+  }{
+    \Gamma , x\ \colon [A]_{1} \vdash e\ \colon B
+  }
+
+  \infrule[pr]{
+  [ \Gamma ] \vdash e\ \colon B
+  }{
+  r * [\Gamma] \vdash\ !e\ \colon !_{r} B
+  }
+
+  \infrule[fun]{
+    \Gamma , x\ \colon A \vdash e\ \colon B
+  }{
+    \Gamma \vdash fun\ x \rightarrow e\ \colon A \multimap B
+  }
+
+  \infrule[fun-exp]{
+  \Gamma , x\ \colon [ A ]_{r} \vdash e\ \colon B
+  }{
+  \Gamma \vdash fun\ ( !x\ \colon !_{r} A ) \rightarrow e\ \colon\ !_{r} A \multimap B
+  }
+
+  \infrule[app]{
+    \Gamma \vdash e\ \colon A \multimap B \hspace{15pt} \Delta \vdash e'\ \colon A
+  }{
+    \Gamma + \Delta \vdash e\ e'\ \colon B
+  }
+
+  \infrule[if]{
+    \Gamma \vdash e\ \colon Bool \hspace{15pt} \Delta \vdash e_1\ \colon A \hspace{15pt} \Delta \vdash e_2\ \colon A
+  }{
+    \Gamma + \Delta \vdash if\ e\ then\ e_1\ else\ e_2\ \colon A
+  }
+
+  \infrule[let]{
+    \Gamma \vdash e\ \colon A \hspace{15pt} \Delta , x\ \colon A \vdash e'\ \colon B
+  }{
+    \Gamma + \Delta \vdash let\ x = e\ in\ e'\ \colon B
+  }
+
+  \infrule[let-exp]{
+  \Gamma \vdash e\ \colon !_{r} A \hspace{15pt} \Delta , x\ \colon [ A ]_{r} \vdash e'\ \colon B
+  }{
+  \Gamma + \Delta \vdash let\ !x = e\ in\ e'\ \colon B
+  }
+
+  \infrule[let-rec]{
+  [ \Gamma ] , x\ \colon [A]_{p} \vdash e\ \colon\ A \hspace{15pt} \Delta , x\ \colon\ !_{\infty} A \vdash e'\ \colon\ B
+  }{
+  \infty * [ \Gamma ] + \Delta \vdash let\ rec\ x = e\ in\ e'\ \colon B
+  }
+
+\end{multicols}
 
 \end{document}
