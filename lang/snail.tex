@@ -63,6 +63,7 @@ EBNF記法を用いてSnailの具象構文を以下に示す.
   &\bnfor& int \\
   &\bnfor& float \\
   &\bnfor& string \\
+  &\bnfor& bool \\
   &\bnfor& var \\
   &\bnfor& cons\ [ \langle simple \mhyph term \rangle ] \\
   &\bnfor& () \\
@@ -79,6 +80,7 @@ EBNF記法を用いてSnailの具象構文を以下に示す.
   \item string\ 文字列リテラル.
   \item int\ 整数リテラル.
   \item float\ 小数リテラル.
+  \item bool\ 真偽値リテラル.
   \item その他\ 予約語.
 \end{itemize}
 
@@ -100,6 +102,10 @@ Snailは次のような型付け規則を持つ.
 
   \infrule[String]{}{
     \vdash string\ \colon String
+  }
+
+  \infrule[Bool]{}{
+    \vdash bool\ \colon Bool
   }
 
   \infrule[id]{}{
@@ -155,9 +161,15 @@ Snailは次のような型付け規則を持つ.
   }
 
   \infrule[let-rec]{
-  [ \Gamma ] , x\ \colon [A]_{p} \vdash e\ \colon\ A \hspace{15pt} \Delta , x\ \colon\ !_{\infty} A \vdash e'\ \colon\ B
+  [ \Gamma ] , x\ \colon [A]_{p} \vdash e\ \colon\ A \hspace{15pt} \Delta , x\ \colon\ [ A ]_{\infty} \vdash e'\ \colon\ B
   }{
   \infty * [ \Gamma ] + \Delta \vdash let\ rec\ x = e\ in\ e'\ \colon B
+  }
+
+  \infrule[sub]{
+    \Delta \vdash e\ \colon\ B \hspace{10pt} \Gamma <:\Delta
+  }{
+    \Gamma , \varTheta \vdash e\ \colon B
   }
 
 \end{multicols}
