@@ -4,7 +4,7 @@
 \usepackage{multicol}
 
 
-\title{The Definition of Snail Programming Language}
+\title{The Definition of Snail}
 \author{letexpr}
 
 \newcommand{\bnfdef}{::=}
@@ -90,6 +90,8 @@ EBNF記法を用いてSnailの具象構文を以下に示す.
 
 Snailは次のような型付け規則を持つ.
 
+\subsection{型付け規則}
+
 \begin{multicols}{2}
 
   \infrule[Int]{}{
@@ -173,5 +175,45 @@ Snailは次のような型付け規則を持つ.
   }
 
 \end{multicols}
+
+\subsection{部分型付け規則}
+
+\begin{multicols}{2}
+  \infrule[o-i]{}{
+    A <: A
+  }
+
+  \infrule[o-b]{
+  A <: B \hspace{10pt} q \preceq p
+  }{
+  !_{p} A <: !_{q} B
+  }
+
+  \infrule[o-l]{
+    A' <: A \hspace{10pt} B <: B'
+  }{
+    A \multimap B <: A' \multimap B'
+  }
+
+  \infrule[o-d]{
+  A <: B \hspace{10pt} q \preceq p
+  }{
+  [ A ]_{p} <: [ B ]_{q}
+  }
+
+  \infrule[o-ic]{}{
+    \Gamma <: \Gamma
+  }
+
+  \infrule[o-c]{
+    \Gamma <: \Delta \hspace{10pt} A <: B
+  }{
+    \Gamma , x\ \colon B <: \Delta , x\ \colon A
+  }
+\end{multicols}
+
+\section{参考文献}
+
+
 
 \end{document}
