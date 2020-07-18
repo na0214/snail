@@ -4,7 +4,7 @@
 \usepackage{multicol}
 
 
-\title{The Definition of Snail}
+\title{The Definition of Snail Programming Language}
 \author{letexpr}
 
 \newcommand{\bnfdef}{::=}
@@ -13,129 +13,141 @@
 \settowidth{\len}{$\bnfdef$}
 \newcommand{\bnfor}{\makebox[\len]{$|$}}
 
-\DeclareMathSymbol{\mhyph}{\mathalpha}{operators}{`-}
-
 \begin{document}
 \maketitle
+
+\section{はじめに}
+
+Snailは静的型付けの関数型プログラミング言語である.\\
+
+主な特徴として,
+\begin{itemize}
+  \item Bounded Linear Typeによるリソースの制御
+  \item Effect System / Coeffect System (未実装)
+  \item 軽量な依存型 (indexed type) (未実装)
+\end{itemize}
+
+が挙げられる.\\
+
+本文ではSnailについてCore言語を定義し,Core言語への脱糖規則,Core言語の型付け規則,操作的意味論を定義することによりSnailに定義を与える.\\
+
+本文中ではメタ変数として以下のようなものを用いる.
+\begin{itemize}
+  \item $\Gamma , \Delta , \Theta\ \cdots\ \mbox{型環境上を動くメタ変数}$.
+  \item $A,B,C \cdots\ \mbox{型の上を動くメタ変数.}$
+  \item $Ac,Bc,Cc \cdots\ \mbox{コンストラクタ上を動くメタ変数.}$
+  \item $x,y,z \cdots\ \mbox{変数上を動くメタ変数.}$
+  \item $p,q,r \cdots\ \mbox{resource semiring上を動くメタ変数.}$
+  \item $e \cdots\ \mbox{項の上を動くメタ変数.}$
+  \item $s\ \cdots\ \mbox{文字列リテラル上を動くメタ変数.}$
+  \item $n\ \cdots\ \mbox{自然数上を動くメタ変数.}$
+  \item $i\ \cdots\ \mbox{整数上を動くメタ変数.}$
+  \item $f\ \cdots\ \mbox{小数上を動くメタ変数.}$
+  \item $b\ \cdots\ \mbox{論理値リテラル上を動くメタ変数.}$
+\end{itemize}
+
+\newpage
 
 \section{Snailの構文定義}
 
 EBNF記法を用いてSnailの具象構文を以下に示す.
 
 \begin{eqnarray*}
-  toplevel &\bnfdef& let\ [ rec ]\ var\ \{ var\ [\ \colon\ \langle type \rangle ] \} \colon \langle type \rangle = \langle term \rangle\ \{ \langle mutual \mhyph recursion \mhyph top \mhyph let \rangle \} \\
-  &\bnfor& typedef\ cons\ \{ var \} = [\ |\ ]\ \{ \langle type \mhyph dec \rangle\ |\ \}\ \langle type \mhyph dec \rangle\ \{ \langle mutual \mhyph recursion \mhyph type \rangle \} \\ \\
-  mutual \mhyph recursion \mhyph type &\bnfdef& and\ cons\ \{ var \} = [\ |\ ]\ \{ \langle type \mhyph dec \rangle\  |\ \}\ \langle type \mhyph dec \rangle \\ \\
-  mutual \mhyph recursion \mhyph top \mhyph let &\bnfdef& and\ var\ \{ var\ [\ \colon\ \langle type \rangle ] \}\ \colon\ \langle type \rangle = \langle term \rangle \\ \\
-  type \mhyph dec &\bnfdef& cons\ [ of\ \langle type \rangle ] \\ \\
-  type &\bnfdef& \langle type \rangle \rightarrow \langle type \rangle \\
-  &\bnfor& !\ '['\ \langle expmod \rangle\ ']'\ '\{'\ \langle type \rangle\ '\}' \\
-  &\bnfor& \langle simple \mhyph type \rangle \\
-  &\bnfor& \langle type \rangle\ \langle simple \mhyph type \rangle \\ \\
-  expmod &\bnfdef& int \\
-  &\bnfor& \infty \\ \\
-  simple \mhyph type &\bnfdef& '('\ \langle type \rangle\ ')' \\
-  &\bnfor& var \\
-  &\bnfor& cons \\
-  &\bnfor& () \\ \\
-  pattern &\bnfdef& \langle simple \mhyph pattern \rangle \\
-  &\bnfor& \langle pattern \rangle\ \langle simple \mhyph pattern \rangle \\
-  &\bnfor& \langle simple \mhyph pattern \rangle\ binop\ \langle simple \mhyph pattern \rangle \\
-\end{eqnarray*}
-
-\newpage
-
-\begin{eqnarray*}
-  simple \mhyph pattern &\bnfdef& '('\ \langle pattern \rangle\ ')' \\
-  &\bnfor& var \\
-  &\bnfor& cons\ '['\ \langle simple \mhyph pattern \rangle\ ']' \\
+  \mbox{toplevel} &\bnfdef& \mbox{let}\ [ \mbox{rec} ]\ \mbox{x}\ \{ \mbox{y}\ [\ \colon\ \langle \mbox{type} \rangle ] \} \colon \langle \mbox{type} \rangle = \langle \mbox{term} \rangle\ \{ \langle \mbox{mutual-recursion-let} \rangle \} \\
+  &\bnfor& \mbox{typedef\ A}\ = [\ |\ ]\ \{ \langle \mbox{Ac}\ [ \mbox{of}\ \langle \mbox{type} \rangle ] \rangle\ |\ \}\ \langle \mbox{Bc}\ [ \mbox{of}\ \langle \mbox{type} \rangle ] \rangle\ \{ \langle \mbox{mutual-recursion-type} \rangle \} \\ \\
+  \mbox{mutual-recursion-type} &\bnfdef& \mbox{and\ A}\ = [\ |\ ]\ \{ \langle \mbox{Ac}\ [ \mbox{of}\ \langle \mbox{type} \rangle ] \rangle\  |\ \}\ \langle \mbox{Bc}\ [ \mbox{of}\ \langle \mbox{type} \rangle ] \rangle \\ \\
+  \mbox{type} &\bnfdef& \langle \mbox{type} \rangle \rightarrow \langle \mbox{type} \rangle \\
+  &\bnfor& !\ \mbox{'['}\ \langle \mbox{expmod} \rangle\ \mbox{']'}\ \mbox{'\{'}\ \langle \mbox{type} \rangle\ \mbox{'\}'} \\
+  &\bnfor& \langle \mbox{type} \rangle\ \langle \mbox{type} \rangle \\
+  &\bnfor&\mbox{'('}\ \langle \mbox{type} \rangle\ \mbox{')'} \\
+  &\bnfor& \mbox{A} \\ \\
+  \mbox{expmod} &\bnfdef& \mbox{n} \bnfor \infty \\ \\
+  \mbox{pattern} &\bnfdef& \langle \mbox{pattern} \rangle\ \langle \mbox{pattern} \rangle \\
+  &\bnfor& \langle \mbox{pattern} \rangle\ \mbox{binop}\ \langle \mbox{pattern} \rangle \\
+  &\bnfor& \mbox{'('}\ \langle \mbox{pattern} \rangle\ \mbox{')'} \\
+  &\bnfor& \mbox{x} \bnfor \mbox{Ac}\\
+  &\bnfor& list \hspace{20pt} \mbox{(組み込みリストの構文糖衣)} \\
   &\bnfor& [\ ] \\
   &\bnfor& \_ \\ \\
-  mutual \mhyph recursion \mhyph let &\bnfdef& and\ var\ \{ var\ [\ \colon\ \langle type \rangle ] \}\ \colon\ \langle type \rangle = \langle term \rangle \\ \\
-  term &\bnfdef& \langle simple \mhyph term \rangle \\
-  &\bnfor& \langle term \rangle\ \langle simple \mhyph term \rangle \\
-  &\bnfor& let\ [ rec ]\ var\ \{ var\ [\ \colon\ \langle type \rangle ] \} \colon \langle type \rangle = \langle term \rangle\ \{ \langle mutual \mhyph recursion \mhyph let \rangle \}\ in\ \langle term \rangle \\
-  &\bnfor& fun\ \{ var\ [\ \colon\ \langle type \rangle ] \}\ \rightarrow \langle term \rangle \\
-  &\bnfor& match\ \langle term \rangle\ with\ [\ |\ ]\ \{ \langle pattern \rangle \rightarrow \langle term \rangle\ |\ \}\ \langle pattern \rangle \rightarrow \langle term \rangle\\
-  &\bnfor& if\ \langle term \rangle\ then\ \langle term \rangle\ else\ \langle term \rangle \\ \\
-  simple \mhyph term &\bnfdef& '('\ \langle term \rangle\ [\ \colon \langle type \rangle]\ ')'\\
-  &\bnfor& !\ \langle term \rangle\\
-  &\bnfor& int \\
-  &\bnfor& float \\
-  &\bnfor& string \\
-  &\bnfor& bool \\
-  &\bnfor& var \\
-  &\bnfor& cons\ [ \langle simple \mhyph term \rangle ] \\
-  &\bnfor& () \\
-  &\bnfor& [\ ] \\
-  &\bnfor& list
+  \mbox{mutual-recursion-let} &\bnfdef& \mbox{and\ x}\ \{ \mbox{y}\ [\ \colon\ \langle \mbox{type} \rangle ] \}\ \colon\ \langle \mbox{type} \rangle = \langle \mbox{term} \rangle \\ \\
+  \mbox{term} &\bnfdef& \langle \mbox{term} \rangle\ \langle \mbox{term} \rangle \\
+  &\bnfor& \mbox{let}\ [ \mbox{rec} ]\ \mbox{x}\ \{ \mbox{y}\ [\ \colon\ \langle \mbox{type} \rangle ] \} \colon \langle \mbox{type} \rangle = \langle \mbox{term} \rangle\ \{ \langle \mbox{mutual-recursion-let} \rangle \}\ \mbox{in}\ \langle \mbox{term} \rangle \\
+  &\bnfor& \mbox{fun}\ \{ \mbox{x}\ [\ \colon\ \langle \mbox{type} \rangle ] \}\ \rightarrow \langle \mbox{term} \rangle \\
+  &\bnfor& \mbox{match}\ \langle \mbox{term} \rangle\ \mbox{with}\ [\ |\ ]\ \{ \langle \mbox{pattern} \rangle \rightarrow \langle \mbox{term} \rangle\ |\ \}\ \langle \mbox{pattern} \rangle \rightarrow \langle \mbox{term} \rangle\\
+  &\bnfor& \mbox{if}\ \langle \mbox{term} \rangle\ \mbox{then}\ \langle \mbox{term} \rangle\ \mbox{else}\ \langle \mbox{term} \rangle \\
+  &\bnfor& \mbox{fix}\ \mbox{x} . \langle \mbox{term} \rangle \\
+  &\bnfor& \mbox{'('}\ \langle \mbox{term} \rangle\ [\ \colon \langle \mbox{type} \rangle]\ \mbox{')'}\\
+  &\bnfor& !\ \langle \mbox{term} \rangle\\
+  &\bnfor& \mbox{i} \bnfor \mbox{f} \bnfor \mbox{s} \bnfor \mbox{b} \bnfor \mbox{x} \bnfor \mbox{Ac} \bnfor [\ ] \bnfor \mbox{list} \\
 \end{eqnarray*}
-
-終端記号の意味を以下のように定義する.
-
-\begin{itemize}
-  \item var\ 先頭が小文字で始まる文字列.
-  \item cons\ 先頭が大文字で始まる文字列.
-  \item list\ 組み込みリストの構文糖衣,[1,2,3]など.
-  \item string\ 文字列リテラル.
-  \item int\ 整数リテラル.
-  \item float\ 小数リテラル.
-  \item bool\ 真偽値リテラル.
-  \item その他\ 予約語.
-\end{itemize}
 
 \newpage
 
-\section{Snailの型システム}
+\section{SnailのCore言語}
 
-Snailは次のような型付け規則を持つ.
+SnailのCore言語はSnailのプログラムを脱糖する事により得ることができる.
 
-\subsection{型付け規則}
+\subsection{Core言語の構文}
+
+Core言語は次のような構文を持つ.
+
+\begin{eqnarray*}
+  \mbox{e} &\bnfdef& \mbox{let}\ \mbox{!x} = e_1\ in\ e_2  \\
+  &\bnfor& \mbox{i} \bnfor \mbox{f} \bnfor \mbox{s} \bnfor \mbox{b} \bnfor \mbox{x} \bnfor \mbox{!e}  \\
+  &\bnfor& \mbox{match}\ \mbox{e}\ \mbox{with}\ \{  \mbox{pat}  \rightarrow  \mbox{e}\ |\ \}\ \mbox{pat}  \rightarrow  \mbox{e} \\
+  &\bnfor& e_1\ e_2 \bnfor \lambda \mbox{x} . \mbox{e} \bnfor \mbox{fix}\ \mbox{x} . \mbox{e}\\ \\
+  \mbox{pat} &\bnfdef& pat_1\ pat_2 \bnfor \mbox{x}
+\end{eqnarray*}
+
+\subsection{Core言語の型システム}
+
+Core言語の型付け規則を次に示す.
+
+\subsubsection{型付け規則}
 
 \begin{multicols}{2}
-
-  \infrule[Int]{}{
-    \vdash int\ \colon Int
+  \infrule[int]{}{
+    \vdash i\ \colon \mbox{Int}
   }
 
-  \infrule[Float]{}{
-    \vdash float\ \colon Float
+  \infrule[float]{}{
+    \vdash f\ \colon \mbox{Float}
   }
 
-  \infrule[String]{}{
-    \vdash string\ \colon String
+  \infrule[string]{}{
+    \vdash s\ \colon \mbox{String}
   }
 
-  \infrule[Bool]{}{
-    \vdash bool\ \colon Bool
+  \infrule[bool]{}{
+    \vdash b\ \colon \mbox{Bool}
   }
 
   \infrule[id]{}{
     x\ \colon A \vdash x\ \colon A
   }
 
+  \infrule[pr]{
+    [ \Gamma ] \vdash e\ \colon B
+  }{
+    r \star [ \Gamma ] \vdash ! e\ \colon !_r B
+  }
+
   \infrule[der]{
     \Gamma , x\ \colon A \vdash e\ \colon B
   }{
-    \Gamma , x\ \colon [A]_{1} \vdash e\ \colon B
+    \Gamma , x\ \colon [ A ]_1 \vdash e\ \colon\ B
   }
 
-  \infrule[pr]{
-  [ \Gamma ] \vdash e\ \colon B
+  \infrule[sub]{
+    \Delta \vdash e\ \colon B \hspace{15pt} \Gamma <: \Delta
   }{
-  r * [\Gamma] \vdash\ !e\ \colon !_{r} B
+    \Gamma , \Theta \vdash e\ \colon B
   }
 
-  \infrule[fun]{
+  \infrule[abs]{
     \Gamma , x\ \colon A \vdash e\ \colon B
   }{
-    \Gamma \vdash fun\ x \rightarrow e\ \colon A \multimap B
-  }
-
-  \infrule[fun-exp]{
-  \Gamma , x\ \colon [ A ]_{r} \vdash e\ \colon B
-  }{
-  \Gamma \vdash fun\ ( !x\ \colon !_{r} A ) \rightarrow e\ \colon\ !_{r} A \multimap B
+    \Gamma \vdash \lambda x.e\ \colon A \multimap B
   }
 
   \infrule[app]{
@@ -144,39 +156,25 @@ Snailは次のような型付け規則を持つ.
     \Gamma + \Delta \vdash e\ e'\ \colon B
   }
 
-  \infrule[if]{
-    \Gamma \vdash e\ \colon Bool \hspace{15pt} \Delta \vdash e_1\ \colon A \hspace{15pt} \Delta \vdash e_2\ \colon A
+  \infrule[fix]{
+    [ \Gamma ] , x\ \colon [ A ]_p \vdash e\ \colon A \hspace{15pt} 1 + p \star q \preceq q
   }{
-    \Gamma + \Delta \vdash if\ e\ then\ e_1\ else\ e_2\ \colon A
+    q \star [ \Gamma ] \vdash \mbox{fix}\ x.e\ \colon A
   }
 
   \infrule[let]{
-    \Gamma \vdash e\ \colon A \hspace{15pt} \Delta , x\ \colon A \vdash e'\ \colon B
+    \Gamma \vdash e\ \colon !_r A \hspace{15pt} \Delta , x\ \colon [ A ]_r \vdash e'\ \colon B
   }{
-    \Gamma + \Delta \vdash let\ x = e\ in\ e'\ \colon B
-  }
-
-  \infrule[let-exp]{
-  \Gamma \vdash e\ \colon !_{r} A \hspace{15pt} \Delta , x\ \colon [ A ]_{r} \vdash e'\ \colon B
-  }{
-  \Gamma + \Delta \vdash let\ !x = e\ in\ e'\ \colon B
-  }
-
-  \infrule[let-rec]{
-  [ \Gamma ] , x\ \colon [A]_{p} \vdash e\ \colon\ A \hspace{15pt} \Delta , x\ \colon\ [ A ]_{\infty} \vdash e'\ \colon\ B
-  }{
-  \infty * [ \Gamma ] + \Delta \vdash let\ rec\ x = e\ in\ e'\ \colon B
-  }
-
-  \infrule[sub]{
-    \Delta \vdash e\ \colon\ B \hspace{10pt} \Gamma <:\Delta
-  }{
-    \Gamma , \varTheta \vdash e\ \colon B
+    \Gamma + \Delta \vdash e\ e'\ \colon B
   }
 
 \end{multicols}
 
-\subsection{部分型付け規則}
+\subsubsection{アルゴリズム的型付け規則}
+
+
+
+\subsubsection{部分型付け規則}
 
 \begin{multicols}{2}
   \infrule[o-i]{}{

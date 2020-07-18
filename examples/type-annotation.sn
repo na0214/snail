@@ -1,3 +1,0 @@
-let id (x : a) : a = x
-
-let f (x : Int) : Int = id x

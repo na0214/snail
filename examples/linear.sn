@@ -8,19 +8,4 @@ let pair (x : ![2]{Int}) : ![∞]{(Int * Int)} = !(x,x)
 
 let pair_lin (x : ![2]{Int}) : (Int * Int) = (x,x)
 
-let non_restricted (x : ![∞]{Int}) : (Int * Int * Int) = (x,x,x)
-
-let f =
-  fun (x : ![2]{Int}) -> (x,x)
-
-let pair_apply = pair !(id !1)
-
-let fst_triple =
-  match pair_lin !1 with (a,_) -> a
-
-let i : ![∞]{Int} = !3
-
-let apply_pair_i = pair i
-
-let g (x : ![2]{Int}) =
-  (pair !x,pair !x)
+let lin (x : Int) : (Int * Int) = (x,x)

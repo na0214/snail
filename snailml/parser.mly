@@ -58,9 +58,9 @@ toplevel:
   {
     LetDec((match rec_flag with Some _ -> true | _ -> false),name,arguments,t,type_annot,$1,mutual_rec)
   }
-  | TYPEDEF name = CONS typevars = type_argument EQUAL option(OR)　typedec = separated_list(OR,type_declare) mutual_rec = mutual_recursion_top_typedec
+  | TYPEDEF name = CONS EQUAL option(OR) typedec = separated_list(OR,type_declare) mutual_rec = mutual_recursion_top_typedec
   {
-    TypeDef(fst name,typevars,typedec,$1,mutual_rec)
+    TypeDef(fst name,[],typedec,$1,mutual_rec)
   }
 
 mutual_recursion_top_let:

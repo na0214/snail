@@ -1,1 +1,0 @@
-let f x = (fun y -> (y,y)) x
