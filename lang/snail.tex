@@ -103,6 +103,8 @@ Core言語は次のような構文を持つ.
 
 Core言語の型付け規則を次に示す.
 
+
+
 \subsubsection{Contextと演算の定義\\}
 
 Core言語でのContextを次のように定義する.
@@ -135,6 +137,8 @@ Core言語でのContextを次のように定義する.
   r \star \Phi &=& \Phi \\
   r \star (x\ \colon [A]_p,[\Gamma]) &=& x\ \colon [A]_{r \star p},r \star [\Gamma] \\
 \end{eqnarray*}
+
+$[\Gamma]$\ と表記した際,Context\ $\Gamma$\ 内には線形な変数は含まれない.
 
 \subsubsection{部分型付け規則}
 
