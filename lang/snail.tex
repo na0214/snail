@@ -165,7 +165,7 @@ Core言語の型付け規則を次に示す.
   \infrule[let]{
     \Gamma \vdash e\ \colon !_r A \hspace{15pt} \Delta , x\ \colon [ A ]_r \vdash e'\ \colon B
   }{
-    \Gamma + \Delta \vdash e\ e'\ \colon B
+    \Gamma + \Delta \vdash \mbox{let}\ !x = e\ \mbox{in}\ e'\ \colon B
   }
 
 \end{multicols}
