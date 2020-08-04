@@ -35,15 +35,13 @@ Snailは静的型付けの関数型プログラミング言語である.\\
 \begin{itemize}
   \item $\Gamma , \Delta , \Theta\ \cdots\ \mbox{型環境上を動くメタ変数}$.
   \item $A,B,C \cdots\ \mbox{型の上を動くメタ変数.}$
-  \item $Ac,Bc,Cc \cdots\ \mbox{コンストラクタ上を動くメタ変数.}$
+  \item $K \cdots\ \mbox{コンストラクタ上を動くメタ変数.}$
   \item $x,y,z \cdots\ \mbox{変数上を動くメタ変数.}$
-  \item $p,q,r \cdots\ \mbox{resource semiring上を動くメタ変数.}$
+  \item $p \cdots \mbox{パターン上を動くメタ変数.}$
+  \item $i,j,k \cdots\ \mbox{resource semiring上を動くメタ変数.}$
   \item $e \cdots\ \mbox{項の上を動くメタ変数.}$
-  \item $s\ \cdots\ \mbox{文字列リテラル上を動くメタ変数.}$
+  \item $c\ \cdots\ \mbox{定数上を動くメタ変数.}$
   \item $n\ \cdots\ \mbox{自然数上を動くメタ変数.}$
-  \item $i\ \cdots\ \mbox{整数上を動くメタ変数.}$
-  \item $f\ \cdots\ \mbox{小数上を動くメタ変数.}$
-  \item $b\ \cdots\ \mbox{論理値リテラル上を動くメタ変数.}$
 \end{itemize}
 
 \newpage
@@ -54,20 +52,19 @@ EBNF記法を用いてSnailの具象構文を以下に示す.
 
 \begin{eqnarray*}
   \mbox{toplevel} &\bnfdef& \mbox{let}\ [ \mbox{rec} ]\ \mbox{x}\ \{ \mbox{y}\ [\ \colon\ \langle \mbox{type} \rangle ] \} \colon \langle \mbox{type} \rangle = \langle \mbox{term} \rangle\ \{ \langle \mbox{mutual-recursion-let} \rangle \} \\
-  &\bnfor& \mbox{typedef\ A}\ = [\ |\ ]\ \{ \langle \mbox{Ac}\ [ \mbox{of}\ \langle \mbox{type} \rangle ] \rangle\ |\ \}\ \langle \mbox{Bc}\ [ \mbox{of}\ \langle \mbox{type} \rangle ] \rangle\ \{ \langle \mbox{mutual-recursion-type} \rangle \} \\ \\
-  \mbox{mutual-recursion-type} &\bnfdef& \mbox{and\ A}\ = [\ |\ ]\ \{ \langle \mbox{Ac}\ [ \mbox{of}\ \langle \mbox{type} \rangle ] \rangle\  |\ \}\ \langle \mbox{Bc}\ [ \mbox{of}\ \langle \mbox{type} \rangle ] \rangle \\ \\
+  &\bnfor& \mbox{typedef\ A}\ = [\ |\ ]\ \{ \langle \mbox{K}\ [ \mbox{of}\ \langle \mbox{type} \rangle ] \rangle\ |\ \}\ \langle \mbox{K}\ [ \mbox{of}\ \langle \mbox{type} \rangle ] \rangle\ \{ \langle \mbox{mutual-recursion-type} \rangle \} \\ \\
+  \mbox{mutual-recursion-type} &\bnfdef& \mbox{and\ A}\ = [\ |\ ]\ \{ \langle \mbox{K}\ [ \mbox{of}\ \langle \mbox{type} \rangle ] \rangle\  |\ \}\ \langle \mbox{K}\ [ \mbox{of}\ \langle \mbox{type} \rangle ] \rangle \\ \\
   \mbox{type} &\bnfdef& \langle \mbox{type} \rangle \rightarrow \langle \mbox{type} \rangle \\
   &\bnfor& !\ \mbox{'['}\ \langle \mbox{expmod} \rangle\ \mbox{']'}\ \mbox{'\{'}\ \langle \mbox{type} \rangle\ \mbox{'\}'} \\
   &\bnfor& \langle \mbox{type} \rangle\ \langle \mbox{type} \rangle \\
   &\bnfor&\mbox{'('}\ \langle \mbox{type} \rangle\ \mbox{')'} \\
   &\bnfor& \mbox{A} \\ \\
   \mbox{expmod} &\bnfdef& \mbox{n} \bnfor \infty \\ \\
-  \mbox{pattern} &\bnfdef& \langle \mbox{pattern} \rangle\ \langle \mbox{pattern} \rangle \\
-  &\bnfor& \langle \mbox{pattern} \rangle\ \mbox{binop}\ \langle \mbox{pattern} \rangle \\
+  \mbox{pattern} &\bnfdef& \langle \mbox{pattern} \rangle\ \mbox{binop}\ \langle \mbox{pattern} \rangle \\
   &\bnfor& \mbox{'('}\ \langle \mbox{pattern} \rangle\ \mbox{')'} \\
-  &\bnfor& \mbox{x} \bnfor \mbox{Ac}\\
+  &\bnfor& \mbox{x} \bnfor \mbox{K}\ ( \{ \langle \mbox{pattern} \rangle\ ,\} \langle \mbox{pattern} \rangle)　\\
+  &\bnfor&  \{ \langle \mbox{pattern} \rangle\ ,\} \langle \mbox{pattern} \rangle) \\
   &\bnfor& list \hspace{20pt} \mbox{(組み込みリストの構文糖衣)} \\
-  &\bnfor& [\ ] \\
   &\bnfor& \_ \\ \\
   \mbox{mutual-recursion-let} &\bnfdef& \mbox{and\ x}\ \{ \mbox{y}\ [\ \colon\ \langle \mbox{type} \rangle ] \}\ \colon\ \langle \mbox{type} \rangle = \langle \mbox{term} \rangle \\ \\
   \mbox{term} &\bnfdef& \langle \mbox{term} \rangle\ \langle \mbox{term} \rangle \\
@@ -78,7 +75,8 @@ EBNF記法を用いてSnailの具象構文を以下に示す.
   &\bnfor& \mbox{fix}\ \mbox{x} . \langle \mbox{term} \rangle \\
   &\bnfor& \mbox{'('}\ \langle \mbox{term} \rangle\ [\ \colon \langle \mbox{type} \rangle]\ \mbox{')'}\\
   &\bnfor& !\ \langle \mbox{term} \rangle\\
-  &\bnfor& \mbox{i} \bnfor \mbox{f} \bnfor \mbox{s} \bnfor \mbox{b} \bnfor \mbox{x} \bnfor \mbox{Ac} \bnfor [\ ] \bnfor \mbox{list} \\
+  &\bnfor& \mbox{K}\ ( \{ \langle \mbox{term} \rangle,\} \langle \mbox{term} \rangle)　\\
+  &\bnfor& ( \{ \langle \mbox{term} \rangle,\} \langle \mbox{term} \rangle) \bnfor \mbox{c} \bnfor \mbox{x} \bnfor \mbox{list} \\
 \end{eqnarray*}
 
 \newpage
@@ -92,53 +90,39 @@ SnailのCore言語はSnailのプログラムを脱糖する事により得るこ
 Core言語は次のような構文を持つ.
 
 \begin{eqnarray*}
-  \mbox{e} &\bnfdef& \mbox{let}\ \mbox{!x} = e_1\ in\ e_2  \\
-  &\bnfor& \mbox{i} \bnfor \mbox{f} \bnfor \mbox{s} \bnfor \mbox{b} \bnfor \mbox{x} \bnfor \mbox{!e}  \\
-  &\bnfor& \mbox{match}\ \mbox{e}\ \mbox{with}\ \{  \mbox{pat}  \rightarrow  \mbox{e}\ |\ \}\ \mbox{pat}  \rightarrow  \mbox{e} \\
-  &\bnfor& e_1\ e_2 \bnfor \lambda \mbox{x} . \mbox{e} \bnfor \mbox{fix}\ \mbox{x} . \mbox{e}\\ \\
-  \mbox{pat} &\bnfdef& pat_1\ pat_2 \bnfor \mbox{x}
+  e &\bnfdef& \mbox{let}\ !x = e_1\ in\ e_2  \\
+  &\bnfor& K \bnfor x \bnfor !e \bnfor ( e_1 , e_2 ,\dots, e_n)  \\
+  &\bnfor& \mbox{match}\ e\ \mbox{with}\ \{ p_n  \rightarrow  e_n\ \}_{n = 1}^{m} \\
+  &\bnfor& e_1\ e_2 \bnfor \lambda x . e \bnfor \mbox{fix}\ x . e \\ \\
+  p &\bnfdef& K\ (x_1,x_2,\cdots,x_n) \bnfor (x_1,x_2,\cdots,x_n) \bnfor x \\ \\
+  \Gamma &\bnfdef& \emptyset  \bnfor \Gamma,x \colon [A]_i \\ \\
+  A &\bnfdef& K \bnfor A \multimap A \bnfor !_r A \\
 \end{eqnarray*}
 
 \subsection{Core言語の型システム}
 
 Core言語の型付け規則を次に示す.
 
+\subsubsection{Contextと演算の定義}
 
-
-\subsubsection{Contextと演算の定義\\}
-
-Core言語でのContextを次のように定義する.
-
-\begin{center}
-  $\Gamma \bnfdef \Phi \bnfor \Gamma,x\ \colon A \bnfor \Gamma,x \colon [A]_p$
-\end{center}
-
-また,Context間の加算\ $+$\ を次のように定義する.
+Context間の加算\ $+$\ を次のように定義する.
 
 \begin{eqnarray*}
-  \Phi + \Delta &=& \Delta \\
-  (x\ \colon [A]_p,\Gamma) + (x\ \colon [A]_q,\Delta) &=& x\ \colon [A]_{p+q},(\Gamma + \Delta) \\
-  (x\ \colon [A]_p,\Gamma) + \Delta &=& x\ \colon [A]_p,(\Gamma + \Delta) \hspace{15pt} \mbox{if}\ x \notin \Delta \\
-  (x\ \colon A,\Gamma) + \Delta &=& x\ \colon A,(\Gamma + \Delta) \hspace{15pt} \mbox{if}\ x \notin \Delta \\
-\end{eqnarray*}
-
-同様に,Context間の減算\ $-$\ を次のように定義する.
-
-\begin{eqnarray*}
-  \Delta - \Phi &=& \Delta \\
-  (x\ \colon [A]_p,\Gamma) - (x\ \colon [A]_q,\Delta) &=& x\ \colon [A]_{p-q},(\Gamma - \Delta) \hspace{15pt} \mbox{if}\ p \geq q \\
-  (x\ \colon [A]_p,\Gamma) - \Delta &=& x\ \colon [A]_p,(\Gamma - \Delta) \hspace{15pt} \mbox{if}\ x \notin \Delta \\
-  (x\ \colon A,\Gamma) - \Delta &=& x\ \colon A,(\Gamma - \Delta) \hspace{15pt} \mbox{if}\ x \notin \Delta \\
+  \emptyset + \Delta &=& \Delta \\
+  (x\ \colon [A]_i,\Gamma) + (x\ \colon [A]_j,\Delta) &=& x\ \colon [A]_{i+j},(\Gamma + \Delta) \\
+  (x\ \colon [A]_i,\Gamma) + \Delta &=& x\ \colon [A]_i,(\Gamma + \Delta) \hspace{15pt} \mbox{if}\ x \notin \mbox{dom}(\Delta) \\
 \end{eqnarray*}
 
 同様に,Contextと自然数の乗算\ $\star$\ を次のように定義する.
 
 \begin{eqnarray*}
-  r \star \Phi &=& \Phi \\
-  r \star (x\ \colon [A]_p,[\Gamma]) &=& x\ \colon [A]_{r \star p},r \star [\Gamma] \\
+  i \star \emptyset &=& \emptyset \\
+  i \star (x\ \colon [A]_j,[\Gamma]) &=& x\ \colon [A]_{i \star j},i \star [\Gamma] \\
 \end{eqnarray*}
 
 $[\Gamma]$\ と表記した際,Context\ $\Gamma$\ 内には線形な変数は含まれない.
+
+\newpage
 
 \subsubsection{部分型付け規則}
 
@@ -148,9 +132,9 @@ $[\Gamma]$\ と表記した際,Context\ $\Gamma$\ 内には線形な変数は含
   }
 
   \infrule[o-b]{
-  A <: B \hspace{10pt} q \preceq p
+  A <: B \hspace{10pt} j \preceq i
   }{
-  !_{p} A <: !_{q} B
+  !_{i} A <: !_{j} B
   }
 
   \infrule[o-l]{
@@ -160,9 +144,9 @@ $[\Gamma]$\ と表記した際,Context\ $\Gamma$\ 内には線形な変数は含
   }
 
   \infrule[o-d]{
-  A <: B \hspace{10pt} q \preceq p
+  A <: B \hspace{10pt} j \preceq i
   }{
-  [ A ]_{p} <: [ B ]_{q}
+  [ A ]_{i} <: [ B ]_{j}
   }
 
   \infrule[o-ic]{}{
@@ -172,27 +156,17 @@ $[\Gamma]$\ と表記した際,Context\ $\Gamma$\ 内には線形な変数は含
   \infrule[o-c]{
     \Gamma <: \Delta \hspace{10pt} A <: B
   }{
-    \Gamma , x\ \colon B <: \Delta , x\ \colon A
+    \Gamma , x\ \colon A <: \Delta , x\ \colon B
   }
 \end{multicols}
 
 \subsubsection{型付け規則}
 
 \begin{multicols}{2}
-  \infrule[int]{}{
-    \vdash i\ \colon \mbox{Int}
-  }
-
-  \infrule[float]{}{
-    \vdash f\ \colon \mbox{Float}
-  }
-
-  \infrule[string]{}{
-    \vdash s\ \colon \mbox{String}
-  }
-
-  \infrule[bool]{}{
-    \vdash b\ \colon \mbox{Bool}
+  \infrule[const]{
+    \mbox{TC}(c) = A
+  }{
+    \vdash c\ \colon A
   }
 
   \infrule[id]{}{
@@ -202,7 +176,7 @@ $[\Gamma]$\ と表記した際,Context\ $\Gamma$\ 内には線形な変数は含
   \infrule[pr]{
     [ \Gamma ] \vdash e\ \colon B
   }{
-    r \star [ \Gamma ] \vdash ! e\ \colon !_r B
+    i \star [ \Gamma ] \vdash ! e\ \colon !_i B
   }
 
   \infrule[der]{
@@ -230,18 +204,20 @@ $[\Gamma]$\ と表記した際,Context\ $\Gamma$\ 内には線形な変数は含
   }
 
   \infrule[fix]{
-    [ \Gamma ] , x\ \colon [ A ]_p \vdash e\ \colon A \hspace{15pt} 1 + p \star q \preceq q
+    [ \Gamma ] , x\ \colon [ A ]_i \vdash e\ \colon A \hspace{15pt} 1 + i \star j \preceq j
   }{
-    q \star [ \Gamma ] \vdash \mbox{fix}\ x.e\ \colon A
+    j \star [ \Gamma ] \vdash \mbox{fix}\ x.e\ \colon A
   }
 
   \infrule[let]{
-    \Gamma \vdash e\ \colon !_r A \hspace{15pt} \Delta , x\ \colon [ A ]_r \vdash e'\ \colon B
+    \Gamma \vdash e\ \colon !_i A \hspace{15pt} \Delta , x\ \colon [ A ]_i \vdash e'\ \colon B
   }{
     \Gamma + \Delta \vdash \mbox{let}\ !x = e\ \mbox{in}\ e'\ \colon B
   }
 
 \end{multicols}
+
+TCは値コンストラクタについての型環境を表している.
 
 \newpage
 
