@@ -14,16 +14,11 @@ and term =
   | Let of
       rec_flag
       * string
-      * string
-      * argument list
       * term
       * term
       * scheme option
       * pos_info
-      * term list
-  | MutLetBind of
-      string * string * argument list * term * scheme option * pos_info
-  | Fun of argument list * string * term * pos_info
+  | Fun of argument * term * pos_info
   | App of term * term
   | IntLit of int * pos_info
   | FloatLit of float * pos_info
@@ -45,12 +40,10 @@ type toplevel =
   | LetDec of
       rec_flag
       * string
-      * argument list
       * term
       * scheme option
       * pos_info
-      * toplevel list
-  | TypeDef of string * string list * value_cons list * pos_info * toplevel list
+  | TypeDef of string * string list * value_cons list * pos_info 
 [@@deriving show]
 
 type snail_AST = toplevel list [@@deriving show]
@@ -64,9 +57,9 @@ let translate_lexbuf_to_pos_info (pos : Lexing.position) : pos_info =
 let empty_pos = {pos_fname= "builtin"; pos_lnum= 0; pos_bol= 0; pos_cnum= 0}
 
 let rec get_pos_info_term = function
-  | Let (_, _, _, _, _, _, _, p, _) ->
+  | Let (_, _,  _, _, _, p) ->
       p
-  | Fun (_, _, _, p) ->
+  | Fun (_, _, p) ->
       p
   | App (t1, _) ->
       get_pos_info_term t1
@@ -86,8 +79,6 @@ let rec get_pos_info_term = function
       p
   | TypeAnnot (t, _) ->
       get_pos_info_term t
-  | MutLetBind (_, _, _, _, _, p) ->
-      p
   | If (_, _, _, p) ->
       p
   | ExpMod t ->

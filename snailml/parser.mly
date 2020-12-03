@@ -1,19 +1,6 @@
 %{
   open Typedef
   open Syntax
-
-  let translate_multi_tuple_to_pair tup_list pos =
-    match tup_list with
-      [] -> Cons (",",None,pos)
-    | x :: xs -> List.fold_left (fun acc -> fun a -> Prod(acc,a,pos)) x xs
-
-  let generate_list base_list pos =
-    List.fold_right (fun x acc -> Cons("::",Some(Prod(x,acc,pos)),pos)) base_list (Cons("[]",None,pos))
-
-  let make_type_level_pair var_list =
-    match var_list with
-    | h :: xs -> List.fold_left (fun acc x -> TyPair(acc,x)) h xs
-    | [] -> TyCon(Tycon "none")
 %}
 
 %token <int*Syntax.pos_info> INT
@@ -54,33 +41,13 @@ snail_parse:
   }
 
 toplevel:
-  | LET rec_flag = option(REC) name = let_name arguments = list(argument) type_annot = option(type_annotation) EQUAL t = term mutual_rec = mutual_recursion_top_let
+  | LET rec_flag = option(REC) name = let_name type_annot = option(type_annotation) EQUAL t = term
   {
-    LetDec((match rec_flag with Some _ -> true | _ -> false),name,arguments,t,type_annot,$1,mutual_rec)
+    LetDec((match rec_flag with Some _ -> true | _ -> false),name,t,type_annot,$1)
   }
-  | TYPEDEF name = CONS EQUAL option(OR) typedec = separated_list(OR,type_declare) mutual_rec = mutual_recursion_top_typedec
+  | TYPEDEF name = CONS EQUAL option(OR) typedec = separated_list(OR,type_declare)
   {
-    TypeDef(fst name,[],typedec,$1,mutual_rec)
-  }
-
-mutual_recursion_top_let:
-  |
-  {
-    []
-  }
-  | AND name = let_name arguments = list(argument) type_annot = option(type_annotation) EQUAL t = term mutual_rec = mutual_recursion_top_let
-  {
-    LetDec(true,name,arguments,t,type_annot,$1,[]) :: mutual_rec
-  }
-
-mutual_recursion_top_typedec:
-  |
-  {
-    []
-  }
-  | AND name = CONS typevars = type_argument EQUAL option(OR) typedec = separated_list(OR,type_declare) mutual_rec = mutual_recursion_top_typedec
-  {
-    TypeDef(fst name,typevars,typedec,$1,[]) :: mutual_rec
+    TypeDef(fst name,[],typedec,$1)
   }
 
 type_argument:
@@ -166,10 +133,6 @@ simple_type_expr:
   {
     TyCon (Tycon (fst $1))
   }
-  | LPAREN separated_list(COMMA,type_expr) RPAREN
-  {
-    make_type_level_pair $2
-  }
   | UNIT
   {
     TyCon (Tycon "()")
@@ -203,10 +166,6 @@ simple_pattern:
   | LPAREN e = pattern RPAREN
   {
     e
-  }
-  | LPAREN tuple_list = separated_list(COMMA,pattern) RPAREN
-  {
-    translate_multi_tuple_to_pair tuple_list $1
   }
   | VAR
   {
@@ -267,16 +226,6 @@ let_name:
     fst $2
   }
 
-mutual_recursion_let:
-  |
-  {
-    []
-  }
-  | AND name = let_name arguments = list(argument) type_annot = option(type_annotation) EQUAL e1 = term mutual_rec = mutual_recursion_let
-  {
-    MutLetBind(name,"",arguments,e1,type_annot,$1) :: mutual_rec
-  }
-
 term:
   | simple_term
   {
@@ -286,13 +235,13 @@ term:
   {
     App($1,$2)
   }
-  | LET rec_flag = option(REC) name = let_name arguments = list(argument) type_annot = option(type_annotation) EQUAL e1 = term mutual_rec = mutual_recursion_let IN e2 = term
+  | LET rec_flag = option(REC) name = let_name type_annot = option(type_annotation) EQUAL e1 = term IN e2 = term
   {
-    Let((match rec_flag with Some _ -> true | _ -> false),name,"",arguments,e1,e2,type_annot,$1,mutual_rec)
+    Let((match rec_flag with Some _ -> true | _ -> false),name,e1,e2,type_annot,$1)
   }
-  | FUN arguments = list(argument) ARROW e = term
+  | FUN arg = argument ARROW e = term
   {
-    Fun(arguments,"",e,$1)
+    Fun(arg,e,$1)
   }
   | MATCH 
     t = term WITH option(OR)
@@ -334,10 +283,6 @@ term:
   }
 
 simple_term:
-  | LPAREN tuple_list = separated_list(COMMA,term) RPAREN
-  {
-    translate_multi_tuple_to_pair tuple_list $1
-  }
   | LPAREN e = term type_annot = option(type_annotation) RPAREN
   {
     match type_annot with
@@ -371,12 +316,4 @@ simple_term:
   | UNIT
   {
     Cons("()",None,$1)
-  }
-  | NILLIST
-  {
-    Cons("[]",None,$1)
-  }
-  | LBRAC base_list = separated_list(COMMA,term) RBRAC
-  {
-    generate_list base_list $1
   }

@@ -14,14 +14,13 @@ let parse_with_error lexbuf =
         lexbuf ;
       exit (-1)
 
-(* print type context *)
+
 let print_context ctx =
   List.iter
     (fun (name, sc) ->
       print_string (name ^ " : " ^ Typedef.print_scheme sc ^ "\n"))
     ( List.filter
         (fun (_, sc) -> not (sc = Typedef.Forall (TyCon (Tycon "None"))))
-        (* remove jank type definition *)
         ctx
     |> List.rev )
 
@@ -35,13 +34,4 @@ let processing input_files =
     if List.length input_files = 0 then stdin else open_in (List.hd input_files)
   in
   let toplevel = parse in_chan in
-  let desugared_ast = Desugar.desugar toplevel in
-  let renamed_ast = Rename.rename_toplevel desugared_ast in
-  let adt_context =
-    Adt.generate_adt_context (Builtin.builtin_typedef @ renamed_ast)
-  in
-  let type_ctx =
-    Infer.typeof_toplevel renamed_ast
-      (Builtin.builtin_type_context @ adt_context)
-  in
-  print_context type_ctx ; close_in in_chan
+  Syntax.show_snail_AST toplevel ^ "\n" |> print_string ; close_in in_chan

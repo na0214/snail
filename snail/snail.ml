@@ -8,5 +8,4 @@ let _ =
   Arg.parse_argv Sys.argv arguments_spec
     (fun str -> input_files := str :: !input_files)
     "" ;
-  try Processing.processing !input_files
-  with Infer.TypeError (err, pos) -> Processing.print_error pos err
+  Processing.processing !input_files

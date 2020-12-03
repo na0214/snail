@@ -1,11 +1,13 @@
 \documentclass{jsarticle}
 \usepackage{amssymb,amsmath}
+\usepackage{lscape}
 \usepackage{bcprules}
 \usepackage{multicol}
+\usepackage{stackengine}
+\usepackage{bussproofs}
 
-
-\title{The Definition of Snail Programming Language}
-\author{letexpr}
+\title{Snail Programming Language}
+\author{Nakamura Aoi}
 
 \newcommand{\bnfdef}{::=}
 \newcommand{\bs}{\boldsymbol}
@@ -34,14 +36,16 @@ Snailは静的型付けの関数型プログラミング言語である.\\
 本文中ではメタ変数として以下のようなものを用いる.
 \begin{itemize}
   \item $\Gamma , \Delta , \Theta\ \cdots\ \mbox{型環境上を動くメタ変数}$.
-  \item $A,B,C \cdots\ \mbox{型の上を動くメタ変数.}$
+  \item $A,B \cdots\ \mbox{型の上を動くメタ変数.}$
+  \item $X \cdots\ \mbox{型変数上を動くメタ変数.}$
   \item $K \cdots\ \mbox{コンストラクタ上を動くメタ変数.}$
   \item $x,y,z \cdots\ \mbox{変数上を動くメタ変数.}$
   \item $p \cdots \mbox{パターン上を動くメタ変数.}$
-  \item $i,j,k \cdots\ \mbox{resource semiring上を動くメタ変数.}$
+  \item $r,s,t \cdots\ \mbox{resource semiring上を動くメタ変数.}$
   \item $e \cdots\ \mbox{項の上を動くメタ変数.}$
-  \item $c\ \cdots\ \mbox{定数上を動くメタ変数.}$
   \item $n\ \cdots\ \mbox{自然数上を動くメタ変数.}$
+  \item $l\ \cdots\ \mbox{バリアントにおけるラベル上を動くメタ変数.}$
+  \item $i,j\ \cdots\ \mbox{メタ自然数上を動くメタ変数.}$
 \end{itemize}
 
 \newpage
@@ -51,78 +55,85 @@ Snailは静的型付けの関数型プログラミング言語である.\\
 EBNF記法を用いてSnailの具象構文を以下に示す.
 
 \begin{eqnarray*}
-  \mbox{toplevel} &\bnfdef& \mbox{let}\ [ \mbox{rec} ]\ \mbox{x}\ \{ \mbox{y}\ [\ \colon\ \langle \mbox{type} \rangle ] \} \colon \langle \mbox{type} \rangle = \langle \mbox{term} \rangle\ \{ \langle \mbox{mutual-recursion-let} \rangle \} \\
-  &\bnfor& \mbox{typedef\ A}\ = [\ |\ ]\ \{ \langle \mbox{K}\ [ \mbox{of}\ \langle \mbox{type} \rangle ] \rangle\ |\ \}\ \langle \mbox{K}\ [ \mbox{of}\ \langle \mbox{type} \rangle ] \rangle\ \{ \langle \mbox{mutual-recursion-type} \rangle \} \\ \\
-  \mbox{mutual-recursion-type} &\bnfdef& \mbox{and\ A}\ = [\ |\ ]\ \{ \langle \mbox{K}\ [ \mbox{of}\ \langle \mbox{type} \rangle ] \rangle\  |\ \}\ \langle \mbox{K}\ [ \mbox{of}\ \langle \mbox{type} \rangle ] \rangle \\ \\
+  \mbox{toplevel} &\bnfdef& \mbox{let}\ [ \mbox{rec} ]\ x\ \{ y\ [\ \colon\ \langle \mbox{type} \rangle ] \} \colon \langle \mbox{type} \rangle = \langle \mbox{term} \rangle\ \{ \langle \mbox{mutual-recursion-let} \rangle \} \\
+  &\bnfor& \mbox{typedef}\ A\ = [\ |\ ]\ \{ \langle K\ [ \mbox{of}\ \langle \mbox{type} \rangle ] \rangle\ |\ \}\ \langle K\ [ \mbox{of}\ \langle \mbox{type} \rangle ] \rangle\ \{ \langle \mbox{mutual-recursion-type} \rangle \} \\ \\
+  \mbox{mutual-recursion-type} &\bnfdef& \mbox{and}\ A\ = [\ |\ ]\ \{ \langle K\ [ \mbox{of}\ \langle \mbox{type} \rangle ] \rangle\  |\ \}\ \langle K\ [ \mbox{of}\ \langle \mbox{type} \rangle ] \rangle \\ \\
   \mbox{type} &\bnfdef& \langle \mbox{type} \rangle \rightarrow \langle \mbox{type} \rangle \\
   &\bnfor& !\ \mbox{'['}\ \langle \mbox{expmod} \rangle\ \mbox{']'}\ \mbox{'\{'}\ \langle \mbox{type} \rangle\ \mbox{'\}'} \\
-  &\bnfor& \langle \mbox{type} \rangle\ \langle \mbox{type} \rangle \\
   &\bnfor&\mbox{'('}\ \langle \mbox{type} \rangle\ \mbox{')'} \\
-  &\bnfor& \mbox{A} \\ \\
-  \mbox{expmod} &\bnfdef& \mbox{n} \bnfor \infty \\ \\
+  &\bnfor& A \\ \\
+  \mbox{expmod} &\bnfdef& n \bnfor \infty \\ \\
   \mbox{pattern} &\bnfdef& \langle \mbox{pattern} \rangle\ \mbox{binop}\ \langle \mbox{pattern} \rangle \\
   &\bnfor& \mbox{'('}\ \langle \mbox{pattern} \rangle\ \mbox{')'} \\
-  &\bnfor& \mbox{x} \bnfor \mbox{K}\ ( \{ \langle \mbox{pattern} \rangle\ ,\} \langle \mbox{pattern} \rangle)　\\
-  &\bnfor&  \{ \langle \mbox{pattern} \rangle\ ,\} \langle \mbox{pattern} \rangle) \\
-  &\bnfor& list \hspace{20pt} \mbox{(組み込みリストの構文糖衣)} \\
+  &\bnfor& x \bnfor K\ ( \{ \langle \mbox{pattern} \rangle\ ,\} \langle \mbox{pattern} \rangle)　\\
+  &\bnfor& \mbox{list} \hspace{20pt} \mbox{(組み込みリストの構文糖衣)} \\
   &\bnfor& \_ \\ \\
-  \mbox{mutual-recursion-let} &\bnfdef& \mbox{and\ x}\ \{ \mbox{y}\ [\ \colon\ \langle \mbox{type} \rangle ] \}\ \colon\ \langle \mbox{type} \rangle = \langle \mbox{term} \rangle \\ \\
+  \mbox{mutual-recursion-let} &\bnfdef& \mbox{and}\ x\ \{ y\ [\ \colon\ \langle \mbox{type} \rangle ] \}\ \colon\ \langle \mbox{type} \rangle = \langle \mbox{term} \rangle \\ \\
   \mbox{term} &\bnfdef& \langle \mbox{term} \rangle\ \langle \mbox{term} \rangle \\
-  &\bnfor& \mbox{let}\ [ \mbox{rec} ]\ \mbox{x}\ \{ \mbox{y}\ [\ \colon\ \langle \mbox{type} \rangle ] \} \colon \langle \mbox{type} \rangle = \langle \mbox{term} \rangle\ \{ \langle \mbox{mutual-recursion-let} \rangle \}\ \mbox{in}\ \langle \mbox{term} \rangle \\
-  &\bnfor& \mbox{fun}\ \{ \mbox{x}\ [\ \colon\ \langle \mbox{type} \rangle ] \}\ \rightarrow \langle \mbox{term} \rangle \\
-  &\bnfor& \mbox{match}\ \langle \mbox{term} \rangle\ \mbox{with}\ [\ |\ ]\ \{ \langle \mbox{pattern} \rangle \rightarrow \langle \mbox{term} \rangle\ |\ \}\ \langle \mbox{pattern} \rangle \rightarrow \langle \mbox{term} \rangle\\
+  &\bnfor& \mbox{let}\ [ \mbox{rec} ]\ x\ \{ y\ [\ \colon\ \langle \mbox{type} \rangle ] \} \colon \langle \mbox{type} \rangle = \langle \mbox{term} \rangle\ \{ \langle \mbox{mutual-recursion-let} \rangle \}\ \mbox{in}\ \langle \mbox{term} \rangle \\
+  &\bnfor& \mbox{fun}\ \{ x\ [\ \colon\ \langle \mbox{type} \rangle ] \}\ \rightarrow \langle \mbox{term} \rangle \\
+  &\bnfor& \mbox{case}\ \langle \mbox{term} \rangle\ \mbox{of}\ [\ |\ ]\ \{ \langle \mbox{pattern} \rangle \rightarrow \langle \mbox{term} \rangle\ |\ \}\ \langle \mbox{pattern} \rangle \rightarrow \langle \mbox{term} \rangle\\
   &\bnfor& \mbox{if}\ \langle \mbox{term} \rangle\ \mbox{then}\ \langle \mbox{term} \rangle\ \mbox{else}\ \langle \mbox{term} \rangle \\
-  &\bnfor& \mbox{fix}\ \mbox{x} . \langle \mbox{term} \rangle \\
+  &\bnfor& \mbox{fix}\ x . \langle \mbox{term} \rangle \\
+  &\bnfor& \mbox{fold}\ t \bnfor \mbox{unfold}\ t \\
   &\bnfor& \mbox{'('}\ \langle \mbox{term} \rangle\ [\ \colon \langle \mbox{type} \rangle]\ \mbox{')'}\\
   &\bnfor& !\ \langle \mbox{term} \rangle\\
-  &\bnfor& \mbox{K}\ ( \{ \langle \mbox{term} \rangle,\} \langle \mbox{term} \rangle)　\\
-  &\bnfor& ( \{ \langle \mbox{term} \rangle,\} \langle \mbox{term} \rangle) \bnfor \mbox{c} \bnfor \mbox{x} \bnfor \mbox{list} \\
+  &\bnfor& K\ ( \{ \langle \mbox{term} \rangle,\} \langle \mbox{term} \rangle)　\\
+  &\bnfor& x \bnfor \mbox{list} \\
 \end{eqnarray*}
 
 \newpage
 
 \section{SnailのCore言語}
 
-SnailのCore言語はSnailのプログラムを脱糖する事により得ることができる.
+SnailのCore言語はSnailのプログラムを脱糖する事により得ることができる. \\
+Core言語は次のような性質を持つ.
+
+\begin{itemize}
+  \item パターン$p$は重複せず全ての条件を網羅している.
+  \item resource semiringとしてextended natural numbers semiring $(\mathbb{N} \cup \{ \infty \},+,0,\star,1,\leq)$を用いる.
+  \item コンストラクタ $K$が持つべき型は型環境に追加されている.
+\end{itemize}
 
 \subsection{Core言語の構文}
 
 Core言語は次のような構文を持つ.
 
 \begin{eqnarray*}
-  e &\bnfdef& \mbox{let}\ !x = e_1\ in\ e_2  \\
-  &\bnfor& K \bnfor x \bnfor !e \bnfor ( e_1 , e_2 ,\dots, e_n)  \\
-  &\bnfor& \mbox{match}\ e\ \mbox{with}\ \{ p_n  \rightarrow  e_n\ \}_{n = 1}^{m} \\
-  &\bnfor& e_1\ e_2 \bnfor \lambda x . e \bnfor \mbox{fix}\ x . e \\ \\
-  p &\bnfdef& K\ (x_1,x_2,\cdots,x_n) \bnfor (x_1,x_2,\cdots,x_n) \bnfor x \\ \\
-  \Gamma &\bnfdef& \emptyset  \bnfor \Gamma,x \colon [A]_i \\ \\
-  A &\bnfdef& K \bnfor A \multimap A \bnfor !_r A \\
+  e &\bnfdef& \mbox{let}\ x = e_1\ \mbox{in}\ e_2  \\
+  &\bnfor& ( e_1 , e_2 ,\dots, e_n) \bnfor x \bnfor K  \\
+  &\bnfor& \mbox{case}\ e\ \mbox{of}\ \{ p_i  \rightarrow  e_i\ \}_{i = 1}^{n} \\
+  &\bnfor& e_1\ e_2 \bnfor \lambda x . e \bnfor \mbox{fix}\ x . e \\
+  &\bnfor& \mbox{fold}\ t \bnfor \mbox{unfold}\ t \\ \\
+  p &\bnfdef& K\ (x_1,x_2,\dots,x_n) \\ \\
+  \Gamma &\bnfdef& \emptyset  \bnfor \Gamma,x \colon A^r \\ \\
+  A^r &\bnfdef& \mu X.A^r \bnfor A \xrightarrow{r} A \bnfor (A \times A \times \cdots \times A)^r \bnfor \{ l_1 \colon A_1 + \dots + l_n \colon A_n \}^r \bnfor X^r \bnfor ()^r\\
 \end{eqnarray*}
+
+$A^r$の定義に見られるように,現れる型のresource semiringがどんなものでも良い場合,resource semiringを省略して表記することがある.
 
 \subsection{Core言語の型システム}
 
 Core言語の型付け規則を次に示す.
 
-\subsubsection{Contextと演算の定義}
+\subsubsection{Context間の演算の定義}
 
 Context間の加算\ $+$\ を次のように定義する.
 
 \begin{eqnarray*}
   \emptyset + \Delta &=& \Delta \\
-  (x\ \colon [A]_i,\Gamma) + (x\ \colon [A]_j,\Delta) &=& x\ \colon [A]_{i+j},(\Gamma + \Delta) \\
-  (x\ \colon [A]_i,\Gamma) + \Delta &=& x\ \colon [A]_i,(\Gamma + \Delta) \hspace{15pt} \mbox{if}\ x \notin \mbox{dom}(\Delta) \\
+  (x\ \colon A^r,\Gamma) + (x\ \colon A^s,\Delta) &=& x\ \colon A^{r + s},(\Gamma + \Delta) \\
+  (x\ \colon A^r,\Gamma) + \Delta &=& x\ \colon A^r,(\Gamma + \Delta) \hspace{15pt} \mbox{if}\ x \notin \mbox{dom}(\Delta) \\
 \end{eqnarray*}
-
-同様に,Contextと自然数の乗算\ $\star$\ を次のように定義する.
-
-\begin{eqnarray*}
-  i \star \emptyset &=& \emptyset \\
-  i \star (x\ \colon [A]_j,[\Gamma]) &=& x\ \colon [A]_{i \star j},i \star [\Gamma] \\
-\end{eqnarray*}
-
-$[\Gamma]$\ と表記した際,Context\ $\Gamma$\ 内には線形な変数は含まれない.
 
 \newpage
+
+同様に,Contextとresource semiringの乗算\ $\star$\ を次のように定義する.
+
+\begin{eqnarray*}
+  r \star \emptyset &=& \emptyset \\
+  r \star (x\ \colon A^s,\Gamma) &=& x\ \colon A^{r \star s},r \star \Gamma \\
+\end{eqnarray*}
 
 \subsubsection{部分型付け規則}
 
@@ -132,21 +143,15 @@ $[\Gamma]$\ と表記した際,Context\ $\Gamma$\ 内には線形な変数は含
   }
 
   \infrule[o-b]{
-  A <: B \hspace{10pt} j \preceq i
+    A <: B \hspace{10pt} r \preceq s
   }{
-  !_{i} A <: !_{j} B
+    A^s <: B^r
   }
 
   \infrule[o-l]{
-    A' <: A \hspace{10pt} B <: B'
+    A_1 <: A_2 \hspace{10pt} B_1 <: B_2
   }{
-    A \multimap B <: A' \multimap B'
-  }
-
-  \infrule[o-d]{
-  A <: B \hspace{10pt} j \preceq i
-  }{
-  [ A ]_{i} <: [ B ]_{j}
+    A_2 \rightarrow B_1 <: A_1 \rightarrow B_2
   }
 
   \infrule[o-ic]{}{
@@ -158,31 +163,30 @@ $[\Gamma]$\ と表記した際,Context\ $\Gamma$\ 内には線形な変数は含
   }{
     \Gamma , x\ \colon A <: \Delta , x\ \colon B
   }
+
+  \infrule[o-r]{
+    A <: B
+  }{
+    \mu X . A <: \mu X . B
+  }
 \end{multicols}
 
-\subsubsection{型付け規則}
+\subsubsection{型付け規則\\}
 
 \begin{multicols}{2}
-  \infrule[const]{
-    \mbox{TC}(c) = A
-  }{
-    \vdash c\ \colon A
-  }
 
-  \infrule[id]{}{
+  \infrule[var]{}{
     x\ \colon A \vdash x\ \colon A
   }
 
-  \infrule[pr]{
-    [ \Gamma ] \vdash e\ \colon B
-  }{
-    i \star [ \Gamma ] \vdash ! e\ \colon !_i B
+  \infrule[con]{}{
+    K\ \colon A \vdash K\ \colon A
   }
 
-  \infrule[der]{
-    \Gamma , x\ \colon A \vdash e\ \colon B
+  \infrule[pr]{
+    \Gamma \vdash e\ \colon B^1
   }{
-    \Gamma , x\ \colon [ A ]_1 \vdash e\ \colon\ B
+    r \star \Gamma \vdash e\ \colon B^r
   }
 
   \infrule[sub]{
@@ -194,92 +198,174 @@ $[\Gamma]$\ と表記した際,Context\ $\Gamma$\ 内には線形な変数は含
   \infrule[abs]{
     \Gamma , x\ \colon A \vdash e\ \colon B
   }{
-    \Gamma \vdash \lambda x.e\ \colon A \multimap B
+    \Gamma \vdash \lambda x.e\ \colon A \xrightarrow{1} B
   }
 
   \infrule[app]{
-    \Gamma \vdash e\ \colon A \multimap B \hspace{15pt} \Delta \vdash e'\ \colon A
+    \Gamma \vdash e\ \colon A \xrightarrow{1} B \hspace{15pt} \Delta \vdash e'\ \colon A
   }{
     \Gamma + \Delta \vdash e\ e'\ \colon B
   }
 
   \infrule[fix]{
-    [ \Gamma ] , x\ \colon [ A ]_i \vdash e\ \colon A \hspace{15pt} 1 + i \star j \preceq j
+    \Gamma , x\ \colon A^r \vdash e\ \colon A^1 \hspace{15pt} 1 + r \star s \preceq s
   }{
-    j \star [ \Gamma ] \vdash \mbox{fix}\ x.e\ \colon A
+    s \star \Gamma \vdash \mbox{fix}\ x.e\ \colon A^1
   }
 
   \infrule[let]{
-    \Gamma \vdash e\ \colon !_i A \hspace{15pt} \Delta , x\ \colon [ A ]_i \vdash e'\ \colon B
+    \Gamma \vdash e\ \colon A^r \hspace{15pt} \Delta , x\ \colon A^r \vdash e'\ \colon B
   }{
-    \Gamma + \Delta \vdash \mbox{let}\ !x = e\ \mbox{in}\ e'\ \colon B
+    \Gamma + \Delta \vdash \mbox{let}\ x = e\ \mbox{in}\ e'\ \colon B
+  }
+
+  \infrule[fold]{
+    A = \mu X . B \hspace{15pt} \Gamma \vdash t\ \colon [X \mapsto B] A
+  }{
+    \Gamma \vdash \mbox{fold}\ t\ \colon A
+  }
+
+  \infrule[unfold]{
+    A = \mu X.B \hspace{15pt} \Gamma \vdash t\ \colon A
+  }{
+    \Gamma \vdash \mbox{unfold}\ t\ \colon [X \mapsto A] B
   }
 
 \end{multicols}
 
-TCは値コンストラクタについての型環境を表している.
+\infrule[tuple]{
+  \Gamma_1 \vdash e_1\ \colon A_1 \hspace{15pt} \Gamma_2 \vdash e_2\ \colon A_2\ \cdots\ \Gamma_n \vdash e_n\ \colon A_n
+}{
+  \Gamma_1 + \Gamma_2 + \cdots + \Gamma_n \vdash (e_1,e_2,\dots,e_n)\ \colon (A_1 \times A_2 \times \cdots \times A_n)^1
+}
+
+\infrule[case]{
+\Gamma \vdash e\ \colon A \hspace{15pt} e \parallel p_i \Rightarrow \Gamma_i \hspace{15pt} \Delta + \Gamma_i \vdash e_i\ \colon B
+}{
+\Gamma + \Delta \vdash \mbox{case}\ e\ \mbox{of}\ \{ p_i \rightarrow e_i \}_{i=1}^{n}\ \colon B
+}
+
+パターンマッチについての型付け規則を定義するために新しく三項関係 $e \parallel p \Rightarrow \Gamma$を導入する.これは,パターン $p$を用いて$e$を分解したとき,
+新たにContext $\Gamma$が結果として導入されることを表している.
+
+\begin{center}
+\end{center}
+
+\subsubsection{アルゴリズム的型付け規則\\}
+
+アルゴリズム的型付け規則を与えるために,context difference operator $\div$を次のように定義する.
+
+\begin{center}
+  $\Gamma_1,x\ \colon A^s,\Gamma_2 \div x = \Gamma_1,\Gamma_2$
+\end{center}
+
+アルゴリズム的型付け規則は,context $\Gamma_1$,項 $e$,型 $A$,未使用のcontext $\Gamma_2$,resource ring及び型変数に関する制約 $C$の関係
+\begin{multicols}{2}
+  \begin{center}
+    $\Gamma_1 \vdash e\ \uparrow\ A \vartriangleright \Gamma_2\ [C]$\\
+  \end{center}
+  \begin{center}
+    $\Gamma_1 \vdash e\ \downarrow\ A \vartriangleright \Gamma_2\ [C]$\\
+  \end{center}
+\end{multicols}
+によって表される.
+
+$\uparrow$はbidirectional typecheckingにおけるsynthesis modeを$\downarrow$はcheck modeを表している.
+
+また,アルゴリズム的型付け規則ではresource semiringに結果が0以上になる範囲で除算を導入する.
+
+\infrule[tuple-$\uparrow$]{
+\cfrac{1}{r} \star \Gamma_1 \vdash e_1\ \uparrow\ A_1 \vartriangleright \Gamma_2\ [C_1] \\ \Gamma_2 \vdash e_2\ \uparrow\ A_2 \vartriangleright \Gamma_3\ [C_2]\  \cdots\ \Gamma_n \vdash e_n\ \uparrow\ A_n \vartriangleright \Gamma_{n+1}\ [C_n]
+}{
+\Gamma_1 \vdash (e_1,e_2,\dots,e_n)\ \uparrow\ ( A_1 \times A_2 \times \cdots \times A_n )^r \vartriangleright \Gamma_{n+1}\ [C_1 \cup \cdots \cup C_n]
+}
+
+\infrule[tuple-$\downarrow$]{
+\cfrac{1}{r} \star \Gamma_1 \vdash e_1\ \downarrow\ A_1 \vartriangleright \Gamma_2\ [C_1] \\ \Gamma_2 \vdash e_2\ \downarrow\ A_2 \vartriangleright \Gamma_3\ [C_2]\  \cdots\ \Gamma_n \vdash e_n\ \downarrow\ A_n \vartriangleright \Gamma_{n+1}\ [C_n]
+}{
+\Gamma_1 \vdash (e_1,e_2,\dots,e_n)\ \downarrow\ ( A_1 \times A_2 \times \cdots \times A_n )^r \vartriangleright \Gamma_{n+1}\ [C_1 \cup \cdots \cup C_n]
+}
+
+\infrule[var-$\uparrow$]{}{
+\Gamma_1,x\ \colon A^r,\Gamma_2 \vdash x\ \uparrow\ A^s \vartriangleright \Gamma_1,x\ \colon A^{r-s},\Gamma_2\ [\{1 \leq s \leq r\}]
+}
+
+\infrule[var-$\downarrow$]{}{
+\Gamma_1,x\ \colon B^r,\Gamma_2 \vdash x\ \downarrow\ A^s \vartriangleright \Gamma_1,x\ \colon B^{r-s},\Gamma_2\ [\{1 \leq s \leq r,B^r = A^s\}]
+}
+
+\infrule[con-$\uparrow$]{}{
+\Gamma_1,K\ \colon A,\Gamma_2 \vdash K\ \uparrow\ A \vartriangleright \Gamma_1,K\ \colon A,\Gamma_2\ [\emptyset]
+}
+
+\infrule[con-$\downarrow$]{}{
+\Gamma_1,K\ \colon A,\Gamma_2 \vdash K\ \downarrow\ A \vartriangleright \Gamma_1,K\ \colon A,\Gamma_2\ [\emptyset]
+}
+
+\infrule[app-$\uparrow$]{
+\Gamma_1 \vdash e\ \uparrow\ A \xrightarrow{t} B \vartriangleright \Gamma_2\ [C_1] \hspace{15pt} \Gamma_2 \vdash e'\ \downarrow\ A \vartriangleright \Gamma_3\ [C_2]
+}{
+\Gamma_1 \vdash e\ e'\ \uparrow\ B \vartriangleright \Gamma_3\ [C_1 \cup C_2 \cup \{ 1 \leq t \}]
+}
+
+\infrule[app-$\downarrow$]{
+\Gamma_1 \vdash e\ \uparrow\ A \xrightarrow{t} B \vartriangleright \Gamma_2\ [C_1] \hspace{15pt} \Gamma_2 \vdash e'\ \downarrow\ A \vartriangleright \Gamma_3\ [C_2]
+}{
+\Gamma_1 \vdash e\ e'\ \downarrow\ B \vartriangleright \Gamma_3\ [C_1 \cup C_2 \cup \{ 1 \leq t \}]
+}
+
+\infrule[abs-$\uparrow$]{
+\mbox{fresh}(X,\Gamma,C) \hspace{15pt} \sigma = \mbox{unify}(C) \hspace{15pt} \mbox{NotContainTyvar}(\sigma (X))\\
+A = \sigma (X) \hspace{15pt} \cfrac{1}{t} \star \Gamma_1 , x\ \colon X \vdash e\ \uparrow\ B \vartriangleright \Gamma_2\ [C]
+}{
+\Gamma_1 \vdash \lambda x.e\ \uparrow\ A \xrightarrow{t} B \vartriangleright \Gamma_2 \div x\ [C]
+}
+\infrule[abs-$\downarrow$]{
+\cfrac{1}{t} \star \Gamma_1 , x\ \colon A \vdash e\ \downarrow\ B \vartriangleright \Gamma_2\ [C]
+}{
+\Gamma_1 \vdash \lambda x.e\ \downarrow\ A \xrightarrow{t} B \vartriangleright \Gamma_2 \div x\ [C]
+}
+
+\infrule[let-$\uparrow$]{
+\Gamma_1 \vdash e\ \uparrow\ A \vartriangleright \Gamma_2\ [C_1] \hspace{15pt} \Gamma_2 ,x\ \colon A \vdash e'\ \uparrow\ B \vartriangleright \Gamma_3\ [C_2]
+}{
+\Gamma_1 \vdash \mbox{let}\ x = e\ \mbox{in}\ e'\ \uparrow\ B \vartriangleright \Gamma_3 \div x\ [C_1 \cup C_2]
+}
+\infrule[let-$\downarrow$]{
+\Gamma_1 \vdash e\ \uparrow\ A \vartriangleright \Gamma_2\ [C_1] \hspace{15pt} \Gamma_2 ,x\ \colon A \vdash e'\ \downarrow\ B^s \vartriangleright \Gamma_3\ [C_2]
+}{
+\Gamma_1 \vdash \mbox{let}\ x = e\ \mbox{in}\ e'\ \downarrow\ B \vartriangleright \Gamma_3 \div x\ [C_1 \cup C_2]
+}
+
+\infrule[fix-$\downarrow$]{
+\cfrac{1}{s} \star \Gamma_1 , x\ \colon A^r \vdash e\ \downarrow\ A^1 \vartriangleright \Gamma_2\ [C \cup \{ \frac{1 - s}{s} \leq r \}]
+}{
+\Gamma_1 \vdash \mbox{fix}\ x.e\ \downarrow\ A^s \vartriangleright \Gamma_2\ [C \cup \{ \frac{1 - s}{s} \leq r \}]
+}
+
+アルゴリズム的型付け規則を与えるために導入した述語及び関数の定義を示す.
+
+\begin{itemize}
+  \item $\mbox{fresh}(X,\Gamma,C) \cdots X\mbox{は}\Gamma\mbox{にも}C\mbox{にも出現しない}$.
+  \item $\mbox{NotContainTyvar}(A) \cdots A\mbox{には型変数が含まれない.}$
+  \item $\mbox{unify}(C) \cdots$\ $C$を単一化し,得られた代入を返す.
+\end{itemize}
 
 \newpage
 
-\subsubsection{アルゴリズム的型付け規則}
+\subsubsection{アルゴリズム的型付けの例\\}
 
-\begin{multicols}{2}
-  \infrule[int]{}{
-    \vdash i\ \downarrow\ \mbox{Int} ; \phi
-  }
-  \infrule[float]{}{
-    \vdash f\ \downarrow\ \mbox{Float} ; \phi
-  }
-  \infrule[string]{}{
-    \vdash s\ \downarrow\ \mbox{String} ; \phi
-  }
-  \infrule[bool]{}{
-    \vdash b\ \downarrow\ \mbox{Bool} ; \phi
-  }
+Consは型$K$についての値コンストラクタであり,型 $A^1 \times A^1 \rightarrow K^1$を持つとする.
 
-  \infrule[id]{}{
-    x\ \colon A \vdash x\ \uparrow\ A ; x\ \colon [A]_1
-  }
-  \infrule[pr]{
-  [ \Gamma_1 ] \vdash e\ \downarrow\ B  ; [ \Gamma_2 ]
-  }{
-  r \star [ \Gamma_1 ] \vdash\ !e\ \downarrow\ !_r B ; r \star [ \Gamma_2 ]
-  }
-  \infrule[der]{
-    \Gamma_1 , x\ \colon A \vdash e\ \downarrow\ B ; \Gamma_2
-  }{
-    \Gamma_1 , x\ \colon [A]_1 \vdash e\ \downarrow\ B ; \Gamma_2
-  }
-  \infrule[sub]{
-    \Delta \vdash e\ \downarrow\ B ; \Gamma_2 \hspace{15pt} \Gamma_1 <: \Delta
-  }{
-    \Gamma_1 , \Theta \vdash e\ \downarrow\ B ; \Gamma_2
-  }
-  \infrule[abs]{
-    \Gamma_1 , x\ \colon A \vdash e\ \downarrow\ B ; \Gamma_2
-  }{
-    \Gamma_1 \vdash \lambda x.e\ \downarrow\ A \multimap B ; \Gamma_2
-  }
-  \infrule[app]{
-    \Gamma_1 \vdash e\ \uparrow\ A \multimap B ; \Gamma_2 \hspace{15pt} \Gamma_1 - \Gamma_2 \vdash e'\ \downarrow\ B ; \Gamma_3
-  }{
-    \Gamma_1 \vdash e\ e'\ \downarrow\ B ; \Gamma_2 + \Gamma_3
-  }
-  \infrule[fix]{
-  [\Gamma_1] , x\ \colon [A]_p \vdash e\ \downarrow\ A;[\Gamma_2] \hspace{15pt} 1 + p \star q \preceq q
-  }{
-  q \star [\Gamma_1] \vdash \mbox{fix}\ x.e\ \downarrow\ A ; q \star [\Gamma_2]
-  }
-  \infrule[let]{
-    \Gamma_1 \vdash e\ \uparrow\ !_r A;\Gamma_2 \hspace{15pt} \Gamma_1 - \Gamma_2 ,x\ \colon [A]_r \vdash e'\ \downarrow\ B ; \Gamma_3
-  }{
-    \Gamma_1 \vdash \mbox{let}\ !x = e\ \mbox{in}\ e'\ \downarrow\ B ; \Gamma_2 + \Gamma_3
-  }
-
-\end{multicols}
-
-\section{参考文献}
-
-
+\begin{itemize}
+  \item $\lambda x . \mbox{Cons}(x,x)$ \\
+        \begin{prooftree}
+          \AxiomC{$\mbox{TC}(\mbox{Cons}) = A^1 \times A^1 \rightarrow K^1$}
+          \AxiomC{\stackanchor{$x\ \colon X_1^{\frac{r_1}{s*t}} \vdash x\ \downarrow\ A^1 \vartriangleright x\ \colon X_1^{\frac{r_1}{s*t} - 1}\ [\{ 1 \leq \frac{r_1}{s*t},X_1 = A\}]$}{$x\ \colon X_1^{\frac{r_1}{s*t} - 1} \vdash x\ \downarrow\ A^1 \vartriangleright x\ \colon X_1^{\frac{r_1}{s*t} - 2}\ [\{1 \leq \frac{r_1}{s*t} - 1,X_1 = A\}]$}}
+          \UnaryInfC{$x\ \colon X_1^{\frac{r_1}{s*t}}\vdash (x,x)\ \downarrow\ A^1 \times A^1 \vartriangleright x\ \colon X_1^{\frac{r_1}{s*t} - 2}\ [\{1 \leq \frac{r_1}{s*t},1 \leq \frac{r_1}{s*t} - 1,X_1 = A\}]$}
+          \BinaryInfC{$x\ \colon X_1^{r_1}\vdash \mbox{Cons}(x,x)\ \uparrow\ K^s \vartriangleright x\ \colon X_1^{\frac{r_1}{s*t} - 2}\ [\{1 \leq \frac{r_1}{s*t},1 \leq \frac{r_1}{s*t} - 1,X_1 = A\}]$}
+          \UnaryInfC{$\vdash \lambda x.\mbox{Cons}(x,x)\ \uparrow\ (A^{r_1} \rightarrow K^s)^t \vartriangleright \emptyset\ [\{1 \leq \frac{r_1}{s*t},1 \leq \frac{r_1}{s*t} - 1,X_1 = A\}]$}
+        \end{prooftree}
+\end{itemize}
 
 \end{document}
